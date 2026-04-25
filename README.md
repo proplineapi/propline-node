@@ -290,7 +290,7 @@ console.log(`got ${csv.byteLength} bytes of CSV`);
 
 ## Webhooks (Streaming tier)
 
-The Streaming tier ($149/mo) pushes `line_movement` and `resolution` events to your URL in real time, with HMAC-SHA256 signing and automatic retries.
+The Streaming tier ($79/mo) pushes `line_movement` and `resolution` events to your URL in real time, with HMAC-SHA256 signing and automatic retries.
 
 ### Register a subscription
 
