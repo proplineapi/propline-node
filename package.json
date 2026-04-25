@@ -1,0 +1,64 @@
+{
+  "name": "propline",
+  "version": "0.1.0",
+  "description": "Node.js / TypeScript SDK for the PropLine player props betting odds API",
+  "keywords": [
+    "sports",
+    "betting",
+    "odds",
+    "player-props",
+    "api",
+    "sportsbook",
+    "mlb",
+    "nba",
+    "nhl",
+    "nfl",
+    "soccer",
+    "ufc",
+    "boxing",
+    "bovada",
+    "draftkings",
+    "fanduel",
+    "pinnacle",
+    "prizepicks",
+    "unibet",
+    "dfs"
+  ],
+  "homepage": "https://prop-line.com",
+  "bugs": "https://github.com/proplineapi/propline-node/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proplineapi/propline-node.git"
+  },
+  "license": "MIT",
+  "author": "PropLine <support@prop-line.com>",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0"
+  }
+}

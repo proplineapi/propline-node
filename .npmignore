@@ -1,0 +1,8 @@
+src/
+node_modules/
+.github/
+tsconfig.json
+tsup.config.ts
+.gitignore
+.DS_Store
+*.log
