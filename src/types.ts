@@ -177,6 +177,45 @@ export interface PlayerHistoryResponse {
   [k: string]: unknown;
 }
 
+export interface EvOutcome {
+  book: string;
+  book_title: string;
+  /** Outcome label — e.g. `"Over"`, `"Under"`, team name. */
+  name: string;
+  /** American odds. */
+  price: number;
+  /** Expected value as a percent on a unit stake. Positive = +EV. */
+  ev_pct: number;
+  is_plus_ev: boolean;
+  [k: string]: unknown;
+}
+
+export interface EvLine {
+  market_key: string;
+  /** Player name (props) or empty string (game lines). */
+  description: string;
+  /** The line — null for moneyline / 1X2. */
+  point: number | null;
+  /** Which book anchored the no-vig fair calc (typically `"pinnacle"`). */
+  fair_source: string;
+  /** Map of outcome name → normalized fair probability. */
+  fair_probs: Record<string, number>;
+  outcomes: EvOutcome[];
+  [k: string]: unknown;
+}
+
+export interface EventEvResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  /** Documents the priority order used for the fair anchor. */
+  fair_source_default: string;
+  lines: EvLine[];
+  [k: string]: unknown;
+}
+
 export interface Webhook {
   id: number;
   url: string;

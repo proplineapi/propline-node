@@ -28,6 +28,7 @@ export type {
   GetStatsOptions,
   GetResultsOptions,
   GetPlayerHistoryOptions,
+  GetEventEvOptions,
   ExportResolvedPropsOptions,
   CreateWebhookOptions,
   UpdateWebhookOptions,
@@ -55,6 +56,9 @@ export type {
   ResultsResponse,
   PlayerHistoryEntry,
   PlayerHistoryResponse,
+  EvOutcome,
+  EvLine,
+  EventEvResponse,
   Webhook,
   WebhookDelivery,
 } from "./types.js";
@@ -71,4 +75,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";

@@ -246,6 +246,32 @@ for (const e of hist.entries) {
 // Output: "2026-04-19 DraftKings: line 6.5, actual 6.0 -> Over lost, Under won"
 ```
 
+### Cross-book +EV (Pro)
+
+```ts
+// Find +EV plays on a single event. Pinnacle anchors the no-vig fair
+// line; every other book's price gets an EV%, with +EV plays floated
+// to the top of each line group.
+const ev = await client.getEventEv("baseball_mlb", 12345, {
+  markets: ["pitcher_strikeouts", "batter_hits"],
+});
+
+for (const line of ev.lines) {
+  const plus = line.outcomes.filter((o) => o.is_plus_ev);
+  if (plus.length === 0) continue;
+  console.log(
+    `\n${line.market_key} ${line.description} ` +
+      `line=${line.point} fair=${line.fair_source}`
+  );
+  for (const o of plus) {
+    console.log(
+      `  ${o.book_title.padEnd(11)} ${o.name.padEnd(6)} ` +
+        `${o.price >= 0 ? "+" : ""}${o.price}  ev=+${o.ev_pct}%`
+    );
+  }
+}
+```
+
 ### Bulk CSV export of resolved props (Pro)
 
 ```ts

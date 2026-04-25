@@ -11,6 +11,7 @@ import type {
   StatsResponse,
   ResultsResponse,
   PlayerHistoryResponse,
+  EventEvResponse,
   Webhook,
   WebhookDelivery,
 } from "./types.js";
@@ -88,6 +89,15 @@ export interface GetPlayerHistoryOptions {
   bookmaker?: string;
   /** Max entries (1-100). Default 20. */
   limit?: number;
+}
+
+export interface GetEventEvOptions {
+  /**
+   * Optional market filter. Pass a single comma-separated string or an
+   * array of market keys (e.g. `["pitcher_strikeouts", "batter_hits"]`).
+   * Omit to evaluate every market on the event.
+   */
+  markets?: string | string[];
 }
 
 export interface ExportResolvedPropsOptions {
@@ -386,6 +396,44 @@ export class PropLine {
     return this._request<PlayerHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/players/${encodeURIComponent(playerName)}/history`,
+      { params }
+    );
+  }
+
+  /**
+   * Cross-book +EV analysis for a single event (Pro+ tier).
+   *
+   * Groups every outcome by (market, player, line) across the books we
+   * carry, derives a no-vig fair line from a sharp anchor (Pinnacle
+   * preferred, Bovada fallback), and returns EV% per book at the same
+   * line. Outcomes are sorted with +EV plays floated to the top.
+   *
+   * PrizePicks is excluded — its synthetic +100/+100 prices aren't
+   * payout odds. Lines without sharp-anchor coverage are dropped.
+   *
+   * @example
+   * ```ts
+   * const ev = await client.getEventEv("baseball_mlb", 12345);
+   * for (const line of ev.lines) {
+   *   const plus = line.outcomes.filter(o => o.is_plus_ev);
+   *   if (plus.length) console.log(line.market_key, line.description, plus);
+   * }
+   * ```
+   */
+  getEventEv(
+    sport: string,
+    eventId: number | string,
+    options: GetEventEvOptions = {}
+  ): Promise<EventEvResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets) {
+      params.markets = Array.isArray(options.markets)
+        ? options.markets.join(",")
+        : options.markets;
+    }
+    return this._request<EventEvResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev`,
       { params }
     );
   }
