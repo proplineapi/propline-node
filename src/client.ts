@@ -12,6 +12,7 @@ import type {
   ResultsResponse,
   PlayerHistoryResponse,
   EventEvResponse,
+  EventEvCalcResponse,
   FuturesEvent,
   Webhook,
   WebhookDelivery,
@@ -99,6 +100,19 @@ export interface GetEventEvOptions {
    * Omit to evaluate every market on the event.
    */
   markets?: string | string[];
+}
+
+export interface CalcEventEvOptions {
+  /** Market key — h2h / spreads / totals / pitcher_strikeouts / etc. */
+  market: string;
+  /** Outcome name. Team for h2h/spreads; "Over" or "Under" for totals/props. */
+  name: string;
+  /** American odds at your book, e.g. -118 or 145. */
+  price: number;
+  /** Line/point for spreads, totals, player props. Sign matters for spreads (-1.5 favorite). Omit for h2h. */
+  point?: number;
+  /** Player name for player-prop markets. Omit for game-line markets. */
+  description?: string;
 }
 
 export interface ExportResolvedPropsOptions {
@@ -460,6 +474,45 @@ export class PropLine {
     return this._request<EventEvResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev`,
+      { params }
+    );
+  }
+
+  /**
+   * Calculate EV% for a user-supplied price against the event's
+   * no-vig fair anchor. Useful for books PropLine doesn't carry —
+   * Caesars, BetMGM, Fanatics, BetUS, Hard Rock — where you have a
+   * price in hand and want to know if it's +EV against the sharp
+   * consensus we do carry.
+   *
+   * Same fair-line math as `getEventEv` (Pinnacle-preferred anchor,
+   * no-vig devigging) but takes one user price as input. Pro tier.
+   *
+   * @example
+   * ```ts
+   * const r = await client.calcEventEv("baseball_mlb", 12614, {
+   *   market: "h2h",
+   *   name: "Pittsburgh Pirates",
+   *   price: -118,
+   * });
+   * console.log(`EV ${r.ev_pct}% fair=${r.fair_prob}`);
+   * ```
+   */
+  calcEventEv(
+    sport: string,
+    eventId: number | string,
+    options: CalcEventEvOptions
+  ): Promise<EventEvCalcResponse> {
+    const params: Record<string, string | number | undefined> = {
+      market: options.market,
+      name: options.name,
+      price: options.price,
+    };
+    if (options.point !== undefined) params.point = options.point;
+    if (options.description) params.description = options.description;
+    return this._request<EventEvCalcResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev/calc`,
       { params }
     );
   }

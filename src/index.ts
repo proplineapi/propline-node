@@ -29,6 +29,7 @@ export type {
   GetResultsOptions,
   GetPlayerHistoryOptions,
   GetEventEvOptions,
+  CalcEventEvOptions,
   ExportResolvedPropsOptions,
   CreateWebhookOptions,
   UpdateWebhookOptions,
@@ -59,6 +60,7 @@ export type {
   EvOutcome,
   EvLine,
   EventEvResponse,
+  EventEvCalcResponse,
   FuturesOutcome,
   FuturesMarket,
   FuturesEvent,
@@ -78,4 +80,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.3.0";
+export const VERSION = "0.4.0";

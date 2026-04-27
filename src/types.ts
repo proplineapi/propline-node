@@ -216,6 +216,23 @@ export interface EventEvResponse {
   [k: string]: unknown;
 }
 
+export interface EventEvCalcResponse {
+  market: string;
+  name: string;
+  point: number | null;
+  description: string;
+  price: number;
+  /** Which book the no-vig fair anchor came from (pinnacle, bovada, ...). */
+  fair_source: string;
+  /** No-vig fair win probability for `name` at `point`. */
+  fair_prob: number;
+  /** Win probability implied by the user's `price`. */
+  implied_prob: number;
+  ev_pct: number;
+  is_plus_ev: boolean;
+  [k: string]: unknown;
+}
+
 export interface FuturesOutcome {
   /** Team or player name. */
   name: string;
