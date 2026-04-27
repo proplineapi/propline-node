@@ -12,6 +12,7 @@ import type {
   ResultsResponse,
   PlayerHistoryResponse,
   EventEvResponse,
+  FuturesEvent,
   Webhook,
   WebhookDelivery,
 } from "./types.js";
@@ -420,6 +421,31 @@ export class PropLine {
    * }
    * ```
    */
+  /**
+   * List futures markets for a sport — championship winner, MVP,
+   * division winner, etc. Each row is one (futures event, book,
+   * market) with every team or player priced. Free tier; pulled from
+   * each book's futures feed (Bovada today).
+   *
+   * @example
+   * ```ts
+   * const futures = await client.getFutures("baseball_mlb");
+   * for (const event of futures) {
+   *   console.log(`${event.title} @ ${event.commence_time}`);
+   *   for (const m of event.markets) {
+   *     const top3 = [...m.outcomes].sort((a, b) => a.price - b.price).slice(0, 3);
+   *     for (const o of top3) console.log(`  ${o.name}: ${o.price}`);
+   *   }
+   * }
+   * ```
+   */
+  getFutures(sport: string): Promise<FuturesEvent[]> {
+    return this._request<FuturesEvent[]>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/futures`
+    );
+  }
+
   getEventEv(
     sport: string,
     eventId: number | string,

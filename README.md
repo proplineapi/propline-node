@@ -221,11 +221,21 @@ for (const market of history.markets) {
   for (const outcome of market.outcomes) {
     console.log(`\n${outcome.description}:`);
     for (const snap of outcome.snapshots) {
-      console.log(`  ${snap.recorded_at}: ${snap.price} @ ${snap.point}`);
+      console.log(
+        `  ${snap.recorded_at}: ${snap.price} @ ${snap.point}` +
+          ` (book reported: ${snap.book_updated_at ?? "n/a"})`,
+      );
     }
   }
 }
 ```
+
+Each snapshot carries two timestamps: `recorded_at` (when our scraper
+saw the odds) and `book_updated_at` (when the book itself reports the
+price was last set). `book_updated_at` is populated for books that
+expose a publish-time signal (Bovada today); other books leave it
+`null`. The gap between the two is per-book scraper latency. See
+<https://prop-line.com/docs#timestamps> for the full semantic.
 
 ### Get player prop history (Pro full, Free redacted)
 

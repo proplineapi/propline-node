@@ -216,6 +216,40 @@ export interface EventEvResponse {
   [k: string]: unknown;
 }
 
+export interface FuturesOutcome {
+  /** Team or player name. */
+  name: string;
+  /** American odds. */
+  price: number | null;
+  price_decimal: number | null;
+  [k: string]: unknown;
+}
+
+export interface FuturesMarket {
+  /** Slugified description, e.g. "world_series_winner". */
+  key: string;
+  /** Original book label, e.g. "World Series Winner". */
+  description: string;
+  bookmaker: string;
+  bookmaker_title: string;
+  last_update: string;
+  /** When the book itself reports this market was last updated; null when the book doesn't expose a publish-time signal. */
+  book_updated_at: string | null;
+  outcomes: FuturesOutcome[];
+  [k: string]: unknown;
+}
+
+export interface FuturesEvent {
+  id: string;
+  sport_key: string;
+  /** The futures title from the book, e.g. "World Series 2026". */
+  title: string;
+  /** Season-end / target resolution time. */
+  commence_time: string;
+  markets: FuturesMarket[];
+  [k: string]: unknown;
+}
+
 export interface Webhook {
   id: number;
   url: string;

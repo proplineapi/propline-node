@@ -59,6 +59,9 @@ export type {
   EvOutcome,
   EvLine,
   EventEvResponse,
+  FuturesOutcome,
+  FuturesMarket,
+  FuturesEvent,
   Webhook,
   WebhookDelivery,
 } from "./types.js";
@@ -75,4 +78,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.3.0";
