@@ -13,6 +13,7 @@ import type {
   PlayerHistoryResponse,
   EventEvResponse,
   EventEvCalcResponse,
+  EventBestLineResponse,
   FuturesEvent,
   Webhook,
   WebhookDelivery,
@@ -98,6 +99,15 @@ export interface GetEventEvOptions {
    * Optional market filter. Pass a single comma-separated string or an
    * array of market keys (e.g. `["pitcher_strikeouts", "batter_hits"]`).
    * Omit to evaluate every market on the event.
+   */
+  markets?: string | string[];
+}
+
+export interface GetEventBestLineOptions {
+  /**
+   * Optional market filter. Pass a single comma-separated string or an
+   * array of market keys (e.g. `["pitcher_strikeouts", "h2h"]`). Omit
+   * to include every market on the event.
    */
   markets?: string | string[];
 }
@@ -474,6 +484,53 @@ export class PropLine {
     return this._request<EventEvResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev`,
+      { params }
+    );
+  }
+
+  /**
+   * Cross-book best-line lookup for a single event.
+   *
+   * For each (market, player, line) tuple, returns the single best
+   * American price across every book we carry, with the book name
+   * attached. Companion to `getEventEv`: best-line tells you which
+   * book has the highest payout right now; +EV tells you whether
+   * that price beats a sharp no-vig fair line. Most line shoppers
+   * want both.
+   *
+   * PrizePicks is excluded from the comparison — its DFS payout
+   * structure (synthetic +100/+100 quotes) isn't directly comparable
+   * to traditional sportsbook odds.
+   *
+   * Hobby tier or higher required (returns 403 on free).
+   *
+   * @example
+   * ```ts
+   * const bl = await client.getEventBestLine("baseball_mlb", 12345);
+   * for (const line of bl.lines) {
+   *   for (const [side, info] of Object.entries(line.sides)) {
+   *     console.log(
+   *       `${line.description} ${side} ${line.point}: ` +
+   *       `${info.best.price} @ ${info.best.book_title}`
+   *     );
+   *   }
+   * }
+   * ```
+   */
+  getEventBestLine(
+    sport: string,
+    eventId: number | string,
+    options: GetEventBestLineOptions = {}
+  ): Promise<EventBestLineResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets) {
+      params.markets = Array.isArray(options.markets)
+        ? options.markets.join(",")
+        : options.markets;
+    }
+    return this._request<EventBestLineResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/best-line`,
       { params }
     );
   }

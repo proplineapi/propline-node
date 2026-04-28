@@ -29,6 +29,7 @@ export type {
   GetResultsOptions,
   GetPlayerHistoryOptions,
   GetEventEvOptions,
+  GetEventBestLineOptions,
   CalcEventEvOptions,
   ExportResolvedPropsOptions,
   CreateWebhookOptions,
@@ -61,6 +62,10 @@ export type {
   EvLine,
   EventEvResponse,
   EventEvCalcResponse,
+  BestPrice,
+  BestLineSide,
+  BestLine,
+  EventBestLineResponse,
   FuturesOutcome,
   FuturesMarket,
   FuturesEvent,
@@ -74,10 +79,13 @@ export const Bookmakers = {
   DRAFTKINGS: "draftkings",
   FANDUEL: "fanduel",
   PINNACLE: "pinnacle",
-  PRIZEPICKS: "prizepicks",
   UNIBET: "unibet",
+  UNDERDOG: "underdog",
+  KALSHI: "kalshi",
+  POLYMARKET: "polymarket",
+  PRIZEPICKS: "prizepicks",
 } as const;
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.4.0";
+export const VERSION = "0.5.0";

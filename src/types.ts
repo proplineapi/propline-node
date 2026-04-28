@@ -177,6 +177,53 @@ export interface PlayerHistoryResponse {
   [k: string]: unknown;
 }
 
+export interface BestPrice {
+  book: string;
+  book_title: string;
+  /** American odds at this book. */
+  price: number;
+  [k: string]: unknown;
+}
+
+export interface BestLineSide {
+  /** Highest American price across all books for this side. */
+  best: BestPrice;
+  /** Every book's price, sorted best-first (descending price). */
+  all_prices: BestPrice[];
+  [k: string]: unknown;
+}
+
+export interface BestLine {
+  market_key: string;
+  /** Player name (props) or empty string (game lines). */
+  description: string;
+  /** The line — null for moneyline / 1X2. */
+  point: number | null;
+  /**
+   * Map of side name → best price + alternatives. Sides are
+   * typically `"Over"`/`"Under"` for player props and totals;
+   * team names for moneylines and spreads.
+   */
+  sides: Record<string, BestLineSide>;
+  [k: string]: unknown;
+}
+
+export interface EventBestLineResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  /**
+   * Books that quoted at least one line on this event. PrizePicks is
+   * always excluded from best-line responses — its synthetic DFS
+   * pricing isn't directly comparable to traditional sportsbook odds.
+   */
+  books_considered: string[];
+  lines: BestLine[];
+  [k: string]: unknown;
+}
+
 export interface EvOutcome {
   book: string;
   book_title: string;
