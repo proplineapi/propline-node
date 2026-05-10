@@ -63,7 +63,14 @@ export interface PropLineOptions {
 export interface GetOddsOptions {
   /** Specific event ID to get odds (with player props) for. Omit for bulk odds. */
   eventId?: number | string;
-  /** Market keys to filter by. */
+  /**
+   * Market keys to filter by. If omitted, the bulk `/odds` endpoint
+   * defaults to `h2h` and the per-event `/odds` endpoint defaults to
+   * `h2h,spreads,totals` — game-line markets every book carries across
+   * every sport. Pass an explicit list to fetch player props (e.g.
+   * `["pitcher_strikeouts", "batter_home_runs"]` for MLB,
+   * `["player_points", "player_rebounds"]` for NBA).
+   */
   markets?: string[];
 }
 
