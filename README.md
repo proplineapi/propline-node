@@ -189,6 +189,19 @@ for (const game of scores) {
 }
 ```
 
+### Get resolution coverage summary (free)
+
+```ts
+const s = await client.getResolutionSummary(30);
+console.log(
+  `${s.total_graded.toLocaleString()} props graded across ` +
+    `${s.sports_covered} sports in ${s.days}d`
+);
+for (const row of s.by_sport.slice(0, 5)) {
+  console.log(`  ${row.title}: ${row.graded.toLocaleString()} (${row.events} games)`);
+}
+```
+
 ### Get resolved prop outcomes (Pro only)
 
 ```ts

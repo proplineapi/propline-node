@@ -52,6 +52,9 @@ export type {
   OddsHistoryMarket,
   OddsHistoryResponse,
   ScoreEvent,
+  ResolutionSummary,
+  ResolutionSummarySport,
+  ResolutionSummaryMarket,
   PlayerStat,
   StatsResponse,
   ResultsMarket,
@@ -88,4 +91,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.5.1";
+export const VERSION = "0.6.0";

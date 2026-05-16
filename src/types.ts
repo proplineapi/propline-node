@@ -111,6 +111,32 @@ export interface ScoreEvent {
   [k: string]: unknown;
 }
 
+export interface ResolutionSummarySport {
+  sport_key: string;
+  title: string;
+  graded: number;
+  events: number;
+}
+
+export interface ResolutionSummaryMarket {
+  market_key: string;
+  graded: number;
+}
+
+export interface ResolutionSummary {
+  days: number;
+  /** Resolution set incl. void. */
+  total_graded: number;
+  /** won/lost/push only (excl. void). */
+  total_settled: number;
+  events_graded: number;
+  sports_covered: number;
+  by_sport: ResolutionSummarySport[];
+  /** Top 12 markets by graded volume. */
+  top_markets: ResolutionSummaryMarket[];
+  [k: string]: unknown;
+}
+
 export interface PlayerStat {
   player_name: string;
   team_abbr: string;

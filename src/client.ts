@@ -8,6 +8,7 @@ import type {
   MarketSummary,
   OddsHistoryResponse,
   ScoreEvent,
+  ResolutionSummary,
   StatsResponse,
   ResultsResponse,
   PlayerHistoryResponse,
@@ -363,6 +364,22 @@ export class PropLine {
       "GET",
       `/sports/${encodeURIComponent(sport)}/scores`,
       { params: { days_from: options.daysFrom ?? 3 } }
+    );
+  }
+
+  /**
+   * Factual volume of graded player props over the last N days (free tier).
+   *
+   * Aggregated counts only — a coverage proof (every outcome counted was
+   * graded against the real box score), never a profitability claim.
+   *
+   * @param days Look-back window, 1-90 (default 30).
+   */
+  getResolutionSummary(days = 30): Promise<ResolutionSummary> {
+    return this._request<ResolutionSummary>(
+      "GET",
+      "/markets/resolution-summary",
+      { params: { days: String(days) } }
     );
   }
 
