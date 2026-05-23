@@ -8,6 +8,7 @@ import type {
   MarketSummary,
   OddsHistoryResponse,
   ScoreEvent,
+  MlbGrandSalamiResponse,
   ResolutionSummary,
   StatsResponse,
   ResultsResponse,
@@ -82,6 +83,11 @@ export interface GetOddsHistoryOptions {
 export interface GetScoresOptions {
   /** Days back to include (default 3). */
   daysFrom?: number;
+}
+
+export interface GetMlbGrandSalamiOptions {
+  /** YYYY-MM-DD UTC date. Defaults to today (UTC) when omitted. */
+  date?: string;
 }
 
 export interface GetStatsOptions {
@@ -364,6 +370,27 @@ export class PropLine {
       "GET",
       `/sports/${encodeURIComponent(sport)}/scores`,
       { params: { days_from: options.daysFrom ?? 3 } }
+    );
+  }
+
+  /**
+   * Synthetic MLB Grand Salami for a given UTC date — total runs scored
+   * across every MLB game on the slate, plus each book's implied Grand
+   * Salami line (median of per-game primary totals across our MLB books).
+   *
+   * No retail sportsbook quotes this as a single market, so historical
+   * cross-book Grand Salami data isn't available elsewhere. Free tier;
+   * defaults to today (UTC).
+   */
+  getMlbGrandSalami(
+    options: GetMlbGrandSalamiOptions = {}
+  ): Promise<MlbGrandSalamiResponse> {
+    const params: Record<string, string> = {};
+    if (options.date) params.date = options.date;
+    return this._request<MlbGrandSalamiResponse>(
+      "GET",
+      "/sports/baseball_mlb/grand-salami",
+      { params }
     );
   }
 

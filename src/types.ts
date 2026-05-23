@@ -111,6 +111,30 @@ export interface ScoreEvent {
   [k: string]: unknown;
 }
 
+export interface MlbGrandSalamiBook {
+  key: string;
+  title: string;
+  /** Number of games on the slate for which this book quoted a primary game total. */
+  games_priced: number;
+  /** Sum of each priced game's primary O/U line. */
+  line: number;
+  /** "over" / "under" / "push" once the slate is final; null until then. */
+  result: "over" | "under" | "push" | null;
+}
+
+export interface MlbGrandSalamiResponse {
+  sport_key: "baseball_mlb";
+  /** YYYY-MM-DD (UTC). */
+  date: string;
+  games_total: number;
+  games_completed: number;
+  games_in_progress: number;
+  games_upcoming: number;
+  /** Sum of (home_score + away_score) across completed games. Null until at least one completes. */
+  actual_total_runs: number | null;
+  bookmakers: MlbGrandSalamiBook[];
+}
+
 export interface ResolutionSummarySport {
   sport_key: string;
   title: string;
