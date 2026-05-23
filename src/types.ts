@@ -88,13 +88,58 @@ export interface OddsHistoryMarket {
   [k: string]: unknown;
 }
 
+export interface OddsHistoryBookmaker {
+  key: string;
+  title: string;
+  markets: OddsHistoryMarket[];
+  [k: string]: unknown;
+}
+
 export interface OddsHistoryResponse {
   id: number | string;
   sport_key: string;
   home_team: string;
   away_team: string;
   commence_time: string;
-  markets: OddsHistoryMarket[];
+  bookmakers: OddsHistoryBookmaker[];
+  upgrade_url?: string;
+  [k: string]: unknown;
+}
+
+export interface ClosingOutcome {
+  name: string;
+  description?: string | null;
+  price: number | null;
+  point: number | null;
+  /** recorded_at of the snapshot we picked as "closing" (last at-or-before commence_time). */
+  closing_at?: string | null;
+  book_updated_at?: string | null;
+  book_version?: number | null;
+  redacted?: boolean;
+  [k: string]: unknown;
+}
+
+export interface ClosingMarket {
+  key: string;
+  description?: string;
+  outcomes: ClosingOutcome[];
+  [k: string]: unknown;
+}
+
+export interface ClosingBookmaker {
+  key: string;
+  title: string;
+  markets: ClosingMarket[];
+  [k: string]: unknown;
+}
+
+export interface OddsClosingResponse {
+  id: number | string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  bookmakers: ClosingBookmaker[];
   upgrade_url?: string;
   [k: string]: unknown;
 }

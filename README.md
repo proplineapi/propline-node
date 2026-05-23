@@ -223,21 +223,23 @@ for (const market of results.markets) {
 // Output: "Tarik Skubal (DET) Over 6.5: won (actual: 7.0)"
 ```
 
-### Get historical line movement (Pro only)
+### Get historical line movement (Hobby+)
 
 ```ts
 const history = await client.getOddsHistory("baseball_mlb", 16, {
   markets: ["pitcher_strikeouts"],
 });
 
-for (const market of history.markets) {
-  for (const outcome of market.outcomes) {
-    console.log(`\n${outcome.description}:`);
-    for (const snap of outcome.snapshots) {
-      console.log(
-        `  ${snap.recorded_at}: ${snap.price} @ ${snap.point}` +
-          ` (book reported: ${snap.book_updated_at ?? "n/a"})`,
-      );
+for (const book of history.bookmakers) {
+  for (const market of book.markets) {
+    for (const outcome of market.outcomes) {
+      console.log(`\n[${book.key}] ${outcome.description}:`);
+      for (const snap of outcome.snapshots) {
+        console.log(
+          `  ${snap.recorded_at}: ${snap.price} @ ${snap.point}` +
+            ` (book reported: ${snap.book_updated_at ?? "n/a"})`,
+        );
+      }
     }
   }
 }
@@ -252,6 +254,53 @@ latency; deltas in `book_version` between two snapshots tell you how
 many distinct market updates the book recorded between them, even
 when the visible price didn't change. See
 <https://prop-line.com/docs#timestamps> for the full semantic.
+
+#### Period-historical filters
+
+Combine any of these to scope, downsample, and de-noise:
+
+```ts
+// Last 30 minutes of moves before tip, only when the line actually changed.
+const moves = await client.getOddsHistory("baseball_mlb", 16, {
+  markets: ["pitcher_strikeouts"],
+  relativeFrom: "-30m",
+  relativeTo: "0",
+  changesOnly: true,
+});
+
+// One snapshot per minute for the 3 hours before commence.
+const ts = await client.getOddsHistory("baseball_mlb", 16, {
+  markets: ["pitcher_strikeouts"],
+  relativeFrom: "-3h",
+  relativeTo: "0",
+  interval: "1m", // "30s" | "1m" | "5m" | "15m" | "30m" | "1h"
+});
+```
+
+- `from` / `to`: absolute ISO timestamps.
+- `relativeFrom` / `relativeTo`: offsets relative to `commence_time` (`-3h`, `-30m`, `-90s`, `0`). Mutually exclusive with the absolute counterpart.
+- `interval`: downsample to one snapshot per bucket; latest snapshot in each bucket wins.
+- `changesOnly`: drop adjacent snapshots whose `(price, point)` match. Opening line is always kept.
+
+### Get closing line / CLV (Hobby+)
+
+One call returns the last snapshot per `(book, market, outcome)` at or
+before `commence_time` — the canonical closing line for CLV tracking.
+
+```ts
+const closing = await client.getOddsClosing("baseball_mlb", 5885, {
+  markets: ["pitcher_strikeouts"],
+});
+
+for (const book of closing.bookmakers) {
+  for (const m of book.markets) {
+    for (const o of m.outcomes) {
+      if (o.description !== "Bryan Woo" || o.name !== "Over") continue;
+      console.log(`${book.key}: closed at ${o.price} (${o.closing_at})`);
+    }
+  }
+}
+```
 
 ### Get player prop history (Pro full, Free redacted)
 

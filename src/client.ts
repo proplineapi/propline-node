@@ -7,6 +7,7 @@ import type {
   OddsResponse,
   MarketSummary,
   OddsHistoryResponse,
+  OddsClosingResponse,
   ScoreEvent,
   MlbGrandSalamiResponse,
   ResolutionSummary,
@@ -77,6 +78,22 @@ export interface GetOddsOptions {
 }
 
 export interface GetOddsHistoryOptions {
+  markets?: string[];
+  /** ISO timestamp; only include snapshots at or after this time. Mutually exclusive with `relativeFrom`. */
+  from?: string;
+  /** ISO timestamp; only include snapshots at or before this time. Mutually exclusive with `relativeTo`. */
+  to?: string;
+  /** Offset relative to commence_time, e.g. "-3h", "-30m", "-90s". Mutually exclusive with `from`. */
+  relativeFrom?: string;
+  /** Offset relative to commence_time, e.g. "-1m" or "0" for commence_time itself. Mutually exclusive with `to`. */
+  relativeTo?: string;
+  /** Downsample to one snapshot per bucket. Latest snapshot in each bucket wins. */
+  interval?: "30s" | "1m" | "5m" | "15m" | "30m" | "1h";
+  /** When true, drop snapshots whose (price, point) match the previous one. Opening line is always kept. */
+  changesOnly?: boolean;
+}
+
+export interface GetOddsClosingOptions {
   markets?: string[];
 }
 
@@ -346,7 +363,13 @@ export class PropLine {
   /**
    * Get historical odds movement for an event.
    *
-   * Pro tier: full snapshots. Free tier: redacted (snapshot counts only).
+   * Hobby+: full snapshots. Free tier: redacted (snapshot counts only).
+   *
+   * Supports period-historical filters:
+   * - `from` / `to` — absolute ISO timestamps
+   * - `relativeFrom` / `relativeTo` — offsets to commence_time ("-3h", "-30m", "0")
+   * - `interval` — downsample to a fixed bucket size
+   * - `changesOnly` — drop unchanged adjacent snapshots
    */
   getOddsHistory(
     sport: string,
@@ -357,9 +380,40 @@ export class PropLine {
     if (options.markets?.length) {
       params.markets = options.markets.join(",");
     }
+    if (options.from !== undefined) params.from = options.from;
+    if (options.to !== undefined) params.to = options.to;
+    if (options.relativeFrom !== undefined) params.relative_from = options.relativeFrom;
+    if (options.relativeTo !== undefined) params.relative_to = options.relativeTo;
+    if (options.interval !== undefined) params.interval = options.interval;
+    if (options.changesOnly) params.changes_only = "true";
     return this._request<OddsHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/history`,
+      { params }
+    );
+  }
+
+  /**
+   * Get the closing line per `(book, market, outcome)` for an event —
+   * the last snapshot at or before commence_time. Canonical CLV helper:
+   * replaces "fetch full history → find latest pre-game row" with one
+   * call. Each outcome carries a `closingAt` field with the snapshot's
+   * recorded_at timestamp.
+   *
+   * Hobby+: full data. Free tier: redacted.
+   */
+  getOddsClosing(
+    sport: string,
+    eventId: number | string,
+    options: GetOddsClosingOptions = {}
+  ): Promise<OddsClosingResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets?.length) {
+      params.markets = options.markets.join(",");
+    }
+    return this._request<OddsClosingResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/closing`,
       { params }
     );
   }
