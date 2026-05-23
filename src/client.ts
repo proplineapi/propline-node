@@ -63,6 +63,22 @@ export interface PropLineOptions {
   fetch?: typeof fetch;
 }
 
+/**
+ * Game-period filter. String of canonical codes, optionally
+ * comma-separated, or the sentinel `"all"`. Omitted = full-game
+ * markets only (backwards-compatible default).
+ *
+ *   "q1"            — 1st quarter
+ *   "q1,q2"         — 1st and 2nd quarters
+ *   ["q1","q2"]     — same, as an array
+ *   "h1"            — 1st half
+ *   "p1"|"p2"|"p3"  — hockey periods
+ *   "i6"            — 6th inning
+ *   "f3"|"f5"|"f7"  — first N innings
+ *   "all"           — every period including full game
+ */
+export type PeriodFilter = string | string[];
+
 export interface GetOddsOptions {
   /** Specific event ID to get odds (with player props) for. Omit for bulk odds. */
   eventId?: number | string;
@@ -75,6 +91,8 @@ export interface GetOddsOptions {
    * `["player_points", "player_rebounds"]` for NBA).
    */
   markets?: string[];
+  /** Game-period filter — see `PeriodFilter`. */
+  period?: PeriodFilter;
 }
 
 export interface GetOddsHistoryOptions {
@@ -91,10 +109,19 @@ export interface GetOddsHistoryOptions {
   interval?: "30s" | "1m" | "5m" | "15m" | "30m" | "1h";
   /** When true, drop snapshots whose (price, point) match the previous one. Opening line is always kept. */
   changesOnly?: boolean;
+  /** Game-period filter — see `PeriodFilter`. */
+  period?: PeriodFilter;
 }
 
 export interface GetOddsClosingOptions {
   markets?: string[];
+  /** Game-period filter — see `PeriodFilter`. */
+  period?: PeriodFilter;
+}
+
+function _periodParam(p: PeriodFilter | undefined): string | undefined {
+  if (p === undefined) return undefined;
+  return typeof p === "string" ? p : p.join(",");
 }
 
 export interface GetScoresOptions {
@@ -341,6 +368,8 @@ export class PropLine {
     if (options.markets?.length) {
       params.markets = options.markets.join(",");
     }
+    const periodParam = _periodParam(options.period);
+    if (periodParam !== undefined) params.period = periodParam;
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(
@@ -386,6 +415,8 @@ export class PropLine {
     if (options.relativeTo !== undefined) params.relative_to = options.relativeTo;
     if (options.interval !== undefined) params.interval = options.interval;
     if (options.changesOnly) params.changes_only = "true";
+    const periodParam2 = _periodParam(options.period);
+    if (periodParam2 !== undefined) params.period = periodParam2;
     return this._request<OddsHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/history`,
@@ -411,6 +442,8 @@ export class PropLine {
     if (options.markets?.length) {
       params.markets = options.markets.join(",");
     }
+    const periodParam3 = _periodParam(options.period);
+    if (periodParam3 !== undefined) params.period = periodParam3;
     return this._request<OddsClosingResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/closing`,

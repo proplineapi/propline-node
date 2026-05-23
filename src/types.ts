@@ -39,6 +39,8 @@ export interface ResolvedOutcome extends Outcome {
 
 export interface Market {
   key: string;
+  /** Game-period bucket (q1..q4, h1/h2, p1..p3, i1..i9, f3/f5/f7). Null for full-game markets. */
+  period?: string | null;
   outcomes: Outcome[];
   [k: string]: unknown;
 }
@@ -84,6 +86,8 @@ export interface OddsHistoryOutcome {
 
 export interface OddsHistoryMarket {
   key: string;
+  /** Game-period bucket. Null for full-game markets. */
+  period?: string | null;
   outcomes: OddsHistoryOutcome[];
   [k: string]: unknown;
 }
@@ -122,6 +126,8 @@ export interface ClosingOutcome {
 export interface ClosingMarket {
   key: string;
   description?: string;
+  /** Game-period bucket. Null for full-game markets. */
+  period?: string | null;
   outcomes: ClosingOutcome[];
   [k: string]: unknown;
 }

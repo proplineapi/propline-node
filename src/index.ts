@@ -25,6 +25,7 @@ export type {
   GetOddsOptions,
   GetOddsHistoryOptions,
   GetOddsClosingOptions,
+  PeriodFilter,
   GetScoresOptions,
   GetMlbGrandSalamiOptions,
   GetStatsOptions,
@@ -100,4 +101,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.8.0";
+export const VERSION = "0.9.0";
