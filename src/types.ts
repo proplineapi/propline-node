@@ -186,6 +186,30 @@ export interface MlbGrandSalamiResponse {
   bookmakers: MlbGrandSalamiBook[];
 }
 
+export interface NhlDailyGoalsTotalBook {
+  key: string;
+  title: string;
+  /** Number of NHL games on the slate for which this book quoted a primary game total. */
+  games_priced: number;
+  /** Sum of each priced game's primary O/U line — the implied Daily Goals Total. */
+  line: number;
+  /** "over" / "under" / "push" once the slate is final; null until then. */
+  result: "over" | "under" | "push" | null;
+}
+
+export interface NhlDailyGoalsTotalResponse {
+  sport_key: "hockey_nhl";
+  /** YYYY-MM-DD (UTC). */
+  date: string;
+  games_total: number;
+  games_completed: number;
+  games_in_progress: number;
+  games_upcoming: number;
+  /** Sum of (home_score + away_score) across completed games (incl. OT/SO). Null until at least one completes. */
+  actual_total_goals: number | null;
+  bookmakers: NhlDailyGoalsTotalBook[];
+}
+
 export interface ResolutionSummarySport {
   sport_key: string;
   title: string;

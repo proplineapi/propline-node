@@ -28,6 +28,7 @@ export type {
   PeriodFilter,
   GetScoresOptions,
   GetMlbGrandSalamiOptions,
+  GetNhlDailyGoalsTotalOptions,
   GetStatsOptions,
   GetResultsOptions,
   GetPlayerHistoryOptions,
@@ -62,6 +63,8 @@ export type {
   ScoreEvent,
   MlbGrandSalamiBook,
   MlbGrandSalamiResponse,
+  NhlDailyGoalsTotalBook,
+  NhlDailyGoalsTotalResponse,
   ResolutionSummary,
   ResolutionSummarySport,
   ResolutionSummaryMarket,
@@ -101,4 +104,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.9.1";
+export const VERSION = "0.10.0";

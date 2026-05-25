@@ -10,6 +10,7 @@ import type {
   OddsClosingResponse,
   ScoreEvent,
   MlbGrandSalamiResponse,
+  NhlDailyGoalsTotalResponse,
   ResolutionSummary,
   StatsResponse,
   ResultsResponse,
@@ -130,6 +131,11 @@ export interface GetScoresOptions {
 }
 
 export interface GetMlbGrandSalamiOptions {
+  /** YYYY-MM-DD UTC date. Defaults to today (UTC) when omitted. */
+  date?: string;
+}
+
+export interface GetNhlDailyGoalsTotalOptions {
   /** YYYY-MM-DD UTC date. Defaults to today (UTC) when omitted. */
   date?: string;
 }
@@ -477,6 +483,27 @@ export class PropLine {
     return this._request<MlbGrandSalamiResponse>(
       "GET",
       "/sports/baseball_mlb/grand-salami",
+      { params }
+    );
+  }
+
+  /**
+   * Synthetic NHL Daily Goals Total for a given UTC date — total goals
+   * scored (incl. OT/SO) across every NHL game on the slate, plus each
+   * book's implied Daily Goals Total line (median of per-game primary
+   * totals across our NHL books).
+   *
+   * Hockey's equivalent of the MLB Grand Salami. No retail sportsbook
+   * quotes this as a single market. Free tier; defaults to today (UTC).
+   */
+  getNhlDailyGoalsTotal(
+    options: GetNhlDailyGoalsTotalOptions = {}
+  ): Promise<NhlDailyGoalsTotalResponse> {
+    const params: Record<string, string> = {};
+    if (options.date) params.date = options.date;
+    return this._request<NhlDailyGoalsTotalResponse>(
+      "GET",
+      "/sports/hockey_nhl/daily-goals-total",
       { params }
     );
   }
