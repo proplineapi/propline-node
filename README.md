@@ -351,6 +351,25 @@ for (const e of hist.entries) {
 // Output: "2026-04-19 DraftKings: line 6.5, actual 6.0 -> Over lost, Under won"
 ```
 
+### Get player trends (Pro full, Free redacted)
+
+```ts
+// Rolling over/under hit-rates per market: last 5/10/20/50 graded games,
+// current streak, and the most recent game. Omit `market` for all markets.
+const trends = await client.getPlayerTrends("baseball_mlb", "Aaron Judge", {
+  market: "batter_total_bases",
+});
+
+for (const m of trends.markets) {
+  console.log(
+    `${m.market}: recent line ${m.recent_line}, avg ${m.avg_actual} ` +
+      `(last 10 over ${m.last_10?.over_pct ?? "-"}%, ` +
+      `streak ${m.current_streak?.length ?? 0} ${m.current_streak?.result ?? ""})`
+  );
+}
+// Output: "batter_total_bases: recent line 1.5, avg 2.02 (last 10 over 30%, streak 2 under)"
+```
+
 ### Cross-book +EV (Pro)
 
 ```ts

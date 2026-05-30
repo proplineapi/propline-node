@@ -32,6 +32,7 @@ export type {
   GetStatsOptions,
   GetResultsOptions,
   GetPlayerHistoryOptions,
+  GetPlayerTrendsOptions,
   GetEventEvOptions,
   GetEventBestLineOptions,
   CalcEventEvOptions,
@@ -74,6 +75,11 @@ export type {
   ResultsResponse,
   PlayerHistoryEntry,
   PlayerHistoryResponse,
+  HitRateSplit,
+  TrendStreak,
+  TrendLastGame,
+  PlayerMarketTrend,
+  PlayerTrends,
   EvOutcome,
   EvLine,
   EventEvResponse,
@@ -104,4 +110,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.10.0";
+export const VERSION = "0.10.1";

@@ -302,6 +302,60 @@ export interface PlayerHistoryResponse {
   [k: string]: unknown;
 }
 
+/** Over/under/push tally over a rolling window of recent graded games. */
+export interface HitRateSplit {
+  window: number;
+  games: number;
+  over: number;
+  under: number;
+  push: number;
+  over_pct: number | null;
+  [k: string]: unknown;
+}
+
+/** Current run of consecutive identical results. */
+export interface TrendStreak {
+  result: "over" | "under" | "push" | string;
+  length: number;
+  [k: string]: unknown;
+}
+
+/** The most recent graded game for a player on a market. */
+export interface TrendLastGame {
+  event_id: number | string;
+  commence_time: string;
+  line: number | null;
+  actual_value: number | null;
+  result: "over" | "under" | "push" | string;
+  [k: string]: unknown;
+}
+
+/** Trend summary for a single market. */
+export interface PlayerMarketTrend {
+  market: string;
+  games_graded: number;
+  reference_bookmaker: string | null;
+  reference_bookmaker_title: string | null;
+  recent_line: number | null;
+  avg_actual: number | null;
+  last_5: HitRateSplit | null;
+  last_10: HitRateSplit | null;
+  last_20: HitRateSplit | null;
+  last_50: HitRateSplit | null;
+  current_streak: TrendStreak | null;
+  last_game: TrendLastGame | null;
+  redacted?: boolean;
+  [k: string]: unknown;
+}
+
+export interface PlayerTrends {
+  player_name: string;
+  sport_key: string;
+  markets: PlayerMarketTrend[];
+  upgrade_url?: string | null;
+  [k: string]: unknown;
+}
+
 export interface BestPrice {
   book: string;
   book_title: string;

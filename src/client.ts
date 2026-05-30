@@ -15,6 +15,7 @@ import type {
   StatsResponse,
   ResultsResponse,
   PlayerHistoryResponse,
+  PlayerTrends,
   EventEvResponse,
   EventEvCalcResponse,
   EventBestLineResponse,
@@ -156,6 +157,11 @@ export interface GetPlayerHistoryOptions {
   bookmaker?: string;
   /** Max entries (1-100). Default 20. */
   limit?: number;
+}
+
+export interface GetPlayerTrendsOptions {
+  /** Market key (e.g. `"batter_total_bases"`). Omit for all markets. */
+  market?: string;
 }
 
 export interface GetEventEvOptions {
@@ -586,6 +592,29 @@ export class PropLine {
     return this._request<PlayerHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/players/${encodeURIComponent(playerName)}/history`,
+      { params }
+    );
+  }
+
+  /**
+   * Rolling hit-rate trends for a player across one or all markets.
+   *
+   * Returns over/under/push splits over the last 5/10/20/50 graded games,
+   * the current streak, and the most recent game per market. Pro: full.
+   * Free: redacted.
+   */
+  getPlayerTrends(
+    sportKey: string,
+    playerName: string,
+    options: GetPlayerTrendsOptions = {}
+  ): Promise<PlayerTrends> {
+    const params: Record<string, string | undefined> = {};
+    if (options.market) {
+      params.market = options.market;
+    }
+    return this._request<PlayerTrends>(
+      "GET",
+      `/sports/${encodeURIComponent(sportKey)}/players/${encodeURIComponent(playerName)}/trends`,
       { params }
     );
   }
