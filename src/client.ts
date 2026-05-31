@@ -210,6 +210,21 @@ export interface ExportResolvedPropsOptions {
   outPath?: string;
 }
 
+export interface ExportOddsHistoryOptions {
+  /** Sport key (e.g. `"baseball_mlb"`). Required. */
+  sport: string;
+  /** Optional market filter. */
+  market?: string;
+  /** Optional bookmaker filter. */
+  bookmaker?: string;
+  /** ISO datetime lower bound on `recorded_at`. */
+  since?: string;
+  /** ISO datetime upper bound on `recorded_at`. */
+  until?: string;
+  /** If set, stream the CSV to this path and resolve to the path. Otherwise resolve to the CSV bytes. */
+  outPath?: string;
+}
+
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
   url: string;
@@ -819,6 +834,81 @@ export class PropLine {
     }
     if (resp.status === 403) {
       throw new PropLineError(403, await readDetail(resp, "Pro tier required"));
+    }
+    if (resp.status >= 400) {
+      throw new PropLineError(resp.status, await readDetail(resp, resp.statusText));
+    }
+
+    const buf = new Uint8Array(await resp.arrayBuffer());
+    if (options.outPath) {
+      await writeFile(options.outPath, buf);
+      return options.outPath;
+    }
+    return buf;
+  }
+
+  /**
+   * Bulk CSV export of the full line-movement time-series.
+   *
+   * One row per (outcome, snapshot): every recorded odds snapshot (price +
+   * line, per book, including period markets), not just the closing line.
+   * This is the raw tick history no subscription tier can pull in bulk —
+   * Pro/Streaming get per-event {@link getOddsHistory} only; this bulk
+   * firehose is exclusive to the one-time Historical Backfill pass and
+   * Enterprise.
+   *
+   * A full archive runs to gigabytes per sport — page month by month with
+   * `since`/`until`. If `outPath` is provided, streams to disk and resolves
+   * to the path; otherwise resolves to the CSV bytes as a `Uint8Array`.
+   *
+   * @example
+   * ```ts
+   * await client.exportOddsHistory({
+   *   sport: "baseball_mlb",
+   *   since: "2026-04-01T00:00:00Z",
+   *   until: "2026-05-01T00:00:00Z",
+   *   outPath: "./mlb-line-history-apr.csv",
+   * });
+   * ```
+   */
+  async exportOddsHistory(
+    options: ExportOddsHistoryOptions & { outPath: string }
+  ): Promise<string>;
+  async exportOddsHistory(
+    options: ExportOddsHistoryOptions & { outPath?: undefined }
+  ): Promise<Uint8Array>;
+  async exportOddsHistory(
+    options: ExportOddsHistoryOptions
+  ): Promise<string | Uint8Array> {
+    const params: Record<string, string | undefined> = { sport: options.sport };
+    if (options.market) params.market = options.market;
+    if (options.bookmaker) params.bookmaker = options.bookmaker;
+    if (options.since) params.since = options.since;
+    if (options.until) params.until = options.until;
+
+    const url = this._buildUrl("/exports/odds-history", params);
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+
+    let resp: Response;
+    try {
+      resp = await this._fetch(url, {
+        method: "GET",
+        headers: { "X-API-Key": this.apiKey },
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
+
+    if (resp.status === 401) {
+      throw new AuthError();
+    }
+    if (resp.status === 403) {
+      throw new PropLineError(
+        403,
+        await readDetail(resp, "Historical Backfill pass or Enterprise required")
+      );
     }
     if (resp.status >= 400) {
       throw new PropLineError(resp.status, await readDetail(resp, resp.statusText));

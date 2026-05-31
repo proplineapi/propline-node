@@ -412,6 +412,21 @@ const csv = await client.exportResolvedProps({ sport: "baseball_mlb" });
 console.log(`got ${csv.byteLength} bytes of CSV`);
 ```
 
+### Full line-movement history (Historical Backfill / Enterprise)
+
+```ts
+// Every recorded snapshot (price + line, per book) — not just the close.
+// The raw tick history no subscription tier can bulk-pull; exclusive to
+// the one-time Historical Backfill pass and Enterprise. Page month by
+// month — a full archive runs to gigabytes per sport.
+await client.exportOddsHistory({
+  sport: "baseball_mlb",
+  since: "2026-04-01T00:00:00Z",
+  until: "2026-05-01T00:00:00Z",
+  outPath: "./mlb-line-history-apr.csv",
+});
+```
+
 ## Webhooks (Streaming tier)
 
 The Streaming tier ($79/mo) pushes `line_movement` and `resolution` events to your URL in real time, with HMAC-SHA256 signing and automatic retries.
