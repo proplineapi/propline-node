@@ -262,6 +262,38 @@ export interface ResultsMarket {
   [k: string]: unknown;
 }
 
+export interface WeatherInfo {
+  temperature_f: number | null;
+  humidity_pct: number | null;
+  precip_probability_pct: number | null;
+  precip_in: number | null;
+  wind_speed_mph: number | null;
+  wind_gust_mph: number | null;
+  wind_direction_deg: number | null;
+  wind_direction: string | null;
+  conditions: string | null;
+  observed_for: string | null;
+  [k: string]: unknown;
+}
+
+export interface ContextResponse {
+  event_id: number | string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  venue: string | null;
+  roof_type: string | null;
+  is_indoor: boolean;
+  home_probable_pitcher: string | null;
+  away_probable_pitcher: string | null;
+  lineup_confirmed: boolean;
+  home_plate_umpire: string | null;
+  weather: WeatherInfo | null;
+  updated_at: string | null;
+  [k: string]: unknown;
+}
+
 export interface ResultsResponse {
   id: number | string;
   sport_key: string;
@@ -271,6 +303,7 @@ export interface ResultsResponse {
   home_score: number | null;
   away_score: number | null;
   markets: ResultsMarket[];
+  context?: ContextResponse | null;
   upgrade_url?: string;
   [k: string]: unknown;
 }
