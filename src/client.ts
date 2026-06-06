@@ -233,27 +233,33 @@ export interface ExportOddsHistoryOptions {
   outPath?: string;
 }
 
+/** Webhook event types. `steam` = cross-book sharp-money alert. */
+export type WebhookEventType = "line_movement" | "resolution" | "steam";
+
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
   url: string;
   /** Event types to subscribe to. Default: all. */
-  events?: Array<"line_movement" | "resolution">;
+  events?: WebhookEventType[];
   filterSportKey?: string;
   filterEventId?: number;
   filterMarketKey?: string;
   filterPlayerName?: string;
   /** Minimum % change in American odds to fire a line_movement. Point-only shifts always pass. */
   minPriceChangePct?: number;
+  /** Minimum 0-100 steam score to fire a `steam` event. Null = detector's global floor. */
+  minSteamScore?: number;
 }
 
 export interface UpdateWebhookOptions {
   url?: string;
-  events?: Array<"line_movement" | "resolution">;
+  events?: WebhookEventType[];
   filterSportKey?: string;
   filterEventId?: number;
   filterMarketKey?: string;
   filterPlayerName?: string;
   minPriceChangePct?: number;
+  minSteamScore?: number;
   active?: boolean;
 }
 
@@ -1085,6 +1091,7 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["filterMarketKey", "filter_market_key"],
     ["filterPlayerName", "filter_player_name"],
     ["minPriceChangePct", "min_price_change_pct"],
+    ["minSteamScore", "min_steam_score"],
     ["active", "active"],
   ];
   for (const [src, dst] of map) {

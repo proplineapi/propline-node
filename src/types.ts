@@ -595,6 +595,7 @@ export interface Webhook {
   filter_market_key: string | null;
   filter_player_name: string | null;
   min_price_change_pct: number | null;
+  min_steam_score: number | null;
   created_at: string;
   [k: string]: unknown;
 }

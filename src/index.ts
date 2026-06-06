@@ -38,6 +38,7 @@ export type {
   CalcEventEvOptions,
   ExportResolvedPropsOptions,
   ExportOddsHistoryOptions,
+  WebhookEventType,
   CreateWebhookOptions,
   UpdateWebhookOptions,
   ListWebhookDeliveriesOptions,
@@ -118,4 +119,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.13.0";
+export const VERSION = "0.14.0";
