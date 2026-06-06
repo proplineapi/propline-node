@@ -14,6 +14,7 @@ import type {
   ResolutionSummary,
   StatsResponse,
   ContextResponse,
+  MovementResponse,
   ResultsResponse,
   PlayerHistoryResponse,
   PlayerTrends,
@@ -117,6 +118,12 @@ export interface GetOddsHistoryOptions {
 }
 
 export interface GetOddsClosingOptions {
+  markets?: string[];
+  /** Game-period filter — see `PeriodFilter`. */
+  period?: PeriodFilter;
+}
+
+export interface GetMovementOptions {
   markets?: string[];
   /** Game-period filter — see `PeriodFilter`. */
   period?: PeriodFilter;
@@ -585,6 +592,34 @@ export class PropLine {
     return this._request<ContextResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/context`
+    );
+  }
+
+  /**
+   * Get line movement + steam detection from the snapshot tick history.
+   *
+   * Per (book, market, outcome): opening line, latest line, signed
+   * implied-probability shift, point shift, direction. The `steam` array
+   * flags outcomes multiple books moved the same direction — the
+   * sharp-money signal across every book PropLine polls. When a book moves
+   * the line itself, that outcome's `prob_shift` is null and `direction` is
+   * `"line_moved"` (excluded from the steam signal). Unique to PropLine.
+   * Hobby+ full; free tier redacted.
+   */
+  getMovement(
+    sport: string,
+    eventId: number | string,
+    options: GetMovementOptions = {}
+  ): Promise<MovementResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets?.length) {
+      params.markets = options.markets.join(",");
+    }
+    params.period = _periodParam(options.period);
+    return this._request<MovementResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/movement`,
+      { params }
     );
   }
 

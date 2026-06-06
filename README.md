@@ -238,6 +238,21 @@ so every graded prop carries its conditions — unique to PropLine. Free
 tier. MLB today; weather extends to other outdoor sports next. Rejects
 with a 404 when no context is on file for the event yet.
 
+### Get line movement & steam (Hobby+)
+
+```ts
+const mv = await client.getMovement("baseball_mlb", 37464);
+for (const s of mv.steam) {
+  console.log(`${s.name} ${s.consensus_direction} (${s.books_moved}/${s.books_quoting} books, score ${s.steam_score})`);
+}
+```
+
+Line movement derived from our snapshot tick history. Per (book, market,
+outcome): opening line, latest line, implied-probability + point shift,
+direction. The `steam` array flags outcomes multiple books moved the same
+direction — the sharp-money signal across every book we poll. Unique to
+PropLine. Hobby+ full; free tier redacted.
+
 ### Get resolution coverage summary (free)
 
 ```ts

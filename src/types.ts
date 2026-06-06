@@ -294,6 +294,64 @@ export interface ContextResponse {
   [k: string]: unknown;
 }
 
+export interface MovementOutcome {
+  name: string;
+  description: string | null;
+  open_price: number | null;
+  open_point: number | null;
+  open_at: string | null;
+  latest_price: number | null;
+  latest_point: number | null;
+  latest_at: string | null;
+  prob_shift: number | null;
+  point_shift: number | null;
+  direction: string | null;
+  num_snapshots: number;
+  redacted: boolean;
+  [k: string]: unknown;
+}
+
+export interface MovementMarket {
+  key: string;
+  period: string | null;
+  outcomes: MovementOutcome[];
+  [k: string]: unknown;
+}
+
+export interface MovementBookmaker {
+  key: string;
+  title: string;
+  markets: MovementMarket[];
+  [k: string]: unknown;
+}
+
+export interface SteamMove {
+  market: string;
+  period: string | null;
+  name: string;
+  description: string | null;
+  books_quoting: number;
+  books_moved: number;
+  consensus_direction: string;
+  avg_prob_shift: number;
+  consensus_point_shift: number | null;
+  steam_score: number;
+  [k: string]: unknown;
+}
+
+export interface MovementResponse {
+  id: number | string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  bookmakers: MovementBookmaker[];
+  steam: SteamMove[];
+  redacted?: boolean;
+  upgrade_url?: string;
+  [k: string]: unknown;
+}
+
 export interface ResultsResponse {
   id: number | string;
   sport_key: string;

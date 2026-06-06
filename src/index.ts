@@ -74,6 +74,11 @@ export type {
   StatsResponse,
   WeatherInfo,
   ContextResponse,
+  MovementOutcome,
+  MovementMarket,
+  MovementBookmaker,
+  SteamMove,
+  MovementResponse,
   ResultsMarket,
   ResultsResponse,
   PlayerHistoryEntry,
@@ -113,4 +118,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.12.0";
+export const VERSION = "0.13.0";
