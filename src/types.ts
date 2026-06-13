@@ -27,6 +27,14 @@ export interface Outcome {
   description?: string | null;
   price: number;
   point?: number | null;
+  /**
+   * DFS payout multiplier for boosted/discounted picks (Underdog Fantasy).
+   * `null`/absent = standard 1.0 pick whose `price` carries the full payout;
+   * e.g. `1.5` (boost) or `0.75` (discount) scales the effective payout.
+   * Skip outcomes with a non-null multiplier when comparing DFS lines to
+   * sportsbook consensus so a scaled payout doesn't read as a mispriced edge.
+   */
+  payout_multiplier?: number | null;
   [k: string]: unknown;
 }
 
