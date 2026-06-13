@@ -583,13 +583,16 @@ export class PropLine {
   /**
    * Get game context — the conditions a prop settles under.
    *
-   * Probable starting pitchers, a confirmed-lineup flag, the home-plate
-   * umpire, and first-pitch weather (outdoor / open-roof venues; indoor
-   * venues return `weather: null` with `is_indoor: true`). The same block
-   * is embedded in {@link getResults}, so every graded prop carries its
-   * conditions — unique to PropLine. Free tier. MLB today; weather extends
-   * to other outdoor sports next. Rejects with a 404 when no context is on
-   * file for the event yet.
+   * For MLB: probable starting pitchers and their throwing hand
+   * (`home_probable_pitcher_hand` / `away_probable_pitcher_hand`, "L"/"R"/"S"
+   * — platoon-split context for every batter prop), a confirmed-lineup flag,
+   * the home-plate umpire, and first-pitch weather (outdoor / open-roof
+   * venues; indoor venues return `weather: null` with `is_indoor: true`).
+   * For NFL & NCAAF: the venue and kickoff weather (pitcher/umpire/lineup
+   * fields are null for football). The same block is embedded in
+   * {@link getResults}, so every graded prop carries its conditions — unique
+   * to PropLine. Free tier. Rejects with a 404 when no context is on file
+   * for the event yet.
    */
   getContext(
     sport: string,

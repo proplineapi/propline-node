@@ -287,6 +287,9 @@ export interface ContextResponse {
   is_indoor: boolean;
   home_probable_pitcher: string | null;
   away_probable_pitcher: string | null;
+  /** Throwing hand of the probable starter: "L", "R", or "S" (switch). MLB only. */
+  home_probable_pitcher_hand: string | null;
+  away_probable_pitcher_hand: string | null;
   lineup_confirmed: boolean;
   home_plate_umpire: string | null;
   weather: WeatherInfo | null;
