@@ -1,6 +1,6 @@
 # PropLine Node.js / TypeScript SDK
 
-Official Node and TypeScript client for the [PropLine](https://prop-line.com) player props API — real-time betting odds from Bovada, DraftKings, FanDuel, Pinnacle, Unibet, and PrizePicks across MLB, NBA, NHL, soccer, UFC, and more.
+Official Node and TypeScript client for the [PropLine](https://prop-line.com/?ref=npm) player props API — real-time betting odds from Bovada, DraftKings, FanDuel, Pinnacle, Unibet, and PrizePicks across MLB, NBA, NHL, soccer, UFC, and more.
 
 Zero runtime dependencies — uses the built-in `fetch`. Requires Node 18+.
 
@@ -56,7 +56,7 @@ const { PropLine } = require("propline");
 
 ## Get your API key
 
-1. Go to [prop-line.com](https://prop-line.com)
+1. Go to [prop-line.com](https://prop-line.com/?ref=npm)
 2. Enter your email
 3. Get your API key instantly — **500 requests/day, no credit card required**
 
@@ -589,7 +589,7 @@ try {
 
 ## Links
 
-- **Website**: [prop-line.com](https://prop-line.com)
+- **Website**: [prop-line.com](https://prop-line.com/?ref=npm)
 - **API Docs**: [prop-line.com/docs](https://prop-line.com/docs)
 - **Dashboard**: [prop-line.com/dashboard](https://prop-line.com/dashboard)
 - **API Reference**: [api.prop-line.com/docs](https://api.prop-line.com/docs)
