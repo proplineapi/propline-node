@@ -92,7 +92,7 @@ Every odds response returns a `bookmakers` array so you can compare lines across
 | `fanduel` | FanDuel | MLB, NBA, NHL, 6 soccer leagues — game lines + player props |
 | `pinnacle` | Pinnacle | MLB (game lines + props), NBA/NHL/soccer (game lines, goalie saves) |
 | `unibet` | Unibet | MLB/NBA/NHL + 6 soccer leagues — game lines; player props on NBA, NHL, soccer |
-| `prizepicks` | PrizePicks (DFS) | MLB, NBA, NHL, 9 soccer leagues — player props only; synthetic +100/+100 even-money pricing since DFS payouts scale with parlay correct-count, not per-pick odds |
+| `prizepicks` | PrizePicks (DFS) | MLB, NBA, WNBA, NHL, tennis, UFC, soccer — player props only; synthetic +100/+100 even-money pricing since DFS payouts scale with parlay correct-count, not per-pick odds. Each outcome carries `dfs_odds_type` (`standard` = the market line, `goblin` = easier/lower-payout, `demon` = harder/higher-payout). Filter to `standard` for the market line; goblin/demon arrive as their own per-line markets (e.g. `Points (demon 27.5)`) |
 | `underdog` | Underdog Fantasy (DFS) | MLB, NBA, NHL, tennis, UFC, 9 soccer leagues — player props with real two-way American prices and a `payout_multiplier` on boosted/discounted picks (`null` = standard 1.0 pick; e.g. `1.5` boost / `0.75` discount). Filter out non-null multipliers when comparing DFS lines to sportsbook consensus |
 
 ```ts

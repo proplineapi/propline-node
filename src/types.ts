@@ -35,6 +35,15 @@ export interface Outcome {
    * sportsbook consensus so a scaled payout doesn't read as a mispriced edge.
    */
   payout_multiplier?: number | null;
+  /**
+   * PrizePicks projection flavor: `"standard"` (the true market line),
+   * `"goblin"` (easier line / lower payout) or `"demon"` (harder line /
+   * higher payout). `null`/absent for every traditional sportsbook. Filter
+   * to `"standard"` to get PrizePicks's market line — goblin/demon arrive as
+   * their own per-line markets (e.g. `"Points (demon 27.5)"`) so they never
+   * overwrite it. PrizePicks publishes no numeric multiplier for these.
+   */
+  dfs_odds_type?: "standard" | "goblin" | "demon" | null;
   [k: string]: unknown;
 }
 
