@@ -27,6 +27,7 @@ export type {
   GetOddsClosingOptions,
   PeriodFilter,
   GetScoresOptions,
+  GetDfsPayoutsOptions,
   GetMlbGrandSalamiOptions,
   GetNhlDailyGoalsTotalOptions,
   GetStatsOptions,
@@ -102,6 +103,9 @@ export type {
   FuturesEvent,
   Webhook,
   WebhookDelivery,
+  DfsPayoutTier,
+  DfsPlayPayout,
+  DfsPayoutsResponse,
 } from "./types.js";
 
 /** String constants for bookmaker keys in odds responses. */
@@ -119,4 +123,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.17.0";
+export const VERSION = "0.18.0";

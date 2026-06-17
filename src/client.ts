@@ -24,7 +24,19 @@ import type {
   FuturesEvent,
   Webhook,
   WebhookDelivery,
+  DfsPayoutsResponse,
 } from "./types.js";
+
+/** Options for {@link PropLineClient.getDfsPayouts}. */
+export interface GetDfsPayoutsOptions {
+  /** DFS platform. Only "prizepicks" today. */
+  platform?: string;
+  /**
+   * Assumed per-leg win probability in [0, 1]. When supplied, each play
+   * also carries `expected_return` (per $1) and `is_plus_ev` at that rate.
+   */
+  legWinProb?: number;
+}
 
 /** Base error for all PropLine API failures. */
 export class PropLineError extends Error {
@@ -499,6 +511,26 @@ export class PropLine {
       `/sports/${encodeURIComponent(sport)}/scores`,
       { params: { days_from: options.daysFrom ?? 3 } }
     );
+  }
+
+  /**
+   * PrizePicks Power/Flex entry payout schedule (2-6 legs) plus the per-leg
+   * breakeven win probability for each play. Pass `legWinProb` to also get
+   * `expected_return` (per $1) and `is_plus_ev` per play — turning a slip
+   * into the hit rate it actually needs to clear.
+   *
+   * These are PrizePicks's *standard* published payouts; demon/goblin per-pick
+   * modifiers aren't in PrizePicks's feed, so they're not reflected. Breakeven
+   * assumes independent legs. See the `disclaimer` field on the response.
+   */
+  getDfsPayouts(
+    options: GetDfsPayoutsOptions = {}
+  ): Promise<DfsPayoutsResponse> {
+    const params: Record<string, string | number> = {
+      platform: options.platform ?? "prizepicks",
+    };
+    if (options.legWinProb !== undefined) params.leg_win_prob = options.legWinProb;
+    return this._request<DfsPayoutsResponse>("GET", "/dfs/payouts", { params });
   }
 
   /**

@@ -630,3 +630,29 @@ export interface WebhookDelivery {
   payload: Record<string, unknown>;
   [k: string]: unknown;
 }
+
+export interface DfsPayoutTier {
+  correct: number;
+  multiplier: number;
+}
+
+export interface DfsPlayPayout {
+  play_type: "power" | "flex" | string;
+  legs: number;
+  all_correct_multiplier: number;
+  payouts: DfsPayoutTier[];
+  /** Per-leg win probability needed to break even (independent legs). */
+  breakeven_leg_win_prob: number;
+  /** Only present when leg_win_prob was supplied in the request. */
+  expected_return?: number | null;
+  is_plus_ev?: boolean | null;
+  [k: string]: unknown;
+}
+
+export interface DfsPayoutsResponse {
+  platform: string;
+  leg_win_prob: number | null;
+  disclaimer: string;
+  plays: DfsPlayPayout[];
+  [k: string]: unknown;
+}
