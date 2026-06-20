@@ -182,6 +182,13 @@ export interface GetPlayerHistoryOptions {
 export interface GetPlayerTrendsOptions {
   /** Market key (e.g. `"batter_total_bases"`). Omit for all markets. */
   market?: string;
+  /**
+   * PrizePicks pick-em flavor to compute trends against: `"standard"`
+   * (default market line), `"goblin"`, or `"demon"`. When set, the trend is
+   * computed against that flavor's PrizePicks line only. Omit for the default
+   * cross-book behavior. Flavor tagging began 2026-06-16.
+   */
+  dfsOddsType?: "standard" | "goblin" | "demon";
 }
 
 export interface GetEventEvOptions {
@@ -724,6 +731,9 @@ export class PropLine {
     const params: Record<string, string | undefined> = {};
     if (options.market) {
       params.market = options.market;
+    }
+    if (options.dfsOddsType) {
+      params.dfs_odds_type = options.dfsOddsType;
     }
     return this._request<PlayerTrends>(
       "GET",

@@ -395,6 +395,8 @@ for (const e of hist.entries) {
 ```ts
 // Rolling over/under hit-rates per market: last 5/10/20/50 graded games,
 // current streak, and the most recent game. Omit `market` for all markets.
+// Pass `dfsOddsType: "standard" | "goblin" | "demon"` to compute the trend
+// against that PrizePicks flavor's line only.
 const trends = await client.getPlayerTrends("baseball_mlb", "Aaron Judge", {
   market: "batter_total_bases",
 });

@@ -44,6 +44,15 @@ export interface Outcome {
    * overwrite it. PrizePicks publishes no numeric multiplier for these.
    */
   dfs_odds_type?: "standard" | "goblin" | "demon" | null;
+  /**
+   * PropLine's observed timestamp (ISO datetime) of the last time this
+   * outcome's price actually changed. Distinct from `book_updated_at` (the
+   * book's own publish-time, which only Bovada exposes): `last_change_at` is
+   * derived by PropLine and is populated for every book, including Pinnacle
+   * and PrizePicks. Compare it across books in a single `getOdds` call to
+   * detect repricing lag without a separate `getOddsHistory` call per event.
+   */
+  last_change_at?: string | null;
   [k: string]: unknown;
 }
 
@@ -462,6 +471,12 @@ export interface PlayerMarketTrend {
 export interface PlayerTrends {
   player_name: string;
   sport_key: string;
+  /**
+   * Echo of the `dfs_odds_type` filter that scoped these trends (PrizePicks
+   * flavor: `"standard"`/`"goblin"`/`"demon"`). `null` = cross-book,
+   * flavor-agnostic.
+   */
+  dfs_odds_type?: string | null;
   markets: PlayerMarketTrend[];
   upgrade_url?: string | null;
   [k: string]: unknown;
