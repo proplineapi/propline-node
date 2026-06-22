@@ -53,6 +53,17 @@ export interface Outcome {
    * detect repricing lag without a separate `getOddsHistory` call per event.
    */
   last_change_at?: string | null;
+  /**
+   * Signed line-difficulty delta for a PrizePicks goblin/demon outcome:
+   * `point - standard_point` for the same player+stat. Positive on a harder
+   * (demon) line, negative on an easier (goblin) line. `null`/absent when the
+   * outcome isn't a PrizePicks goblin/demon, or when no `standard` line exists
+   * for that player+stat (PrizePicks often posts a player goblin/demon-only).
+   * PrizePicks publishes no numeric per-pick multiplier — the flavor plus this
+   * line gap are the modelable signals for fitting per-pick payout adjustments.
+   * Returned on `getOdds`; only ever set on PrizePicks goblin/demon outcomes.
+   */
+  line_gap?: number | null;
   [k: string]: unknown;
 }
 
