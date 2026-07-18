@@ -177,6 +177,21 @@ for (const event of events) {
 }
 ```
 
+### Filter to specific bookmakers
+
+Every odds endpoint (`getOdds`, `getOddsHistory`, `getOddsClosing`,
+`getMovement`) accepts a `bookmakers` option — a bookmaker key or array of
+keys, same parameter name as the-odds-api — to restrict the response to
+specific books:
+
+```ts
+const odds = await client.getOdds("baseball_mlb", {
+  eventId: 12345,
+  markets: ["pitcher_strikeouts"],
+  bookmakers: ["draftkings", "fanduel"], // omit for all books
+});
+```
+
 ### Filter to game-period markets
 
 Every odds endpoint accepts a `period` option to scope results to

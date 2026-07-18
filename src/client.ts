@@ -109,6 +109,12 @@ export interface GetOddsOptions {
   markets?: string[];
   /** Game-period filter — see `PeriodFilter`. */
   period?: PeriodFilter;
+  /**
+   * Bookmaker key(s) to restrict the response to (e.g. `"draftkings"` or
+   * `["draftkings", "fanduel"]`). Omitted = all books. Same parameter name
+   * as the-odds-api.
+   */
+  bookmakers?: string | string[];
 }
 
 export interface GetOddsHistoryOptions {
@@ -127,23 +133,34 @@ export interface GetOddsHistoryOptions {
   changesOnly?: boolean;
   /** Game-period filter — see `PeriodFilter`. */
   period?: PeriodFilter;
+  /** Bookmaker key(s) to restrict the response to. Omitted = all books. */
+  bookmakers?: string | string[];
 }
 
 export interface GetOddsClosingOptions {
   markets?: string[];
   /** Game-period filter — see `PeriodFilter`. */
   period?: PeriodFilter;
+  /** Bookmaker key(s) to restrict the response to. Omitted = all books. */
+  bookmakers?: string | string[];
 }
 
 export interface GetMovementOptions {
   markets?: string[];
   /** Game-period filter — see `PeriodFilter`. */
   period?: PeriodFilter;
+  /** Bookmaker key(s) to restrict the response to. Omitted = all books. */
+  bookmakers?: string | string[];
 }
 
 function _periodParam(p: PeriodFilter | undefined): string | undefined {
   if (p === undefined) return undefined;
   return typeof p === "string" ? p : p.join(",");
+}
+
+function _bookmakersParam(b: string | string[] | undefined): string | undefined {
+  if (b === undefined || b.length === 0) return undefined;
+  return typeof b === "string" ? b : b.join(",");
 }
 
 export interface GetScoresOptions {
@@ -430,6 +447,8 @@ export class PropLine {
     }
     const periodParam = _periodParam(options.period);
     if (periodParam !== undefined) params.period = periodParam;
+    const bookmakersParam = _bookmakersParam(options.bookmakers);
+    if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(
@@ -477,6 +496,8 @@ export class PropLine {
     if (options.changesOnly) params.changes_only = "true";
     const periodParam2 = _periodParam(options.period);
     if (periodParam2 !== undefined) params.period = periodParam2;
+    const bookmakersParam2 = _bookmakersParam(options.bookmakers);
+    if (bookmakersParam2 !== undefined) params.bookmakers = bookmakersParam2;
     return this._request<OddsHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/history`,
@@ -504,6 +525,8 @@ export class PropLine {
     }
     const periodParam3 = _periodParam(options.period);
     if (periodParam3 !== undefined) params.period = periodParam3;
+    const bookmakersParam3 = _bookmakersParam(options.bookmakers);
+    if (bookmakersParam3 !== undefined) params.bookmakers = bookmakersParam3;
     return this._request<OddsClosingResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/closing`,
@@ -664,6 +687,7 @@ export class PropLine {
       params.markets = options.markets.join(",");
     }
     params.period = _periodParam(options.period);
+    params.bookmakers = _bookmakersParam(options.bookmakers);
     return this._request<MovementResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/movement`,
