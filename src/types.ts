@@ -496,8 +496,12 @@ export interface PlayerTrends {
 export interface BestPrice {
   book: string;
   book_title: string;
-  /** American odds at this book. */
-  price: number;
+  /**
+   * American odds at this book. Null only on free-tier redacted
+   * responses — book identity and ranking stay visible, the price
+   * is paid.
+   */
+  price: number | null;
   /**
    * When this book last refreshed the market carrying this price —
    * use it to discount stale quotes. ISO timestamp; null when the
@@ -545,6 +549,13 @@ export interface EventBestLineResponse {
    */
   books_considered: string[];
   lines: BestLine[];
+  /**
+   * True on free-tier responses: structure, book identities, and the
+   * best-first ranking are visible but every price is null.
+   */
+  redacted?: boolean;
+  /** Set on redacted responses — where to upgrade for full prices. */
+  upgrade_url?: string | null;
   [k: string]: unknown;
 }
 

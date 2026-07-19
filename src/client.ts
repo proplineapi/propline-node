@@ -851,7 +851,10 @@ export class PropLine {
    * structure (synthetic +100/+100 quotes) isn't directly comparable
    * to traditional sportsbook odds.
    *
-   * Hobby tier or higher required (returns 403 on free).
+   * Hobby tier or higher sees prices. Free tier gets a redacted
+   * teaser: the full structure — every line, side, book identity, and
+   * the best-first ranking — with every price null, plus
+   * `redacted: true` and an `upgrade_url`.
    *
    * @example
    * ```ts
