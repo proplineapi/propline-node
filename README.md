@@ -452,6 +452,31 @@ for (const line of ev.lines) {
 }
 ```
 
+### Best line — cross-book line shopping (Hobby+)
+
+```ts
+// You've decided the bet — now find which book pays the most.
+const bl = await client.getEventBestLine("baseball_mlb", 12345, {
+  markets: "pitcher_strikeouts",
+  bookmakers: ["draftkings", "fanduel", "bovada"], // only my books
+});
+
+for (const line of bl.lines) {
+  for (const [side, info] of Object.entries(line.sides)) {
+    console.log(
+      `${line.description} ${side} ${line.point}: ` +
+      `${info.best.price} @ ${info.best.book_title} ` +
+      `(of ${info.all_prices.length} books)`
+    );
+  }
+}
+```
+
+DFS pick'em books (PrizePicks, Sleeper, Dabble) are excluded — their
+quotes aren't independently bettable payouts; Underdog is included only
+at clean two-way lines. Each price carries `last_update` so you can
+discount stale quotes.
+
 ### Bulk CSV export of resolved props (Pro)
 
 ```ts

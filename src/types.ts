@@ -498,6 +498,12 @@ export interface BestPrice {
   book_title: string;
   /** American odds at this book. */
   price: number;
+  /**
+   * When this book last refreshed the market carrying this price —
+   * use it to discount stale quotes. ISO timestamp; null when the
+   * book has no update signal.
+   */
+  last_update?: string | null;
   [k: string]: unknown;
 }
 
@@ -531,9 +537,11 @@ export interface EventBestLineResponse {
   away_team: string;
   commence_time: string;
   /**
-   * Books that quoted at least one line on this event. PrizePicks is
-   * always excluded from best-line responses — its synthetic DFS
-   * pricing isn't directly comparable to traditional sportsbook odds.
+   * Books that quoted at least one line on this event. DFS pick'em
+   * books (PrizePicks, Sleeper, Dabble) are always excluded from
+   * best-line responses — their quotes aren't independently bettable
+   * payouts; Underdog is included only at its clean two-way lines
+   * (payout_multiplier == 1.0).
    */
   books_considered: string[];
   lines: BestLine[];

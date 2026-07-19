@@ -224,6 +224,13 @@ export interface GetEventBestLineOptions {
    * to include every market on the event.
    */
   markets?: string | string[];
+  /**
+   * Optional bookmaker filter (the-odds-api-compatible). Pass a
+   * comma-separated string or an array of book keys (e.g.
+   * `["draftkings", "fanduel"]`) to shop only the books you hold
+   * accounts at. Omit for all comparable books.
+   */
+  bookmakers?: string | string[];
 }
 
 export interface CalcEventEvOptions {
@@ -869,6 +876,11 @@ export class PropLine {
       params.markets = Array.isArray(options.markets)
         ? options.markets.join(",")
         : options.markets;
+    }
+    if (options.bookmakers) {
+      params.bookmakers = Array.isArray(options.bookmakers)
+        ? options.bookmakers.join(",")
+        : options.bookmakers;
     }
     return this._request<EventBestLineResponse>(
       "GET",
