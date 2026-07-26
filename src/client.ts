@@ -38,24 +38,62 @@ export interface GetDfsPayoutsOptions {
   legWinProb?: number;
 }
 
+/**
+ * Structured error body returned by gated/throttled endpoints
+ * (see https://prop-line.com/docs#errors). Branch on `error` — the
+ * codes are stable — and follow the URLs instead of parsing prose.
+ */
+export interface PropLineErrorInfo {
+  /** Stable machine-readable code, e.g. "upgrade_required", "daily_limit_exceeded". */
+  error?: string;
+  /** Human-readable sentence. */
+  message?: string;
+  /** Cheapest tier that unlocks a gated feature (403s). */
+  required_tier?: string;
+  /** Where to unlock it — pre-filled one-click URL on daily-cap 429s. */
+  upgrade_url?: string;
+  docs_url?: string;
+  signup_url?: string;
+  backfill_url?: string;
+  /** Burst-limit backoff hint (429s). */
+  retry_after_seconds?: number;
+  /** Daily-cap 429s: recommended next plan incl. its own upgrade_url. */
+  recommended?: { plan?: string; upgrade_url?: string; [key: string]: unknown };
+  [key: string]: unknown;
+}
+
 /** Base error for all PropLine API failures. */
 export class PropLineError extends Error {
   readonly statusCode: number;
+  /** Human-readable detail message. */
   readonly detail: string;
+  /** Structured error body, when the API returned one. */
+  readonly info?: PropLineErrorInfo;
 
-  constructor(statusCode: number, detail: string) {
+  constructor(statusCode: number, detail: string, info?: PropLineErrorInfo) {
     super(`[${statusCode}] ${detail}`);
     this.name = "PropLineError";
     this.statusCode = statusCode;
     this.detail = detail;
+    this.info = info;
     Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  /** Stable machine-readable code (e.g. "upgrade_required"), if present. */
+  get errorCode(): string | undefined {
+    return this.info?.error;
+  }
+
+  /** The URL that unlocks a gated feature or lifts a cap, if present. */
+  get upgradeUrl(): string | undefined {
+    return this.info?.upgrade_url ?? this.info?.recommended?.upgrade_url;
   }
 }
 
 /** Thrown when the API key is missing or invalid (HTTP 401). */
 export class AuthError extends PropLineError {
-  constructor(detail = "Invalid API key") {
-    super(401, detail);
+  constructor(detail = "Invalid API key", info?: PropLineErrorInfo) {
+    super(401, detail, info);
     this.name = "AuthError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -63,8 +101,8 @@ export class AuthError extends PropLineError {
 
 /** Thrown when the daily request limit is exceeded (HTTP 429). */
 export class RateLimitError extends PropLineError {
-  constructor(detail = "Rate limit exceeded") {
-    super(429, detail);
+  constructor(detail = "Rate limit exceeded", info?: PropLineErrorInfo) {
+    super(429, detail, info);
     this.name = "RateLimitError";
     Object.setPrototypeOf(this, new.target.prototype);
   }
@@ -399,13 +437,16 @@ export class PropLine {
     }
 
     if (resp.status === 401) {
-      throw new AuthError(await readDetail(resp, "Invalid API key"));
+      const d = await readDetail(resp, "Invalid API key");
+      throw new AuthError(d.message, d.info);
     }
     if (resp.status === 429) {
-      throw new RateLimitError(await readDetail(resp, "Rate limit exceeded"));
+      const d = await readDetail(resp, "Rate limit exceeded");
+      throw new RateLimitError(d.message, d.info);
     }
     if (resp.status >= 400) {
-      throw new PropLineError(resp.status, await readDetail(resp, resp.statusText));
+      const d = await readDetail(resp, resp.statusText);
+      throw new PropLineError(resp.status, d.message, d.info);
     }
 
     if (resp.status === 204) {
@@ -981,10 +1022,12 @@ export class PropLine {
       throw new AuthError();
     }
     if (resp.status === 403) {
-      throw new PropLineError(403, await readDetail(resp, "Pro tier required"));
+      const d = await readDetail(resp, "Pro tier required");
+      throw new PropLineError(403, d.message, d.info);
     }
     if (resp.status >= 400) {
-      throw new PropLineError(resp.status, await readDetail(resp, resp.statusText));
+      const d = await readDetail(resp, resp.statusText);
+      throw new PropLineError(resp.status, d.message, d.info);
     }
 
     const buf = new Uint8Array(await resp.arrayBuffer());
@@ -1053,13 +1096,15 @@ export class PropLine {
       throw new AuthError();
     }
     if (resp.status === 403) {
-      throw new PropLineError(
-        403,
-        await readDetail(resp, "Historical Backfill pass or Enterprise required")
+      const d = await readDetail(
+        resp,
+        "Historical Backfill pass or Enterprise required"
       );
+      throw new PropLineError(403, d.message, d.info);
     }
     if (resp.status >= 400) {
-      throw new PropLineError(resp.status, await readDetail(resp, resp.statusText));
+      const d = await readDetail(resp, resp.statusText);
+      throw new PropLineError(resp.status, d.message, d.info);
     }
 
     const buf = new Uint8Array(await resp.arrayBuffer());
@@ -1186,18 +1231,33 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
   return body;
 }
 
-async function readDetail(resp: Response, fallback: string): Promise<string> {
+interface ReadDetailResult {
+  message: string;
+  info?: PropLineErrorInfo;
+}
+
+async function readDetail(
+  resp: Response,
+  fallback: string,
+): Promise<ReadDetailResult> {
   try {
     const text = await resp.text();
-    if (!text) return fallback;
+    if (!text) return { message: fallback };
     try {
       const json = JSON.parse(text) as { detail?: unknown };
-      if (typeof json.detail === "string") return json.detail;
+      if (typeof json.detail === "string") return { message: json.detail };
+      if (json.detail && typeof json.detail === "object") {
+        const info = json.detail as PropLineErrorInfo;
+        return {
+          message: typeof info.message === "string" ? info.message : text,
+          info,
+        };
+      }
     } catch {
       // not JSON
     }
-    return text || fallback;
+    return { message: text || fallback };
   } catch {
-    return fallback;
+    return { message: fallback };
   }
 }

@@ -21,6 +21,7 @@ export {
   RateLimitError,
 } from "./client.js";
 export type {
+  PropLineErrorInfo,
   PropLineOptions,
   GetOddsOptions,
   GetOddsHistoryOptions,
@@ -123,4 +124,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.22.1";
+export const VERSION = "0.23.0";

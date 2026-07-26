@@ -620,7 +620,9 @@ try {
   if (e instanceof AuthError) {
     console.error("Invalid API key");
   } else if (e instanceof RateLimitError) {
-    console.error("Daily limit exceeded — upgrade at prop-line.com/#pricing");
+    // Daily-cap 429s include a pre-filled one-click upgrade URL
+    console.error(`Rate limited: ${e.detail}`);
+    if (e.upgradeUrl) console.error(`Upgrade: ${e.upgradeUrl}`);
   } else if (e instanceof PropLineError) {
     console.error(`API error: ${e.statusCode} — ${e.detail}`);
   } else {
@@ -628,6 +630,16 @@ try {
   }
 }
 ```
+
+Gated and throttled endpoints return a structured error body
+([docs](https://prop-line.com/docs#errors)), exposed on every `PropLineError`:
+
+| Property | Meaning |
+|---|---|
+| `errorCode` | Stable machine-readable code: `upgrade_required`, `daily_limit_exceeded`, `burst_limit_exceeded`, `missing_api_key`, `invalid_api_key` (undefined on plain errors) |
+| `detail` | Human-readable sentence (also in `e.message` as `[status] detail`) |
+| `upgradeUrl` | Where to unlock a gated feature or lift a cap — pre-filled one-click URL on daily-cap 429s |
+| `info` | The full structured body (`PropLineErrorInfo`): `required_tier`, `retry_after_seconds`, `docs_url`, … |
 
 ## Links
 
