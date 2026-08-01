@@ -641,7 +641,25 @@ Gated and throttled endpoints return a structured error body
 | `upgradeUrl` | Where to unlock a gated feature or lift a cap — pre-filled one-click URL on daily-cap 429s |
 | `info` | The full structured body (`PropLineErrorInfo`): `required_tier`, `retry_after_seconds`, `docs_url`, … |
 
+## Tracking your usage
+
+Every authenticated response carries live quota headers; the client parses
+them into `client.lastQuota` automatically:
+
+```ts
+await client.getSports();
+
+const q = client.lastQuota!;
+console.log(`${q.used}/${q.limit} used today, ${q.remaining} left`);
+console.log(`Quota resets at ${q.resetAt.toISOString()}`); // 00:00 UTC, hard reset
+```
+
+`lastQuota` is `null` before the first request and refreshes on every call
+(including 429s), so a long-running poller can watch `remaining` and back
+off before hitting the daily cap.
+
 ## Links
+
 
 - **Website**: [prop-line.com](https://prop-line.com/?ref=npm)
 - **API Docs**: [prop-line.com/docs](https://prop-line.com/docs)

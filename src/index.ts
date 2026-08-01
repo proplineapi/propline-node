@@ -23,6 +23,7 @@ export {
 export type {
   PropLineErrorInfo,
   PropLineOptions,
+  QuotaStatus,
   GetOddsOptions,
   GetOddsHistoryOptions,
   GetOddsClosingOptions,
@@ -124,4 +125,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.23.0";
+export const VERSION = "0.24.0";

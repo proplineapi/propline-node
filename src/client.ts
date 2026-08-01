@@ -360,6 +360,23 @@ export interface VerifySignatureOptions {
   signature: string;
 }
 
+/**
+ * Live daily-quota state, parsed from the `X-Daily-*` headers the API
+ * returns on every authenticated response.
+ */
+export interface QuotaStatus {
+  /** Your tier's daily request cap. */
+  limit: number;
+  /** Requests used today (including the request that produced this). */
+  used: number;
+  /** Requests left before the cap. */
+  remaining: number;
+  /** Unix seconds when the quota resets (00:00 UTC — a hard reset, not a rolling window). */
+  resetEpoch: number;
+  /** Quota reset time as a `Date`. */
+  resetAt: Date;
+}
+
 const DEFAULT_BASE_URL = "https://api.prop-line.com/v1";
 const DEFAULT_TIMEOUT_MS = 15_000;
 
@@ -378,6 +395,16 @@ export class PropLine {
   readonly apiKey: string;
   readonly baseUrl: string;
   readonly timeoutMs: number;
+  /**
+   * Daily-quota state from the most recent API response, or `null` before
+   * the first request. Updated on every call (including 429s):
+   *
+   * ```ts
+   * await client.getSports();
+   * console.log(client.lastQuota?.remaining); // 999
+   * ```
+   */
+  lastQuota: QuotaStatus | null = null;
   private readonly _fetch: typeof fetch;
 
   constructor(apiKey: string, options: PropLineOptions = {}) {
@@ -411,6 +438,32 @@ export class PropLine {
     return url.toString();
   }
 
+  /**
+   * Record the X-Daily-* quota headers when present (absent on
+   * unauthenticated errors, e.g. an invalid key's 401).
+   */
+  private _captureQuota(resp: Response): void {
+    const limit = Number(resp.headers.get("X-Daily-Limit"));
+    const used = Number(resp.headers.get("X-Daily-Used"));
+    const remaining = Number(resp.headers.get("X-Daily-Remaining"));
+    const resetEpoch = Number(resp.headers.get("X-Daily-Reset"));
+    if (
+      resp.headers.has("X-Daily-Limit") &&
+      Number.isFinite(limit) &&
+      Number.isFinite(used) &&
+      Number.isFinite(remaining) &&
+      Number.isFinite(resetEpoch)
+    ) {
+      this.lastQuota = {
+        limit,
+        used,
+        remaining,
+        resetEpoch,
+        resetAt: new Date(resetEpoch * 1000),
+      };
+    }
+  }
+
   private async _request<T>(
     method: string,
     path: string,
@@ -435,6 +488,7 @@ export class PropLine {
     } finally {
       clearTimeout(timer);
     }
+    this._captureQuota(resp);
 
     if (resp.status === 401) {
       const d = await readDetail(resp, "Invalid API key");
@@ -1017,6 +1071,7 @@ export class PropLine {
     } finally {
       clearTimeout(timer);
     }
+    this._captureQuota(resp);
 
     if (resp.status === 401) {
       throw new AuthError();
@@ -1091,6 +1146,7 @@ export class PropLine {
     } finally {
       clearTimeout(timer);
     }
+    this._captureQuota(resp);
 
     if (resp.status === 401) {
       throw new AuthError();
