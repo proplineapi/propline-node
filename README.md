@@ -192,6 +192,26 @@ const odds = await client.getOdds("baseball_mlb", {
 });
 ```
 
+### Event-page links (click out to the book)
+
+`getOdds` and `getEventBestLine` accept `includeLinks: true` — each
+bookmaker block (odds) or price row (best-line) then carries a `link`:
+that book's public event-page URL, so your UI can click out from a line
+straight to the book. Plain navigation, no affiliate tagging. Links ship
+for Bovada, DraftKings, FanDuel, BetMGM, Kalshi, Polymarket and
+Smarkets; other books return `null`.
+
+```ts
+const bl = await client.getEventBestLine("baseball_mlb", 12345, {
+  includeLinks: true,
+});
+for (const line of bl.lines) {
+  for (const [side, info] of Object.entries(line.sides)) {
+    console.log(`${side}: ${info.best.price} @ ${info.best.book_title} -> ${info.best.link}`);
+  }
+}
+```
+
 ### Filter to game-period markets
 
 Every odds endpoint accepts a `period` option to scope results to

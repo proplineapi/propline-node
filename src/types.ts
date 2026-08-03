@@ -85,6 +85,13 @@ export interface Market {
 export interface Bookmaker {
   key: string;
   title: string;
+  /**
+   * Public event-page URL at this book. Only set when the request
+   * passed `includeLinks: true` and the book has a verified URL
+   * template (Bovada / DraftKings / FanDuel / BetMGM / Kalshi /
+   * Polymarket / Smarkets); null or absent otherwise.
+   */
+  link?: string | null;
   markets: Market[];
   [k: string]: unknown;
 }
@@ -508,6 +515,13 @@ export interface BestPrice {
    * book has no update signal.
    */
   last_update?: string | null;
+  /**
+   * Public event-page URL at this book — the click-out for "go bet
+   * this". Only set when the request passed `includeLinks: true` and
+   * the book has a verified URL template; null or absent otherwise.
+   * Present on free-tier redacted rows too.
+   */
+  link?: string | null;
   [k: string]: unknown;
 }
 

@@ -153,6 +153,15 @@ export interface GetOddsOptions {
    * as the-odds-api.
    */
   bookmakers?: string | string[];
+  /**
+   * When true, each bookmaker block carries a `link` — that book's
+   * public event-page URL (plain navigation, no affiliate tagging),
+   * so your UI can click out from a line to the book. Links ship for
+   * Bovada, DraftKings, FanDuel, BetMGM, Kalshi, Polymarket and
+   * Smarkets; other books return null. Maps to the
+   * the-odds-api-compatible `includeLinks=true` query param.
+   */
+  includeLinks?: boolean;
 }
 
 export interface GetOddsHistoryOptions {
@@ -269,6 +278,13 @@ export interface GetEventBestLineOptions {
    * accounts at. Omit for all comparable books.
    */
   bookmakers?: string | string[];
+  /**
+   * When true, every price row carries a `link` — that book's public
+   * event-page URL, the click-out for "go bet this". Books without a
+   * verified URL template return null. Links appear on free-tier
+   * redacted responses too (navigation isn't the paid data).
+   */
+  includeLinks?: boolean;
 }
 
 export interface CalcEventEvOptions {
@@ -551,6 +567,7 @@ export class PropLine {
     if (periodParam !== undefined) params.period = periodParam;
     const bookmakersParam = _bookmakersParam(options.bookmakers);
     if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
+    if (options.includeLinks) params.includeLinks = "true";
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(
@@ -980,6 +997,7 @@ export class PropLine {
         ? options.bookmakers.join(",")
         : options.bookmakers;
     }
+    if (options.includeLinks) params.includeLinks = "true";
     return this._request<EventBestLineResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/best-line`,
