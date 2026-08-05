@@ -744,6 +744,12 @@ export class PropLine {
    * Get raw player/team box-score stats (book-agnostic, free tier).
    *
    * Returns actual stat values decoupled from any bookmaker's lines.
+   *
+   * Live during games for major US sports (MLB + WNBA now; NFL, NCAAF,
+   * NBA, NHL at season start): while the event's status is "in_progress",
+   * stats refresh roughly every 90 seconds with cumulative in-game values —
+   * treat them as partial until status flips to "final". Other sports
+   * populate stats at game completion.
    */
   getStats(
     sport: string,
