@@ -54,6 +54,18 @@ export interface Outcome {
    */
   last_change_at?: string | null;
   /**
+   * This book's OWN identifier for the priced selection / contract, for
+   * joining onto its native feed. Kalshi ships the per-contract market
+   * ticker (e.g. `"KXMLBGAME-26AUG08NYYBOS-NYY"`). Only set when the
+   * request passed `includeBookIds: true`; null for books that don't
+   * publish a stable per-selection id.
+   *
+   * NB a two-sided market can share ONE id across both legs — a Kalshi
+   * contract is binary, so Over and Under are its YES and NO sides. The
+   * id identifies the contract; `name` says which side.
+   */
+  book_outcome_id?: string | null;
+  /**
    * Signed line-difficulty delta for a PrizePicks goblin/demon outcome:
    * `point - standard_point` for the same player+stat. Positive on a harder
    * (demon) line, negative on an easier (goblin) line. `null`/absent when the
@@ -92,6 +104,13 @@ export interface Bookmaker {
    * Polymarket / Smarkets); null or absent otherwise.
    */
   link?: string | null;
+  /**
+   * This book's OWN event identifier (Kalshi event ticker, DraftKings /
+   * BetMGM numeric event id, Pinnacle matchup id, ...). Only set when the
+   * request passed `includeBookIds: true` and this book publishes a
+   * stable id; null otherwise.
+   */
+  book_event_id?: string | null;
   markets: Market[];
   [k: string]: unknown;
 }

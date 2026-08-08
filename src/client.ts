@@ -162,6 +162,25 @@ export interface GetOddsOptions {
    * the-odds-api-compatible `includeLinks=true` query param.
    */
   includeLinks?: boolean;
+  /**
+   * When true, each bookmaker block carries a `book_event_id` and each
+   * outcome a `book_outcome_id` — that book's OWN identifiers for the
+   * event and the priced selection. Use these to join PropLine rows onto
+   * a book's native feed by id instead of matching on team names,
+   * players and lines. Kalshi ships both (the event ticker and the
+   * per-contract market ticker, e.g. `KXMLBGAME-26AUG08NYYBOS-NYY`);
+   * most other books ship an event id. Books without a stable id return
+   * null.
+   *
+   * NB a two-sided market can share ONE `book_outcome_id` across both
+   * legs — a Kalshi contract is binary, so Over and Under are its YES
+   * and NO sides. The id identifies the contract; the outcome's `name`
+   * says which side.
+   *
+   * PropLine-specific (`includeBookIds=true`); the-odds-api has no
+   * equivalent.
+   */
+  includeBookIds?: boolean;
 }
 
 export interface GetOddsHistoryOptions {
@@ -568,6 +587,7 @@ export class PropLine {
     const bookmakersParam = _bookmakersParam(options.bookmakers);
     if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
     if (options.includeLinks) params.includeLinks = "true";
+    if (options.includeBookIds) params.includeBookIds = "true";
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(

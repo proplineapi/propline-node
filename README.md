@@ -212,6 +212,40 @@ for (const line of bl.lines) {
 }
 ```
 
+### Native book ids (join onto a book's own data)
+
+`getOdds` accepts `includeBookIds: true` — each bookmaker block then
+carries a `book_event_id` and each outcome a `book_outcome_id`: that
+book's OWN identifiers for the event and the priced selection. Use them
+to join PropLine rows onto a book's native feed by id, instead of
+fuzzy-matching team names, player names and lines.
+
+Kalshi ships both — the event ticker and the per-contract market ticker
+— which makes this the leg-level join key if you already pull Kalshi's
+own API. Most other books ship an event id; books without a stable
+public id return `null`.
+
+```ts
+const event = await client.getOdds("baseball_mlb", {
+  eventId: 12345,
+  markets: ["h2h"],
+  includeBookIds: true,
+});
+for (const book of event.bookmakers) {
+  console.log(book.key, book.book_event_id);
+  for (const m of book.markets) {
+    for (const o of m.outcomes) {
+      console.log("   ", o.name, o.book_outcome_id);
+    }
+  }
+}
+```
+
+Note a two-sided market can share **one** `book_outcome_id` across both
+legs: a Kalshi contract is binary, so Over and Under are its YES and NO
+sides. The id identifies the contract; the outcome's `name` tells you
+which side.
+
 ### Filter to game-period markets
 
 Every odds endpoint accepts a `period` option to scope results to
