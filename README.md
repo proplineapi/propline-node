@@ -81,6 +81,9 @@ const { PropLine } = require("propline");
 | `mma_ufc` | UFC |
 | `boxing` | Boxing |
 
+> **Migrating from the-odds-api?** Their sport key names work as aliases (`americanfootball_nfl`, `icehockey_nhl`, `soccer_spain_la_liga`, `mma_mixed_martial_arts`, ...) so only the base URL changes. Aliases exist only where the competition is identical; anything else returns a structured 404 with `did_you_mean` rather than a silently-different feed.
+
+
 ## Bookmakers
 
 Every odds response returns a `bookmakers` array so you can compare lines across books in a single request — iterate the array to line-shop.
@@ -420,10 +423,12 @@ const ts = await client.getOddsHistory("baseball_mlb", 16, {
 - `interval`: downsample to one snapshot per bucket; latest snapshot in each bucket wins.
 - `changesOnly`: drop adjacent snapshots whose `(price, point)` match. Opening line is always kept.
 
-### Get closing line / CLV (Hobby+)
+### Get opening & closing lines / CLV (Hobby+)
 
-One call returns the last snapshot per `(book, market, outcome)` at or
-before `commence_time` — the canonical closing line for CLV tracking.
+One call returns **both ends of the move** per `(book, market, outcome)`:
+the last snapshot at or before `commence_time` (`price` / `point` /
+`closing_at`) and the first snapshot in the same 14-day pre-kickoff window
+(`opening_price` / `opening_point` / `opening_at`).
 
 ```ts
 const closing = await client.getOddsClosing("baseball_mlb", 5885, {
@@ -434,11 +439,24 @@ for (const book of closing.bookmakers) {
   for (const m of book.markets) {
     for (const o of m.outcomes) {
       if (o.description !== "Bryan Woo" || o.name !== "Over") continue;
-      console.log(`${book.key}: closed at ${o.price} (${o.closing_at})`);
+      console.log(
+        `${book.key}: opened ${o.opening_price} @ ${o.opening_point} ` +
+        `-> closed ${o.price} @ ${o.point} (${o.closing_at})`
+      );
     }
   }
 }
 ```
+
+Compare the **points**, not just the prices. On spreads and totals the
+number moves as much as the price (6.5 → 7.0), so a price-only comparison
+silently mis-measures those markets.
+
+`opening_age_seconds` is how long before kickoff the opener was recorded.
+The archive starts April 2026, so for a book/sport PropLine began polling
+after a line was posted, `opening_*` means *first observed by us* rather
+than the book's true open — a value in minutes rather than hours is the
+tell.
 
 ### Get player prop history (Pro full, Free redacted)
 

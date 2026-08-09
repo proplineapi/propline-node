@@ -644,15 +644,20 @@ export class PropLine {
     );
   }
 
-  /**
-   * Get the closing line per `(book, market, outcome)` for an event —
-   * the last snapshot at or before commence_time. Canonical CLV helper:
-   * replaces "fetch full history → find latest pre-game row" with one
-   * call. Each outcome carries a `closingAt` field with the snapshot's
-   * recorded_at timestamp.
-   *
-   * Hobby+: full data. Free tier: redacted.
-   */
+   /**
+    * Get the opening AND closing line per `(book, market, outcome)` for an
+    * event. Closing is the last snapshot at or before commence_time
+    * (`price` / `point` / `closing_at`); opening is the first snapshot in
+    * the same 14-day pre-kickoff window (`opening_price` / `opening_point`
+    * / `opening_at`). Canonical CLV helper: replaces "fetch full history →
+    * find the first and last pre-game rows" with one call.
+    *
+    * Compare the *points* as well as the prices — on spreads and totals
+    * the number moves as much as the price, so a price-only comparison
+    * mis-measures those markets.
+    *
+    * Hobby+: full data. Free tier: redacted.
+    */
   getOddsClosing(
     sport: string,
     eventId: number | string,

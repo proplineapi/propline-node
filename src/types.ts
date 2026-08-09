@@ -180,9 +180,32 @@ export interface ClosingOutcome {
   point: number | null;
   /** recorded_at of the snapshot we picked as "closing" (last at-or-before commence_time). */
   closing_at?: string | null;
+  /** Seconds between `closing_at` and kickoff. Large = the book stopped quoting early. */
+  closing_age_seconds?: number | null;
+  /** True when `closing_age_seconds` > 600 — advisory, not a hard filter. */
+  is_stale?: boolean;
+  /** American price of the first snapshot in the 14 days before kickoff. */
+  opening_price?: number | null;
+  /**
+   * Line that went with `opening_price`. On spreads and totals the point
+   * moves as much as the price (-3 -110 -> -3.5 -105), so compare this to
+   * `point` (the closing line), not just the two prices.
+   */
+  opening_point?: number | null;
+  /** recorded_at of the chosen opening snapshot. */
+  opening_at?: string | null;
+  /**
+   * Seconds between `opening_at` and kickoff. The archive starts 2026-04,
+   * so for a book/sport PropLine began polling after the line was posted,
+   * "opening" means first-observed-by-us rather than the book's true open —
+   * a value in minutes rather than hours is the tell.
+   */
+  opening_age_seconds?: number | null;
   book_updated_at?: string | null;
   book_version?: number | null;
   redacted?: boolean;
+  /** PrizePicks projection tier (standard/goblin/demon); null for sportsbooks. */
+  dfs_odds_type?: string | null;
   [k: string]: unknown;
 }
 
