@@ -96,7 +96,7 @@ Every odds response returns a `bookmakers` array so you can compare lines across
 | `pinnacle` | Pinnacle | MLB (game lines + props), NBA/NHL/soccer (game lines, goalie saves) |
 | `unibet` | Unibet | MLB/NBA/NHL + 6 soccer leagues — game lines; player props on NBA, NHL, soccer |
 | `prizepicks` | PrizePicks (DFS) | MLB, NBA, WNBA, NHL, tennis, UFC, soccer — player props only; synthetic +100/+100 even-money pricing since DFS payouts scale with parlay correct-count, not per-pick odds. Each outcome carries `dfs_odds_type` (`standard` = the market line, `goblin` = easier/lower-payout, `demon` = harder/higher-payout). Filter to `standard` for the market line; goblin/demon arrive as their own per-line markets (e.g. `Points (demon 27.5)`). Each goblin/demon outcome also carries `line_gap` — the signed delta from that player+stat's standard line (`+demon` harder / `-goblin` easier; null when no standard counterpart) |
-| `underdog` | Underdog Fantasy (DFS) | MLB, NBA, NHL, tennis, UFC, 9 soccer leagues — player props with real two-way American prices and a `payout_multiplier` on boosted/discounted picks (`null` = standard 1.0 pick; e.g. `1.5` boost / `0.75` discount). Filter out non-null multipliers when comparing DFS lines to sportsbook consensus |
+| `underdog` | Underdog Fantasy (DFS) | MLB, NBA, NHL, tennis, UFC, 9 soccer leagues — player props with real two-way American prices and a `payout_multiplier` on every outcome (`1.0` = standard pick; e.g. `1.5` boost / `0.75` discount; `null` only means the book is not Underdog). Keep only `payout_multiplier === 1.0` when comparing DFS lines to sportsbook consensus — filtering on non-null would drop every Underdog line |
 
 ```ts
 import { PropLine, Bookmakers } from "propline";
@@ -501,11 +501,17 @@ for (const m of trends.markets) {
 ### Cross-book +EV (Pro)
 
 ```ts
-// Find +EV plays on a single event. Pinnacle anchors the no-vig fair
-// line; every other book's price gets an EV%, with +EV plays floated
-// to the top of each line group.
+// Find +EV plays on a single event. A sharp book anchors the no-vig
+// fair line; every other book's price gets an EV%, with +EV plays
+// floated to the top of each line group.
+//
+// `bookmakers` narrows the PRICES to books you hold accounts at — never
+// the anchor. This still measures DK and FD against Pinnacle. Read
+// line.fair_source for the book that anchored each line; the anchor is
+// chosen per line, so one response mixes several.
 const ev = await client.getEventEv("baseball_mlb", 12345, {
   markets: ["pitcher_strikeouts", "batter_hits"],
+  bookmakers: ["draftkings", "fanduel"], // optional
 });
 
 for (const line of ev.lines) {

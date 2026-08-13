@@ -281,6 +281,18 @@ export interface GetEventEvOptions {
    * Omit to evaluate every market on the event.
    */
   markets?: string | string[];
+  /**
+   * Optional bookmaker filter (the-odds-api-compatible). Pass a
+   * comma-separated string or an array of book keys (e.g.
+   * `["draftkings", "fanduel"]`) to price only the books you hold
+   * accounts at. Omit for every book.
+   *
+   * This narrows the PRICES, never the fair-line anchor:
+   * `bookmakers: ["draftkings"]` still returns DraftKings EV% measured
+   * against Pinnacle. Lines where none of your books quote a price are
+   * omitted.
+   */
+  bookmakers?: string | string[];
 }
 
 export interface GetEventBestLineOptions {
@@ -972,6 +984,11 @@ export class PropLine {
       params.markets = Array.isArray(options.markets)
         ? options.markets.join(",")
         : options.markets;
+    }
+    if (options.bookmakers) {
+      params.bookmakers = Array.isArray(options.bookmakers)
+        ? options.bookmakers.join(",")
+        : options.bookmakers;
     }
     return this._request<EventEvResponse>(
       "GET",
