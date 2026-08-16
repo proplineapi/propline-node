@@ -92,6 +92,12 @@ export interface Market {
   key: string;
   /** Game-period bucket (q1..q4, h1/h2, p1..p3, i1..i9, f3/f5/f7). Null for full-game markets. */
   period?: string | null;
+  /**
+   * Set when this book has taken the market off the board pregame (the
+   * pull-side twin of the `market_suspended` webhook). Null = on the board.
+   * The outcomes are then the last quoted legs, not a live price.
+   */
+  suspended_at?: string | null;
   outcomes: Outcome[];
   [k: string]: unknown;
 }
@@ -719,6 +725,7 @@ export interface Webhook {
   filter_player_name: string | null;
   min_price_change_pct: number | null;
   min_steam_score: number | null;
+  min_books_agreeing: number | null;
   created_at: string;
   [k: string]: unknown;
 }

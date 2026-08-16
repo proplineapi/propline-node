@@ -361,8 +361,12 @@ export interface ExportOddsHistoryOptions {
   outPath?: string;
 }
 
-/** Webhook event types. `steam` = cross-book sharp-money alert. */
-export type WebhookEventType = "line_movement" | "resolution" | "steam";
+/**
+ * Webhook event types. `steam` = cross-book sharp-money alert.
+ * `market_suspended` = a book took a market off the board pregame (one
+ * delivery per (book, event, player) withdrawal, with `books_agreeing`).
+ */
+export type WebhookEventType = "line_movement" | "resolution" | "steam" | "market_suspended";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
@@ -377,6 +381,13 @@ export interface CreateWebhookOptions {
   minPriceChangePct?: number;
   /** Minimum 0-100 steam score to fire a `steam` event. Null = detector's global floor. */
   minSteamScore?: number;
+  /**
+   * `market_suspended` only: how many books must have pulled the same
+   * player/market on the same event before you are told. Unset/1 = every
+   * drop (right if you price off one book); 3+ = corroborated late
+   * scratches only. Every payload carries `books_agreeing` regardless.
+   */
+  minBooksAgreeing?: number;
 }
 
 export interface UpdateWebhookOptions {
@@ -388,6 +399,7 @@ export interface UpdateWebhookOptions {
   filterPlayerName?: string;
   minPriceChangePct?: number;
   minSteamScore?: number;
+  minBooksAgreeing?: number;
   active?: boolean;
 }
 
@@ -1344,6 +1356,7 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["filterPlayerName", "filter_player_name"],
     ["minPriceChangePct", "min_price_change_pct"],
     ["minSteamScore", "min_steam_score"],
+    ["minBooksAgreeing", "min_books_agreeing"],
     ["active", "active"],
   ];
   for (const [src, dst] of map) {
