@@ -719,6 +719,9 @@ for (const wh of await client.listWebhooks()) {
 await client.updateWebhook(whId, { minPriceChangePct: 5.0 });
 await client.testWebhook(whId);
 await client.listWebhookDeliveries(whId, { limit: 50 });
+// Page backwards through a deep queue: pass the smallest id from the
+// previous page. Newest-first; a short page is the last one.
+await client.listWebhookDeliveries(whId, { limit: 200, beforeId: 123456 });
 await client.deleteWebhook(whId);
 ```
 

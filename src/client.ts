@@ -404,8 +404,14 @@ export interface UpdateWebhookOptions {
 }
 
 export interface ListWebhookDeliveriesOptions {
-  /** Max deliveries to return. Default 50. */
+  /** Max deliveries to return. Default 50, max 200. */
   limit?: number;
+  /**
+   * Page backwards: pass the smallest `id` from the previous page to get
+   * the next-older page. Pages are newest-first; a page shorter than
+   * `limit` is the last one.
+   */
+  beforeId?: number;
 }
 
 export interface VerifySignatureOptions {
@@ -1300,7 +1306,7 @@ export class PropLine {
     return this._request<WebhookDelivery[]>(
       "GET",
       `/webhooks/${webhookId}/deliveries`,
-      { params: { limit: options.limit ?? 50 } }
+      { params: { limit: options.limit ?? 50, before_id: options.beforeId } }
     );
   }
 
