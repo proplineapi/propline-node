@@ -598,12 +598,22 @@ const wh = await client.createWebhook({
   filterSportKey: "baseball_mlb",
   filterMarketKey: "pitcher_strikeouts",
   minPriceChangePct: 2.0, // only fire on shifts of 2%+ (or any point change)
+  batchMax: 100,          // recommended: up to 100 events per POST
 });
 
 // Store wh.secret — this is the ONLY time it's returned.
 const SECRET = wh.secret;
 console.log(`webhook id: ${wh.id}`);
 ```
+
+With `batchMax` set (1–500), events arrive as a signed envelope instead of
+one POST each: `{"batch": true, "event_type": ..., "count": N, "events":
+[{"delivery_id": ..., "data": <per-event payload>}, ...]}` with an
+`X-PropLine-Batch: N` header. Dedupe on each element's `delivery_id`. Use it
+for any high-volume subscription — sport-wide `line_movement` can exceed
+1,000 events/min during a full slate, and one POST per event caps your
+delivery rate at your endpoint's response time. `batchMax: 0` reverts to
+per-event delivery. JSON format only (Discord stays per-event).
 
 ### Verify incoming deliveries
 

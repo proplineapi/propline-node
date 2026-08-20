@@ -726,6 +726,8 @@ export interface Webhook {
   min_price_change_pct: number | null;
   min_steam_score: number | null;
   min_books_agreeing: number | null;
+  /** Batched delivery: up to N events per POST (null = per-event). */
+  batch_max: number | null;
   created_at: string;
   [k: string]: unknown;
 }

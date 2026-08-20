@@ -388,6 +388,15 @@ export interface CreateWebhookOptions {
    * scratches only. Every payload carries `books_agreeing` regardless.
    */
   minBooksAgreeing?: number;
+  /**
+   * Batched delivery opt-in (1-500): up to N events per POST as a signed
+   * envelope `{"batch": true, "event_type": ..., "count": N, "events":
+   * [{"delivery_id": ..., "data": <per-event payload>}, ...]}` with an
+   * `X-PropLine-Batch` header. Strongly recommended for high-volume
+   * subscriptions — one POST per event caps your delivery rate at your
+   * endpoint's response time. 0 reverts to per-event. JSON format only.
+   */
+  batchMax?: number;
 }
 
 export interface UpdateWebhookOptions {
@@ -400,6 +409,8 @@ export interface UpdateWebhookOptions {
   minPriceChangePct?: number;
   minSteamScore?: number;
   minBooksAgreeing?: number;
+  /** Batched delivery (see CreateWebhookOptions.batchMax). 0 = per-event. */
+  batchMax?: number;
   active?: boolean;
 }
 
@@ -1363,6 +1374,7 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["minPriceChangePct", "min_price_change_pct"],
     ["minSteamScore", "min_steam_score"],
     ["minBooksAgreeing", "min_books_agreeing"],
+    ["batchMax", "batch_max"],
     ["active", "active"],
   ];
   for (const [src, dst] of map) {
