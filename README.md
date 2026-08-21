@@ -249,6 +249,30 @@ legs: a Kalshi contract is binary, so Over and Under are its YES and NO
 sides. The id identifies the contract; the outcome's `name` tells you
 which side.
 
+### Exchange liquidity (is the price actually bettable?)
+
+ProphetX is a peer-to-peer exchange, so its best price is often a thin
+dangling offer with only a few dollars behind it. Every ProphetX outcome
+carries `liquidity` — the dollars you can actually stake at the quoted
+price — so you can filter or flag quotes that are only good for a buck.
+`null` for books without a resting-size signal. The same field rides
+every price row on `getBestLine`, where a thin exchange quote often wins
+the best slot on price alone.
+
+```ts
+const event = await client.getOdds("baseball_mlb", { eventId: 12345 });
+for (const book of event.bookmakers) {
+  if (book.key !== "prophetx") continue;
+  for (const m of book.markets) {
+    for (const o of m.outcomes) {
+      if (o.liquidity != null && o.liquidity < 25) {
+        console.log(`thin: ${m.key} ${o.name} ${o.price} ($${o.liquidity})`);
+      }
+    }
+  }
+}
+```
+
 ### Filter to game-period markets
 
 Every odds endpoint accepts a `period` option to scope results to

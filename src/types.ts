@@ -68,6 +68,18 @@ export interface Outcome {
    */
   book_outcome_id?: string | null;
   /**
+   * Dollars a bettor can actually stake at the quoted `price` — exchange
+   * books that publish resting-offer size only (ProphetX today). `null`/
+   * absent for every other book, and for an exchange quote whose size the
+   * feed omitted (never coerced to 0). On a P2P exchange the best price is
+   * often a thin dangling offer with only a few dollars behind it — filter
+   * or discount small values before treating the price as bettable.
+   * Refreshed every poll cycle independently of price movement; liquidity
+   * changes never appear in `getOddsHistory` or fire `line_movement`
+   * webhooks.
+   */
+  liquidity?: number | null;
+  /**
    * Signed line-difficulty delta for a PrizePicks goblin/demon outcome:
    * `point - standard_point` for the same player+stat. Positive on a harder
    * (demon) line, negative on an easier (goblin) line. `null`/absent when the
@@ -572,6 +584,13 @@ export interface BestPrice {
    * Present on free-tier redacted rows too.
    */
   link?: string | null;
+  /**
+   * Dollars bettable at this price — exchange books publishing resting
+   * size only (ProphetX today), null elsewhere. A thin exchange quote
+   * often wins the "best" slot on price alone, so discount rows whose
+   * liquidity is a few dollars. Nulled on free-tier redacted responses.
+   */
+  liquidity?: number | null;
   [k: string]: unknown;
 }
 
