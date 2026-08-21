@@ -787,3 +787,89 @@ export interface DfsPayoutsResponse {
   plays: DfsPlayPayout[];
   [k: string]: unknown;
 }
+
+/**
+ * One placed bet submitted to `gradeClv`.
+ *
+ * `selection` is the subject: player name for a prop, team name for a
+ * game line. Set `side` ("Over" / "Under") for two-way markets; omit it
+ * for YES-only props where the player IS the outcome.
+ */
+export interface ClvBetInput {
+  /** Echoed back untouched, so rows can be aligned without relying on order. */
+  ref?: string | null;
+  sport_key: string;
+  event_id: number;
+  market: string;
+  bookmaker: string;
+  selection: string;
+  side?: string | null;
+  point?: number | null;
+  /** Canonical period code (q1, h1, p1, f5). Omit for full-game markets. */
+  period?: string | null;
+  /** American odds you took. */
+  price: number;
+  /** Defaults to 1 unit when computing `profit_units`. */
+  stake?: number | null;
+}
+
+/** One graded bet returned by `gradeClv`. */
+export interface ClvGradedBet extends ClvBetInput {
+  /**
+   * False whenever the bet could not be pinned to EXACTLY one stored
+   * outcome. Matching is fail-closed: a confident wrong match would report
+   * a real-looking CLV for a different bet, so ambiguity is refused.
+   */
+  matched: boolean;
+  unmatched_reason?:
+    | "event_not_found"
+    | "no_market_for_key"
+    | "no_outcome_for_selection"
+    | "ambiguous_selection"
+    | "no_closing_snapshot"
+    | null;
+
+  closing_price?: number | null;
+  closing_point?: number | null;
+  closing_at?: string | null;
+  /** Book stopped quoting well before kickoff — advisory, not a hard filter. */
+  closing_is_stale: boolean;
+  /**
+   * False when the event had not started, i.e. the "closing" snapshot is
+   * just the latest price. These rows are excluded from summary averages.
+   */
+  closing_is_final: boolean;
+
+  /** Which book's closing pair the de-vig came from — NOT necessarily yours. */
+  fair_source?: string | null;
+  closing_fair_prob?: number | null;
+
+  /** Price-vs-price. Familiar and quotable, but vig-blind. */
+  clv_pct?: number | null;
+  /** Price vs the DE-VIGGED close. The honest number. */
+  ev_vs_close_pct?: number | null;
+  beat_close?: boolean | null;
+
+  resolution?: "won" | "lost" | "push" | "void" | null;
+  actual_value?: number | null;
+}
+
+export interface ClvSummary {
+  bets: number;
+  matched: number;
+  unmatched: number;
+  graded: number;
+  /** Matched bets whose event has not started; excluded from the averages. */
+  pending: number;
+  avg_clv_pct?: number | null;
+  avg_ev_vs_close_pct?: number | null;
+  beat_close_pct?: number | null;
+  profit_units?: number | null;
+}
+
+export interface ClvGradeResponse {
+  summary: ClvSummary;
+  bets: ClvGradedBet[];
+  redacted?: boolean;
+  upgrade_url?: string | null;
+}

@@ -49,6 +49,10 @@ export type {
 } from "./client.js";
 
 export type {
+  ClvBetInput,
+  ClvGradedBet,
+  ClvSummary,
+  ClvGradeResponse,
   Sport,
   Event,
   Outcome,
@@ -125,4 +129,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.32.2";
+export const VERSION = "0.33.0";

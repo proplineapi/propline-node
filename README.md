@@ -485,6 +485,69 @@ after a line was posted, `opening_*` means *first observed by us* rather
 than the book's true open — a value in minutes rather than hours is the
 tell.
 
+### Grade your bets against the close (Hobby+)
+
+`getOddsClosing` gives you the closing line; `gradeClv` does the whole job —
+send the bets you actually placed and get CLV, the de-vigged closing fair,
+and the graded result back per bet. Stateless: nothing is stored.
+
+```ts
+const res = await client.gradeClv([
+  {
+    ref: "b1",
+    sport_key: "baseball_mlb",
+    event_id: 150791,
+    market: "batter_hits_runs_rbis",
+    bookmaker: "lowvig",
+    selection: "Drake Baldwin",
+    side: "Under",
+    point: 0.5,
+    price: 145,
+    stake: 1,
+  },
+]);
+
+const s = res.summary;
+console.log(
+  `${s.matched}/${s.bets} matched · beat the close ${s.beat_close_pct}% · ` +
+  `${s.profit_units}u`
+);
+
+for (const b of res.bets) {
+  if (!b.matched) {
+    console.log(`${b.ref}: unmatched (${b.unmatched_reason})`);
+    continue;
+  }
+  console.log(
+    `${b.ref}: took ${b.price} vs close ${b.closing_price} -> ` +
+    `CLV ${b.clv_pct}% · vs de-vigged close ${b.ev_vs_close_pct}% ` +
+    `(${b.fair_source}) -> ${b.resolution}`
+  );
+}
+```
+
+**Two CLV numbers, and they disagree on purpose.** `clv_pct` is
+price-vs-price: familiar and quotable, but vig-blind, so it flatters a bet
+taken on the juicy side of a wide market. `ev_vs_close_pct` scores your
+price against the **de-vigged** close and is the honest one — a -110 taken
+into a -105/-115 close beat the price but not the fair line. On a real bet
+the two came out +6.52% and +0.08%.
+
+The de-vig anchors to the **sharpest book quoting that line at close**
+(`fair_source`), not the book you bet at — de-vigging your own book always
+returns a negative number, because you paid its hold.
+
+Bets whose event hasn't started carry `closing_is_final: false`, land in
+`summary.pending`, and are **excluded from the averages**: before kickoff
+the "closing" price is just the latest price, so CLV is ~0 by construction.
+
+Matching is **fail-closed**. A bet that can't be pinned to exactly one
+stored outcome comes back `matched: false` with an `unmatched_reason`
+(`event_not_found`, `no_market_for_key`, `no_outcome_for_selection`,
+`ambiguous_selection`, `no_closing_snapshot`) rather than a confident wrong
+match. Lines match by equality, never nearest-value — 0.5 and 1.5 are
+different bets. Max 500 bets per request.
+
 ### Get player prop history (Pro full, Free redacted)
 
 ```ts

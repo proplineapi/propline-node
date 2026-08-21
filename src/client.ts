@@ -2,6 +2,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { writeFile } from "node:fs/promises";
 
 import type {
+  ClvBetInput,
+  ClvGradeResponse,
   Sport,
   Event as PropLineEvent,
   OddsResponse,
@@ -1319,6 +1321,56 @@ export class PropLine {
       `/webhooks/${webhookId}/deliveries`,
       { params: { limit: options.limit ?? 50, before_id: options.beforeId } }
     );
+  }
+
+  /**
+   * Grade placed bets against their closing lines (CLV).
+   *
+   * Closing line value is the only durable proxy for whether a bettor has
+   * edge: did the price you took beat the number the market settled on?
+   * Send the bets you actually placed; each comes back with its closing
+   * price, the de-vigged closing fair probability, CLV, and — once the
+   * game settles — the graded result and actual stat value.
+   *
+   * Stateless: nothing is stored server-side.
+   *
+   * **Two CLV numbers are returned deliberately.** `clv_pct` is
+   * price-vs-price — familiar and quotable, but vig-blind, so it flatters
+   * a bet taken on the juicy side of a wide market. `ev_vs_close_pct`
+   * scores your price against the DE-VIGGED close and is the honest one;
+   * on a real bet the two came out +6.52% and +0.08%.
+   *
+   * The de-vig anchors to the **sharpest book quoting that line at close**
+   * (`fair_source`), not the book you bet at — de-vigging your own book
+   * always returns a negative number, because you paid its hold.
+   *
+   * Bets whose event has not started carry `closing_is_final: false`, land
+   * in `summary.pending`, and are excluded from the summary averages:
+   * before kickoff the "closing" price is just the latest price.
+   *
+   * Matching is fail-closed — a bet that cannot be pinned to exactly one
+   * stored outcome returns `matched: false` with an `unmatched_reason`
+   * rather than a confident wrong match. Max 500 bets per request.
+   *
+   * Hobby+ required; free tier receives the structure with numbers nulled.
+   *
+   * @example
+   * const res = await client.gradeClv([{
+   *   ref: "b1",
+   *   sport_key: "baseball_mlb",
+   *   event_id: 150791,
+   *   market: "batter_hits_runs_rbis",
+   *   bookmaker: "lowvig",
+   *   selection: "Drake Baldwin",
+   *   side: "Under",
+   *   point: 0.5,
+   *   price: 145,
+   *   stake: 1,
+   * }]);
+   * console.log(res.summary.avg_ev_vs_close_pct);
+   */
+  gradeClv(bets: ClvBetInput[]): Promise<ClvGradeResponse> {
+    return this._request<ClvGradeResponse>("POST", "/clv/grade", { body: bets });
   }
 
   /**
