@@ -19,6 +19,17 @@ export interface Event {
   home_team: string;
   away_team: string;
   commence_time: string;
+  /**
+   * Event ids that were merged INTO this event when duplicate fixtures
+   * from different bookmakers were folded into one. Always present (there
+   * is no flag); `null`/absent for the large majority of events, which
+   * have never been merged.
+   *
+   * Use it to reconcile a stored id from a response you were already
+   * fetching. The alternative — re-requesting each saved id to see where
+   * it now resolves — costs one request per stored event.
+   */
+  merged_from_event_ids?: string[] | null;
   [k: string]: unknown;
 }
 
@@ -141,6 +152,17 @@ export interface OddsResponse {
   home_team: string;
   away_team: string;
   commence_time: string;
+  /**
+   * Event ids that were merged INTO this event when duplicate fixtures
+   * from different bookmakers were folded into one. Always present (there
+   * is no flag); `null`/absent for the large majority of events, which
+   * have never been merged.
+   *
+   * Use it to reconcile a stored id from a response you were already
+   * fetching. The alternative — re-requesting each saved id to see where
+   * it now resolves — costs one request per stored event.
+   */
+  merged_from_event_ids?: string[] | null;
   bookmakers: Bookmaker[];
   [k: string]: unknown;
 }
