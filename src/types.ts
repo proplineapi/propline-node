@@ -113,6 +113,14 @@ export interface ResolvedOutcome extends Outcome {
 
 export interface Market {
   key: string;
+  /**
+   * The book's OWN name for this market row, and the only thing that separates
+   * a TEAM total from the game total — both ride the `totals` key (e.g.
+   * `"Total"` at 2.5 alongside `"Team Total - Arsenal"` at 1.5). Wording is per
+   * book, so match on the team name rather than an exact string. Present on
+   * odds, odds history, closing lines and movement.
+   */
+  description?: string;
   /** Game-period bucket (q1..q4, h1/h2, p1..p3, i1..i9, f3/f5/f7). Null for full-game markets. */
   period?: string | null;
   /**
