@@ -592,6 +592,39 @@ export interface PlayerTrends {
   [k: string]: unknown;
 }
 
+export interface PlayerGame {
+  event_id: string;
+  commence_time: string;
+  status: string;
+  home_team: string;
+  away_team: string;
+  home_score: number | null;
+  away_score: number | null;
+  /** The box score's own team abbreviation for this player. */
+  team_abbr: string | null;
+  /**
+   * Null when the player's side can't be identified from `team_abbr`, and
+   * always for individual sports (tennis, golf, UFC) which have no home side.
+   * Left null rather than guessed — a wrong home/away flag would corrupt
+   * every split built on it.
+   */
+  player_team: string | null;
+  opponent: string | null;
+  is_home: boolean | null;
+  /** Flat map of stat name to value. Vocabulary is per-sport. */
+  stats: Record<string, number>;
+  [k: string]: unknown;
+}
+
+export interface PlayerGameLog {
+  player_name: string;
+  sport_key: string;
+  /** Echo of the `opponent` filter, or null. */
+  opponent: string | null;
+  games: PlayerGame[];
+  [k: string]: unknown;
+}
+
 export interface BestPrice {
   book: string;
   book_title: string;

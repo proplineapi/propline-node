@@ -18,6 +18,7 @@ import type {
   ContextResponse,
   MovementResponse,
   ResultsResponse,
+  PlayerGameLog,
   PlayerHistoryResponse,
   PlayerTrends,
   EventEvResponse,
@@ -262,6 +263,24 @@ export interface GetPlayerHistoryOptions {
   bookmaker?: string;
   /** Max entries (1-100). Default 20. */
   limit?: number;
+}
+
+export interface GetPlayerGamesOptions {
+  /** Games to return, 1-100. Default 20. */
+  limit?: number;
+  /**
+   * Head-to-head filter. Accepts a full name, nickname or abbreviation
+   * ("Boston Red Sox", "Red Sox", "BOS"). The limit applies AFTER this
+   * filter, so `{ opponent: "BOS", limit: 10 }` is the last 10 MEETINGS,
+   * not the Boston games among the last 10 games. Not capped to the
+   * current season.
+   */
+  opponent?: string;
+  /**
+   * Stat name(s) to return; omit for all. Vocabulary is per-sport —
+   * see https://prop-line.com/docs#stats
+   */
+  statType?: string | string[];
 }
 
 export interface GetPlayerTrendsOptions {
@@ -929,6 +948,53 @@ export class PropLine {
     return this._request<PlayerHistoryResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/players/${encodeURIComponent(playerName)}/history`,
+      { params }
+    );
+  }
+
+  /**
+   * A player's game log — recent games with every raw box-score stat.
+   *
+   * One call replaces one request per event, so L5/L10/L20, season splits,
+   * charts and head-to-head can all be built from the raw rows. Free tier.
+   *
+   * Reads the RAW-STATS archive, not graded-prop history: it covers every
+   * game with a box score on file, including games no sportsbook priced, so
+   * a "last 10 games" window here really is the last 10 games — unlike one
+   * built from {@link getPlayerHistory} or {@link getPlayerTrends}. Carries
+   * no line, price or grade.
+   *
+   * @example
+   * ```ts
+   * const log = await client.getPlayerGames("baseball_mlb", "Aaron Judge", { limit: 10 });
+   * const hits = log.games.reduce((n, g) => n + (g.stats.hits ?? 0), 0);
+   *
+   * // Last 5 meetings with Boston — not the Boston games among his last 5.
+   * const h2h = await client.getPlayerGames("baseball_mlb", "Aaron Judge", {
+   *   limit: 5,
+   *   opponent: "BOS",
+   * });
+   * ```
+   */
+  getPlayerGames(
+    sportKey: string,
+    playerName: string,
+    options: GetPlayerGamesOptions = {}
+  ): Promise<PlayerGameLog> {
+    const params: Record<string, string | number | undefined> = {
+      limit: options.limit ?? 20,
+    };
+    if (options.opponent) {
+      params.opponent = options.opponent;
+    }
+    if (options.statType) {
+      params.stat_type = Array.isArray(options.statType)
+        ? options.statType.join(",")
+        : options.statType;
+    }
+    return this._request<PlayerGameLog>(
+      "GET",
+      `/sports/${encodeURIComponent(sportKey)}/players/${encodeURIComponent(playerName)}/games`,
       { params }
     );
   }

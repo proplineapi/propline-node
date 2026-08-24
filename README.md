@@ -567,6 +567,29 @@ for (const e of hist.entries) {
 // Output: "2026-04-19 DraftKings: line 6.5, actual 6.0 -> Over lost, Under won"
 ```
 
+### Player game log / head-to-head (free)
+
+```ts
+// Every raw box-score stat, per game, in one call.
+const log = await client.getPlayerGames("baseball_mlb", "Aaron Judge", { limit: 10 });
+for (const g of log.games) {
+  const where = g.is_home ? "vs" : "@";
+  console.log(`${g.commence_time.slice(0, 10)} ${where} ${g.opponent}: ${g.stats.hits ?? 0} H`);
+}
+
+// Head-to-head. Accepts a name, nickname or abbreviation, and the limit
+// applies AFTER the filter — this is the last 5 MEETINGS with Boston.
+const h2h = await client.getPlayerGames("baseball_mlb", "Aaron Judge", {
+  limit: 5,
+  opponent: "BOS",
+});
+```
+
+Reads the raw-stats archive rather than graded-prop history, so it covers every
+game with a box score on file — including games no sportsbook priced. A "last 10
+games" window here really is the last 10 games. Carries no line, price or grade;
+use `getPlayerTrends` for hit rates against a posted line.
+
 ### Get player trends (Pro full, Free redacted)
 
 ```ts
