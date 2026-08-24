@@ -117,8 +117,8 @@ export interface Market {
    * The book's OWN name for this market row, and the only thing that separates
    * a TEAM total from the game total — both ride the `totals` key (e.g.
    * `"Total"` at 2.5 alongside `"Team Total - Arsenal"` at 1.5). Wording is per
-   * book, so match on the team name rather than an exact string. Present on
-   * odds, odds history, closing lines and movement.
+   * book, so prefer the `team` field below rather than parsing this string.
+   * Present on odds, odds history, closing lines and movement.
    */
   description?: string;
   /** Game-period bucket (q1..q4, h1/h2, p1..p3, i1..i9, f3/f5/f7). Null for full-game markets. */
@@ -129,6 +129,14 @@ export interface Market {
    * The outcomes are then the last quoted legs, not a live price.
    */
   suspended_at?: string | null;
+  /**
+   * Canonical event team name when this market is scoped to ONE team — i.e.
+   * a team total — and null for the game total. Both ride the `totals` key,
+   * so this is the machine-readable form of `description`: it matches the
+   * event's `home_team` / `away_team` exactly, so you never parse a book's
+   * wording. Always null outside `totals`.
+   */
+  team?: string | null;
   outcomes: Outcome[];
   [k: string]: unknown;
 }
@@ -201,6 +209,14 @@ export interface OddsHistoryMarket {
   key: string;
   /** Game-period bucket. Null for full-game markets. */
   period?: string | null;
+  /**
+   * Canonical event team name when this market is scoped to ONE team — i.e.
+   * a team total — and null for the game total. Both ride the `totals` key,
+   * so this is the machine-readable form of `description`: it matches the
+   * event's `home_team` / `away_team` exactly, so you never parse a book's
+   * wording. Always null outside `totals`.
+   */
+  team?: string | null;
   outcomes: OddsHistoryOutcome[];
   [k: string]: unknown;
 }
@@ -264,6 +280,14 @@ export interface ClosingMarket {
   description?: string;
   /** Game-period bucket. Null for full-game markets. */
   period?: string | null;
+  /**
+   * Canonical event team name when this market is scoped to ONE team — i.e.
+   * a team total — and null for the game total. Both ride the `totals` key,
+   * so this is the machine-readable form of `description`: it matches the
+   * event's `home_team` / `away_team` exactly, so you never parse a book's
+   * wording. Always null outside `totals`.
+   */
+  team?: string | null;
   outcomes: ClosingOutcome[];
   [k: string]: unknown;
 }
@@ -453,6 +477,14 @@ export interface MovementOutcome {
 export interface MovementMarket {
   key: string;
   period: string | null;
+  /**
+   * Canonical event team name when this market is scoped to ONE team — i.e.
+   * a team total — and null for the game total. Both ride the `totals` key,
+   * so this is the machine-readable form of `description`: it matches the
+   * event's `home_team` / `away_team` exactly, so you never parse a book's
+   * wording. Always null outside `totals`.
+   */
+  team?: string | null;
   outcomes: MovementOutcome[];
   [k: string]: unknown;
 }

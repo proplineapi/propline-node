@@ -152,6 +152,23 @@ for (const bk of odds.bookmakers) {
 ### Game lines (all sports)
 `h2h`, `spreads`, `totals` (alt lines and team totals included automatically)
 
+A **team total** rides the same `totals` key as the game total, so one book can
+return several `totals` markets on one event. Read the market's `team` field to
+tell them apart — it carries the canonical event team name (matching
+`home_team` / `away_team` exactly) on a team total and is `null` on the game
+total:
+
+```ts
+const gameTotals = market.team === null || market.team === undefined;
+const arsenalTotal = market.team === event.home_team;
+```
+
+`team` is always `null` outside `totals`, and is present on odds, odds history,
+closing lines and movement. The book's own `description` is still there as the
+human-readable label, but every book words it differently (Bovada suffixes
+`" - {team}"`, BetUS prefixes `"Team Total - "`, Smarkets and TAB say nothing),
+so prefer `team` over parsing that string.
+
 ## Examples
 
 ### Get MLB pitcher strikeout props
