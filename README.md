@@ -293,6 +293,37 @@ for (const book of event.bookmakers) {
 }
 ```
 
+### Join the same player across books (`player_id`)
+
+`book_outcome_id` joins a row onto one book's own feed. `player_id` does
+the complement: it joins the **same player across books**, without name
+matching. Every player-prop outcome carries it, unconditionally — no
+option to pass — on `getOdds` and `getEventResults`.
+
+It is the league's own permanent id, namespaced: `mlb:592450` (MLBAM),
+`nba:`/`wnba:` (CDN personId), `nhl:` (playerId), `espn:8439` (ESPN
+athlete id — soccer/NFL/NCAAF). A real league id rather than a name-hash,
+so it distinguishes two players with the same name, is stable across
+seasons, and cross-references to the league's own API.
+
+It is `null` whenever we lack a confirmed, unambiguous id — and never
+guessed, because a wrong join is worse than a missed one: a sport with no
+stable-id stats feed (tennis/golf/UFC/… — null forever), a player who has
+never graded, a book spelling that diverges from the league's (`"Elmer
+Rodríguez"` gets the id, `"Elmer Rodriguez Cruz"` stays null), or a name
+two players share. Coverage warms as games grade after launch.
+
+```ts
+// One player's line across every book, joined by id not name.
+const event = await client.getOdds("baseball_mlb", { eventId: 12345 });
+const byId: Record<string, { book: string; price: number }[]> = {};
+for (const book of event.bookmakers)
+  for (const m of book.markets)
+    for (const o of m.outcomes)
+      if (o.player_id)
+        (byId[o.player_id] ??= []).push({ book: book.key, price: o.price });
+```
+
 ### Filter to game-period markets
 
 Every odds endpoint accepts a `period` option to scope results to

@@ -101,6 +101,25 @@ export interface Outcome {
    * Returned on `getOdds`; only ever set on PrizePicks goblin/demon outcomes.
    */
   line_gap?: number | null;
+  /**
+   * Stable, cross-referenceable league player id for joining the SAME player
+   * across books WITHOUT name matching — `"{source}:{league_id}"`:
+   * `"mlb:592450"` (MLBAM person id), `"nba:"`/`"wnba:"` (CDN personId, separate
+   * id spaces), `"nhl:"` (api-web playerId), `"espn:8439"` (ESPN athlete id, for
+   * soccer/NFL/NCAAF). A real league id rather than a name-hash, so it
+   * distinguishes two players with the same name, is stable across seasons, and
+   * cross-references to the league's own API.
+   *
+   * Present on player-prop markets only (always `null` on game lines and
+   * futures), unconditional (no query param), on `getOdds` and `getEventResults`.
+   * `null`/absent whenever we lack a CONFIRMED, unambiguous id — and never
+   * guessed, because a wrong join is worse than a missed one: a sport with no
+   * stable-id stats feed (tennis/golf/UFC/… — null forever), a player who has
+   * never graded, a book spelling that diverges from the league's (`"Elmer
+   * Rodríguez"` gets the id, `"Elmer Rodriguez Cruz"` stays null), or a name two
+   * players share. Coverage warms as games grade after launch.
+   */
+  player_id?: string | null;
   [k: string]: unknown;
 }
 

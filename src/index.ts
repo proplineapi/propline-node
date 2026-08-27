@@ -132,4 +132,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.38.0";
+export const VERSION = "0.39.0";
