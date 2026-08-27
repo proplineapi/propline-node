@@ -795,6 +795,42 @@ export interface EventEvResponse {
   [k: string]: unknown;
 }
 
+export interface ProjectionRow {
+  market_key: string;
+  player: string;
+  /**
+   * Stable cross-book player id from the graded-name registry
+   * ("mlb:592450" / "espn:8439" style); null until the player has graded
+   * at least once, or on an ambiguous name. Same semantics as the
+   * per-outcome player_id on /odds.
+   */
+  player_id: string | null;
+  /**
+   * The market-implied statistical value — the line where the no-vig
+   * P(over) crosses 50%, median across contributing books. Null on the
+   * free tier (redacted teaser).
+   */
+  projected_value: number | null;
+  consensus_over_prob: number | null;
+  books_contributing: number;
+  last_update: string | null;
+  [k: string]: unknown;
+}
+
+export interface EventProjectionsResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  /** Describes the market-implied method; never a forecast. */
+  method: string;
+  projections: ProjectionRow[];
+  redacted: boolean;
+  upgrade_url: string | null;
+  [k: string]: unknown;
+}
+
 export interface EventEvCalcResponse {
   market: string;
   name: string;

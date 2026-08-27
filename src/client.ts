@@ -22,6 +22,7 @@ import type {
   PlayerHistoryResponse,
   PlayerTrends,
   EventEvResponse,
+  EventProjectionsResponse,
   EventEvCalcResponse,
   EventBestLineResponse,
   FuturesEvent,
@@ -293,6 +294,11 @@ export interface GetPlayerTrendsOptions {
    * cross-book behavior. Flavor tagging began 2026-06-16.
    */
   dfsOddsType?: "standard" | "goblin" | "demon";
+}
+
+export interface GetEventProjectionsOptions {
+  /** Optional market-key filter (comma-separated string or array). */
+  markets?: string | string[];
 }
 
 export interface GetEventEvOptions {
@@ -1092,6 +1098,45 @@ export class PropLine {
     return this._request<FuturesEvent[]>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/futures`,
+      { params }
+    );
+  }
+
+  /**
+   * Market-implied consensus projections for a single event.
+   *
+   * One row per (market, player): the statistical value the betting
+   * market collectively implies — the line where the no-vig P(over)
+   * crosses 50%, median across contributing sportsbooks. Built for
+   * validating your own statistical/fantasy projections against the
+   * live market. Market-implied arithmetic over sportsbook prices,
+   * never a forecast. DFS pick'em pricing is excluded.
+   *
+   * Paid tier required (Hobby+); free tier receives the structure with
+   * projected values nulled and `redacted: true`.
+   *
+   * @example
+   * ```ts
+   * const proj = await client.getEventProjections("football_nfl", 25070);
+   * for (const row of proj.projections) {
+   *   console.log(row.player, row.market_key, row.projected_value);
+   * }
+   * ```
+   */
+  getEventProjections(
+    sport: string,
+    eventId: number | string,
+    options: GetEventProjectionsOptions = {}
+  ): Promise<EventProjectionsResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets) {
+      params.markets = Array.isArray(options.markets)
+        ? options.markets.join(",")
+        : options.markets;
+    }
+    return this._request<EventProjectionsResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/projections`,
       { params }
     );
   }

@@ -691,6 +691,25 @@ for (const line of ev.lines) {
 }
 ```
 
+### Market-implied projections (Hobby+)
+
+```ts
+// The statistical value the market implies per (market, player) — the
+// line where the no-vig P(over) crosses 50%, median across books.
+// Market-implied arithmetic, not a forecast. Use it to validate your
+// own projections against the live market.
+const proj = await client.getEventProjections("football_nfl", 25070, {
+  markets: ["player_pass_yds", "player_receptions"], // optional
+});
+
+for (const row of proj.projections) {
+  console.log(
+    `${row.player.padEnd(24)} ${row.market_key.padEnd(22)} ` +
+      `proj=${row.projected_value}  books=${row.books_contributing}`
+  );
+}
+```
+
 ### Best line — cross-book line shopping (Hobby+)
 
 ```ts

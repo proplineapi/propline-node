@@ -38,6 +38,7 @@ export type {
   GetPlayerGamesOptions,
   GetPlayerTrendsOptions,
   GetEventEvOptions,
+  GetEventProjectionsOptions,
   GetEventBestLineOptions,
   CalcEventEvOptions,
   ExportResolvedPropsOptions,
@@ -102,6 +103,8 @@ export type {
   EvOutcome,
   EvLine,
   EventEvResponse,
+  EventProjectionsResponse,
+  ProjectionRow,
   EventEvCalcResponse,
   BestPrice,
   BestLineSide,
@@ -132,4 +135,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.39.0";
+export const VERSION = "0.40.0";
