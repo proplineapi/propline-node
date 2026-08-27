@@ -1077,11 +1077,22 @@ export class PropLine {
    *   }
    * }
    * ```
+   *
+   * @param options.bookmakers Optional book key(s) to restrict the per-book
+   *   market rows (the-odds-api-compatible; omitted = all books, unknown keys
+   *   match nothing). A futures event left with no matching market is dropped.
    */
-  getFutures(sport: string): Promise<FuturesEvent[]> {
+  getFutures(
+    sport: string,
+    options: { bookmakers?: string | string[] } = {}
+  ): Promise<FuturesEvent[]> {
+    const params: Record<string, string | undefined> = {};
+    const bookmakersParam = _bookmakersParam(options.bookmakers);
+    if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
     return this._request<FuturesEvent[]>(
       "GET",
-      `/sports/${encodeURIComponent(sport)}/futures`
+      `/sports/${encodeURIComponent(sport)}/futures`,
+      { params }
     );
   }
 
