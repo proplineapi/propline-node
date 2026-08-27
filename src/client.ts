@@ -398,6 +398,13 @@ export interface CreateWebhookOptions {
   filterEventId?: number;
   filterMarketKey?: string;
   filterPlayerName?: string;
+  /**
+   * Comma-separated book keys, same vocabulary as the `?bookmakers=`
+   * query param (e.g. "draftkings,fanduel"). Unset = all books; unknown
+   * keys match nothing. Applies to line_movement, resolution and
+   * market_suspended; steam is cross-book and unaffected.
+   */
+  filterBookmakerKey?: string;
   /** Minimum % change in American odds to fire a line_movement. Point-only shifts always pass. */
   minPriceChangePct?: number;
   /** Minimum 0-100 steam score to fire a `steam` event. Null = detector's global floor. */
@@ -427,6 +434,13 @@ export interface UpdateWebhookOptions {
   filterEventId?: number;
   filterMarketKey?: string;
   filterPlayerName?: string;
+  /**
+   * Comma-separated book keys, same vocabulary as the `?bookmakers=`
+   * query param (e.g. "draftkings,fanduel"). Unset = all books; unknown
+   * keys match nothing. Applies to line_movement, resolution and
+   * market_suspended; steam is cross-book and unaffected.
+   */
+  filterBookmakerKey?: string;
   minPriceChangePct?: number;
   minSteamScore?: number;
   minBooksAgreeing?: number;
@@ -1489,6 +1503,7 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["filterEventId", "filter_event_id"],
     ["filterMarketKey", "filter_market_key"],
     ["filterPlayerName", "filter_player_name"],
+    ["filterBookmakerKey", "filter_bookmaker_key"],
     ["minPriceChangePct", "min_price_change_pct"],
     ["minSteamScore", "min_steam_score"],
     ["minBooksAgreeing", "min_books_agreeing"],

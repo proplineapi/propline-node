@@ -837,6 +837,7 @@ export interface Webhook {
   filter_event_id: number | null;
   filter_market_key: string | null;
   filter_player_name: string | null;
+  filter_bookmaker_key: string | null;
   min_price_change_pct: number | null;
   min_steam_score: number | null;
   min_books_agreeing: number | null;
