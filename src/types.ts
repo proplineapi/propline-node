@@ -177,6 +177,22 @@ export interface Bookmaker {
    * stable id; null otherwise.
    */
   book_event_id?: string | null;
+  /**
+   * True when the event is LIVE and this book does not price it in play.
+   * Its prices below are the last PREGAME quote and will not move again
+   * until the game ends — they are not a live price.
+   *
+   * This is the one staleness class `Market.suspended_at` cannot show:
+   * that flag is set when a book pulls a market from a poll, and a book
+   * with no in-play feed is never polled for the fixture once it starts,
+   * so nothing goes missing and nothing is flagged. Always false before
+   * kickoff.
+   *
+   * The rows are still returned rather than withheld, because on the DFS
+   * books the frozen pregame line is the number the bet settles against.
+   * Filter these out yourself if you are pricing in play.
+   */
+  pregame_only?: boolean;
   markets: Market[];
   [k: string]: unknown;
 }

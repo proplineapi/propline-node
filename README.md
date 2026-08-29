@@ -872,6 +872,19 @@ app.post(
 
 ### Market-suspended payload
 
+### Stale prices on a live game (`pregame_only`)
+
+Each bookmaker block in `/odds` carries `pregame_only`. It is `true` when the event is **live** and that book does not price it in play — the prices shown are its last pregame quote and will not move again until the game ends.
+
+This is the one staleness case `suspended_at` cannot show you: that flag is set when a book *pulls* a market, and a book with no in-play feed is never polled for the fixture once it starts, so nothing goes missing and nothing is flagged.
+
+```ts
+const odds = await client.getEventOdds("football_ncaaf", eventId);
+const live = odds.bookmakers.filter((b) => !b.pregame_only);
+```
+
+The rows are still returned rather than withheld, because on the DFS books that frozen pregame line is the number the bet settles against — so treat `pregame_only: true` as "a real price, but not a live one".
+
 A book took a market off the board pregame. One delivery per (book, event, player) — a late scratch is ONE event carrying every key the book pulled, not one per key. `books_agreeing` is how many books have pulled the same subject on the same event; subscribe with `minBooksAgreeing: 3` to hear only corroborated drops, or leave it unset to hear every one (the right choice if you price off a single book). Pull-side twin: `suspended_at` on every market in `/odds`, on every tier.
 
 ```ts
