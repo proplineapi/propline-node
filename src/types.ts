@@ -20,6 +20,17 @@ export interface Event {
   away_team: string;
   commence_time: string;
   /**
+   * Stable per-team join key ("st_mirren", "chiefs"). Every bookmaker
+   * spelling of a club resolves to the same key, and a published key is
+   * never renamed — key stored per-team data on this, not on the display
+   * name. `null` when the team cannot be identified with certainty
+   * (individual sports like tennis/golf have no team; a small tail of
+   * team sports lacks coverage) — fall back to the name there.
+   */
+  home_team_key?: string | null;
+  /** Away-side counterpart of `home_team_key`. */
+  away_team_key?: string | null;
+  /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
    * is no flag); `null`/absent for the large majority of events, which
@@ -204,6 +215,17 @@ export interface OddsResponse {
   away_team: string;
   commence_time: string;
   /**
+   * Stable per-team join key ("st_mirren", "chiefs"). Every bookmaker
+   * spelling of a club resolves to the same key, and a published key is
+   * never renamed — key stored per-team data on this, not on the display
+   * name. `null` when the team cannot be identified with certainty
+   * (individual sports like tennis/golf have no team; a small tail of
+   * team sports lacks coverage) — fall back to the name there.
+   */
+  home_team_key?: string | null;
+  /** Away-side counterpart of `home_team_key`. */
+  away_team_key?: string | null;
+  /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
    * is no flag); `null`/absent for the large majority of events, which
@@ -351,6 +373,17 @@ export interface ScoreEvent {
   home_team: string;
   away_team: string;
   commence_time: string;
+  /**
+   * Stable per-team join key ("st_mirren", "chiefs"). Every bookmaker
+   * spelling of a club resolves to the same key, and a published key is
+   * never renamed — key stored per-team data on this, not on the display
+   * name. `null` when the team cannot be identified with certainty
+   * (individual sports like tennis/golf have no team; a small tail of
+   * team sports lacks coverage) — fall back to the name there.
+   */
+  home_team_key?: string | null;
+  /** Away-side counterpart of `home_team_key`. */
+  away_team_key?: string | null;
   status: "upcoming" | "in_progress" | "final" | string;
   home_score: number | null;
   away_score: number | null;
