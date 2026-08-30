@@ -31,6 +31,17 @@ export interface Event {
   /** Away-side counterpart of `home_team_key`. */
   away_team_key?: string | null;
   /**
+   * The league's own permanent team id, namespaced by source ("mlb:147",
+   * "espn.soccer:363", "espn.nfl:12"). Use `home_team_key` to key data
+   * inside PropLine; use this to join PropLine rows against external
+   * datasets keyed on the same league ids. Sourced from the stats feeds
+   * PropLine grades against, never guessed — `null` where no confirmed id
+   * exists.
+   */
+  home_team_id?: string | null;
+  /** Away-side counterpart of `home_team_id`. */
+  away_team_id?: string | null;
+  /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
    * is no flag); `null`/absent for the large majority of events, which
@@ -226,6 +237,17 @@ export interface OddsResponse {
   /** Away-side counterpart of `home_team_key`. */
   away_team_key?: string | null;
   /**
+   * The league's own permanent team id, namespaced by source ("mlb:147",
+   * "espn.soccer:363", "espn.nfl:12"). Use `home_team_key` to key data
+   * inside PropLine; use this to join PropLine rows against external
+   * datasets keyed on the same league ids. Sourced from the stats feeds
+   * PropLine grades against, never guessed — `null` where no confirmed id
+   * exists.
+   */
+  home_team_id?: string | null;
+  /** Away-side counterpart of `home_team_id`. */
+  away_team_id?: string | null;
+  /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
    * is no flag); `null`/absent for the large majority of events, which
@@ -384,6 +406,17 @@ export interface ScoreEvent {
   home_team_key?: string | null;
   /** Away-side counterpart of `home_team_key`. */
   away_team_key?: string | null;
+  /**
+   * The league's own permanent team id, namespaced by source ("mlb:147",
+   * "espn.soccer:363", "espn.nfl:12"). Use `home_team_key` to key data
+   * inside PropLine; use this to join PropLine rows against external
+   * datasets keyed on the same league ids. Sourced from the stats feeds
+   * PropLine grades against, never guessed — `null` where no confirmed id
+   * exists.
+   */
+  home_team_id?: string | null;
+  /** Away-side counterpart of `home_team_id`. */
+  away_team_id?: string | null;
   status: "upcoming" | "in_progress" | "final" | string;
   home_score: number | null;
   away_score: number | null;
