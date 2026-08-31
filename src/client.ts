@@ -28,6 +28,7 @@ import type {
   FuturesEvent,
   Webhook,
   WebhookDelivery,
+  ReplayEvent,
   ReplayPage,
   DfsPayoutsResponse,
 } from "./types.js";
@@ -475,6 +476,25 @@ export interface ReplayWebhookEventsOptions {
   sinceSeq?: number;
   /** Max events per page. Default 100, max 500. */
   limit?: number;
+}
+
+export interface StreamOptions {
+  /** Subscription to stream. Must be transport="websocket". */
+  webhookId: number;
+  /** Resume point — the last `seq` you processed. Default 0. */
+  sinceSeq?: number;
+  /** Auto-reconnect and resume from the last seq. Default true. */
+  reconnect?: boolean;
+  /** Override the websocket origin (default: derived from baseUrl). */
+  wsUrl?: string;
+  /** Called on every successful handshake with the `ready` frame. */
+  onReady?: (ready: ReplayPage) => void;
+  /**
+   * Called when the server reports events after your cursor have aged out of
+   * retention. This is the one case the stream cannot make you whole —
+   * resync from the REST endpoints.
+   */
+  onTruncated?: (ready: ReplayPage) => void;
 }
 
 export interface VerifySignatureOptions {
@@ -1500,6 +1520,113 @@ export class PropLine {
       `/webhooks/${webhookId}/replay`,
       { params: { since_seq: options.sinceSeq ?? 0, limit: options.limit ?? 100 } }
     );
+  }
+
+  /**
+   * Stream a websocket subscription as an async iterable.
+   *
+   * ```ts
+   * for await (const ev of client.stream({ webhookId: 12, sinceSeq: 4180 })) {
+   *   console.log(ev.seq, ev.event_type, ev.data);
+   * }
+   * ```
+   *
+   * The subscription must have been created with `transport: "websocket"`.
+   * Same events, same filters, same `seq` as an HTTP webhook — one
+   * subscription, different transport.
+   *
+   * **Reconnects automatically and resumes from the last `seq` it saw**, which
+   * is the whole point of the sequence: a dropped connection does not become a
+   * gap in your data. Set `reconnect: false` to get a single connection that
+   * ends when the socket closes.
+   *
+   * If the server reports `truncated` — events after your cursor aged out of
+   * retention and are gone — `onTruncated` fires. Handle it: that is the one
+   * case where the stream cannot make you whole and you should resync from the
+   * REST endpoints.
+   */
+  async *stream(options: StreamOptions): AsyncGenerator<ReplayEvent, void, void> {
+    const wsBase = (options.wsUrl ?? this.baseUrl)
+      .replace(/^http:/, "ws:")
+      .replace(/^https:/, "wss:")
+      .replace(/\/v1\/?$/, "");
+    const url = `${wsBase}/v1/stream`;
+    let cursor = options.sinceSeq ?? 0;
+    let attempt = 0;
+
+    for (;;) {
+      const queue: ReplayEvent[] = [];
+      let notify: (() => void) | null = null;
+      let closed: Error | null = null;
+      let opened = false;
+
+      const ws = new WebSocket(url);
+      const wake = () => { const n = notify; notify = null; n?.(); };
+
+      ws.addEventListener("open", () => {
+        opened = true;
+        ws.send(JSON.stringify({
+          type: "auth",
+          api_key: this.apiKey,
+          webhook_id: options.webhookId,
+          since_seq: cursor,
+        }));
+      });
+      ws.addEventListener("message", (e: MessageEvent) => {
+        let msg: Record<string, unknown>;
+        try { msg = JSON.parse(String(e.data)); } catch { return; }
+        if (msg.type === "ready") {
+          attempt = 0;                       // a successful handshake resets backoff
+          if (msg.truncated) options.onTruncated?.(msg as unknown as ReplayPage);
+          options.onReady?.(msg as unknown as ReplayPage);
+        } else if (msg.type === "event") {
+          queue.push(msg as unknown as ReplayEvent);
+          wake();
+        }
+        // "ping" needs no reply — it exists to keep idle proxies from closing.
+      });
+      ws.addEventListener("close", (e: CloseEvent) => {
+        // 4401/4403/4404/4400 are terminal: retrying cannot fix a bad key, a
+        // tier without access, or a subscription that is not yours. Only
+        // transport failures and 4429 are worth reconnecting for.
+        const terminal = [4400, 4401, 4403, 4404].includes(e.code);
+        closed = new PropLineError(
+          e.code,
+          `stream closed${e.reason ? `: ${e.reason}` : ""}`,
+        );
+        (closed as PropLineError & { terminal?: boolean }).terminal = terminal;
+        wake();
+      });
+      ws.addEventListener("error", () => {
+        if (!closed) closed = new PropLineError(0, "stream connection error");
+        wake();
+      });
+
+      try {
+        for (;;) {
+          while (queue.length) {
+            const ev = queue.shift()!;
+            cursor = ev.seq;               // advance BEFORE yielding, so a
+            yield ev;                     // consumer `break` still resumes right
+          }
+          if (closed) break;
+          await new Promise<void>((r) => { notify = r; });
+        }
+      } finally {
+        try { ws.close(); } catch { /* already closed */ }
+      }
+
+      const err = closed as (PropLineError & { terminal?: boolean }) | null;
+      if (err?.terminal) throw err;
+      if (options.reconnect === false) {
+        if (err && !opened) throw err;
+        return;
+      }
+      // Capped exponential backoff. Without the cap a long outage would have
+      // clients reconnecting hours apart; without backoff they would stampede.
+      const delayMs = Math.min(30_000, 500 * 2 ** attempt++);
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
   }
 
   /**

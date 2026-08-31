@@ -969,6 +969,35 @@ for (;;) {
 }
 ```
 
+### Websocket streaming
+
+If your stack already speaks websockets — or you can't host a public HTTPS
+endpoint — connect a socket instead of receiving POSTs. Same events, same
+filters, same `seq`: a stream and a webhook are the **same subscription with a
+different transport**.
+
+```ts
+const wh = await client.createWebhook({
+  transport: "websocket",          // no url — there is nowhere to POST
+  events: ["line_movement"],
+  filterSportKey: "baseball_mlb",
+});
+
+for await (const ev of client.stream({ webhookId: wh.id, sinceSeq: myCursor })) {
+  await handle(ev.event_type, ev.data);
+  myCursor = ev.seq;               // persist it; this is your resume point
+}
+```
+
+Reconnects and resumes from the last `seq` automatically, so a dropped
+connection is not a gap in your data. `onTruncated` fires when events after
+your cursor aged out of retention — the one case streaming cannot make you
+whole, where you should resync from REST. Zero dependencies: it uses Node's
+built-in `WebSocket` (Node 22+).
+
+Concurrent connections are capped per plan (Streaming Lite 2, Streaming 5).
+Delivered events are **not** metered.
+
 Replay is bounded by delivery retention: 2 days, and at most 5,000 deliveries
 per subscription. `latest_seq` is **not** subject to retention, so
 `latest_seq - next_seq` stays honest even after the rows are pruned. Sequence

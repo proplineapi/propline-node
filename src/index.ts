@@ -48,6 +48,7 @@ export type {
   UpdateWebhookOptions,
   ListWebhookDeliveriesOptions,
   ReplayWebhookEventsOptions,
+  StreamOptions,
   VerifySignatureOptions,
 } from "./client.js";
 
@@ -138,4 +139,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.45.0";
+export const VERSION = "0.46.0";
