@@ -936,6 +936,21 @@ export interface FuturesOutcome {
   /** American odds. */
   price: number | null;
   price_decimal: number | null;
+  /**
+   * Settlement, for the season-long team futures a final regular-season
+   * table decides — win totals, division winners and the conference #1
+   * seed on NFL / NBA / MLB. Null on everything else: a championship, a
+   * pennant or a conference title is not in any standings table, and
+   * awards (MVP, Coach of the Year) are published by no free feed, so
+   * those stay honestly unsettled rather than guessed.
+   */
+  resolution?: "won" | "lost" | "push" | "void" | null;
+  /**
+   * The figure settled against — a team's season wins for a win total,
+   * 1/0 for a yes-style outright. Null until settled.
+   */
+  actual_value?: number | null;
+  settled_at?: string | null;
   [k: string]: unknown;
 }
 
