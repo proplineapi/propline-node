@@ -805,6 +805,7 @@ Each POST carries these headers:
 | `X-PropLine-Timestamp` | Unix seconds |
 | `X-PropLine-Signature` | HMAC-SHA256 over `${timestamp}.` + body |
 | `X-PropLine-Delivery` | Stable delivery id (use for idempotency) |
+| `X-PropLine-Sequence` | Your subscription's own event counter (use for replay) |
 
 ```ts
 import express from "express";
@@ -935,6 +936,46 @@ await client.listWebhookDeliveries(whId, { limit: 50 });
 await client.listWebhookDeliveries(whId, { limit: 200, beforeId: 123456 });
 await client.deleteWebhook(whId);
 ```
+
+### Catching up after an outage
+
+Every delivery carries `X-PropLine-Sequence` — a counter monotonic *within your
+subscription*. Store the highest one you processed, then read forward from it.
+Do not use `X-PropLine-Delivery` as the cursor: that id is global across all
+subscriptions, so its gaps are other customers' traffic.
+
+```ts
+let cursor = await loadMyCursor(); // highest X-PropLine-Sequence processed
+
+for (;;) {
+  const page = await client.replayWebhookEvents(whId, { sinceSeq: cursor, limit: 100 });
+
+  if (page.truncated) {
+    // Events after your cursor aged out of retention and are gone.
+    // Resync from the REST endpoints rather than assume you are current.
+    await resyncFromRest();
+  }
+
+  for (const ev of page.events) {   // oldest first
+    await handle(ev.event_type, ev.data);
+  }
+
+  cursor = page.next_seq;
+  await saveMyCursor(cursor);
+  if (!page.has_more) {
+    console.log(`behind by ${page.latest_seq - cursor} events`);
+    break;
+  }
+}
+```
+
+Replay is bounded by delivery retention: 2 days, and at most 5,000 deliveries
+per subscription. `latest_seq` is **not** subject to retention, so
+`latest_seq - next_seq` stays honest even after the rows are pruned. Sequence
+numbers always increase and never repeat but are not guaranteed to be dense —
+treat a skipped number as normal, and read `truncated` for real loss. Neither
+`replayWebhookEvents` nor `listWebhookDeliveries` counts against your daily
+quota.
 
 ## Error handling
 

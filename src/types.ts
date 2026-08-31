@@ -1007,7 +1007,53 @@ export interface WebhookDelivery {
   attempts: number;
   delivered_at: string | null;
   payload: Record<string, unknown>;
+  /**
+   * This subscription's own event counter — the value sent as the
+   * `X-PropLine-Sequence` header. Null on deliveries enqueued before the
+   * sequence shipped; those cannot be replayed.
+   */
+  seq: number | null;
   [k: string]: unknown;
+}
+
+/** One event from `replayWebhookEvents`. */
+export interface ReplayEvent {
+  /** Cursor position. Monotonic within this subscription. */
+  seq: number;
+  delivery_id: number;
+  event_type: string;
+  created_at: string;
+  /** The canonical payload that was (or would have been) POSTed. */
+  data: Record<string, unknown>;
+}
+
+export interface ReplayPage {
+  webhook_id: number;
+  since_seq: number;
+  /** Oldest first, so you can replay them forward. */
+  events: ReplayEvent[];
+  /**
+   * Cursor for the next call. Equals the `since_seq` you sent when the page
+   * is empty, so a paging loop needs no special case.
+   */
+  next_seq: number;
+  has_more: boolean;
+  /** Bounds of what is still retained. Null when nothing is. */
+  oldest_available_seq: number | null;
+  newest_available_seq: number | null;
+  /**
+   * The most recent sequence ever issued to this subscription. NOT subject to
+   * retention, so `latest_seq - next_seq` is an honest "how far behind am I"
+   * even after the rows themselves are pruned.
+   */
+  latest_seq: number;
+  /**
+   * TRUE when events after your cursor have already aged out and are gone.
+   * Check this: without it a short `events` array is indistinguishable from
+   * "nothing to catch up on".
+   */
+  truncated: boolean;
+  retention_note: string | null;
 }
 
 export interface DfsPayoutTier {

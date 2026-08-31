@@ -28,6 +28,7 @@ import type {
   FuturesEvent,
   Webhook,
   WebhookDelivery,
+  ReplayPage,
   DfsPayoutsResponse,
 } from "./types.js";
 
@@ -464,6 +465,16 @@ export interface ListWebhookDeliveriesOptions {
    * `limit` is the last one.
    */
   beforeId?: number;
+}
+
+export interface ReplayWebhookEventsOptions {
+  /**
+   * Read events after this cursor — the highest `X-PropLine-Sequence` you
+   * have processed. Defaults to 0 (from the oldest retained event).
+   */
+  sinceSeq?: number;
+  /** Max events per page. Default 100, max 500. */
+  limit?: number;
 }
 
 export interface VerifySignatureOptions {
@@ -1456,6 +1467,38 @@ export class PropLine {
       "GET",
       `/webhooks/${webhookId}/deliveries`,
       { params: { limit: options.limit ?? 50, before_id: options.beforeId } }
+    );
+  }
+
+  /**
+   * Re-read this subscription's events in order, from a cursor.
+   *
+   * Answers "my endpoint was down — what did I miss?". Every delivery carries
+   * an `X-PropLine-Sequence` header: a counter monotonic *within your
+   * subscription*. Store the highest one you processed and pass it as
+   * `sinceSeq`.
+   *
+   * Do NOT use `X-PropLine-Delivery` as the cursor — that id is global across
+   * every subscription, so its gaps are other customers' traffic.
+   *
+   * Events come back oldest-first (the opposite of `listWebhookDeliveries`,
+   * which is a newest-first debugging log). Page by passing `next_seq` back
+   * as `sinceSeq` while `has_more` is true.
+   *
+   * **Check `truncated`.** True means events after your cursor have aged out
+   * of retention (2 days, max 5,000 deliveries per subscription) and are gone
+   * — resync from the REST endpoints instead of assuming you are current.
+   *
+   * Does not count against your daily request quota.
+   */
+  replayWebhookEvents(
+    webhookId: number,
+    options: ReplayWebhookEventsOptions = {}
+  ): Promise<ReplayPage> {
+    return this._request<ReplayPage>(
+      "GET",
+      `/webhooks/${webhookId}/replay`,
+      { params: { since_seq: options.sinceSeq ?? 0, limit: options.limit ?? 100 } }
     );
   }
 

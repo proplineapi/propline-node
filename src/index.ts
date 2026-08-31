@@ -47,6 +47,7 @@ export type {
   CreateWebhookOptions,
   UpdateWebhookOptions,
   ListWebhookDeliveriesOptions,
+  ReplayWebhookEventsOptions,
   VerifySignatureOptions,
 } from "./client.js";
 
@@ -115,6 +116,8 @@ export type {
   FuturesEvent,
   Webhook,
   WebhookDelivery,
+  ReplayEvent,
+  ReplayPage,
   DfsPayoutTier,
   DfsPlayPayout,
   DfsPayoutsResponse,
@@ -135,4 +138,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.44.0";
+export const VERSION = "0.45.0";
