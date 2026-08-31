@@ -526,6 +526,9 @@ export interface QuotaStatus {
 }
 
 const DEFAULT_BASE_URL = "https://api.prop-line.com/v1";
+
+// Streaming origin. Separate Fly app, separate machines — see stream().
+const DEFAULT_WS_URL = "wss://ws.prop-line.com";
 const DEFAULT_TIMEOUT_MS = 15_000;
 
 /**
@@ -1546,10 +1549,19 @@ export class PropLine {
    * REST endpoints.
    */
   async *stream(options: StreamOptions): AsyncGenerator<ReplayEvent, void, void> {
-    const wsBase = (options.wsUrl ?? this.baseUrl)
+    // ⚠️ Streaming has its OWN origin and does NOT derive from baseUrl.
+    // Deriving it (the first cut of this method did) sends the socket to
+    // api.prop-line.com — which serves /v1/stream too, from the same ASGI
+    // app, so it WORKS and nothing complains. It just parks a persistent
+    // connection on the REST tier's event loop, which is precisely what the
+    // separate websocket tier exists to prevent. Caught 2026-08-31 by reading
+    // the machine id in ws_connections and finding an app-tier machine.
+    // Override with `wsUrl` only for self-hosted or local development.
+    const wsBase = (options.wsUrl ?? DEFAULT_WS_URL)
       .replace(/^http:/, "ws:")
       .replace(/^https:/, "wss:")
-      .replace(/\/v1\/?$/, "");
+      .replace(/\/v1\/?$/, "")
+      .replace(/\/$/, "");
     const url = `${wsBase}/v1/stream`;
     let cursor = options.sinceSeq ?? 0;
     let attempt = 0;
