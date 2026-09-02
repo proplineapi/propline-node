@@ -615,7 +615,7 @@ Legs are named exactly as `/odds` names an outcome (or by `book_outcome_id`
 from `includeBookIds: true`). Matching is fail-closed: a leg that does not pin
 to exactly one stored outcome is a 422 naming the leg. `quoted: false` means
 the book will not offer that combination as a same-game parlay; refused legs
-carry the book's own `failure_code`. FanDuel only today.
+carry the book's own `failure_code`. Books: `fanduel`, `betonlineag`, `lowvig`.
 
 ### Get player prop history (Pro full, Free redacted)
 

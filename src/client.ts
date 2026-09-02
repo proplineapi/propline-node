@@ -1704,8 +1704,9 @@ export class PropLine {
    * paying, above 1, for). Measured live: Cardinals ML +205 × Freddie
    * Freeman to record a hit -260 → SGP +592 against an independent +322.
    *
-   * Book-native. FanDuel is the only book wired today; `bookmaker` is
-   * additive and an unsupported value is a 422.
+   * Book-native. `bookmaker` is "fanduel" (its own betslip pricer) or
+   * "betonlineag" / "lowvig" (the Sportcast engine both Chico brands embed,
+   * same builder price); an unsupported value is a 422.
    *
    * Legs are named exactly as `/odds` names an outcome (market, name,
    * description, point, period), or by `book_outcome_id` from
