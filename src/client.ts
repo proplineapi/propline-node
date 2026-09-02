@@ -4,6 +4,8 @@ import { writeFile } from "node:fs/promises";
 import type {
   ClvBetInput,
   ClvGradeResponse,
+  SgpLegInput,
+  SgpQuoteResponse,
   Sport,
   Event as PropLineEvent,
   OddsResponse,
@@ -1689,6 +1691,51 @@ export class PropLine {
    */
   gradeClv(bets: ClvBetInput[]): Promise<ClvGradeResponse> {
     return this._request<ClvGradeResponse>("POST", "/clv/grade", { body: bets });
+  }
+
+  /**
+   * Price a same-game parlay at the book's own correlated odds.
+   *
+   * Send two to ten legs from ONE event and get back the book's own price
+   * for that exact slip — what a FanDuel customer would be offered for it
+   * at that moment, not a model of it — beside `independent_price` (the
+   * product of the live single-leg prices) and `correlation_factor`
+   * (their ratio: the correlation the book is charging, below 1, or
+   * paying, above 1, for). Measured live: Cardinals ML +205 × Freddie
+   * Freeman to record a hit -260 → SGP +592 against an independent +322.
+   *
+   * Book-native. FanDuel is the only book wired today; `bookmaker` is
+   * additive and an unsupported value is a 422.
+   *
+   * Legs are named exactly as `/odds` names an outcome (market, name,
+   * description, point, period), or by `book_outcome_id` from
+   * `includeBookIds: true`. Matching is fail-closed — a leg that does not
+   * pin to exactly one stored outcome is a 422 `leg_unmatched` naming the
+   * leg. `quoted: false` means the book will not offer that combination as
+   * a same-game parlay; refused legs carry the book's own `failure_code`.
+   * Quotes for an identical slip are shared for 15 seconds.
+   *
+   * Hobby+ required; free tier receives the matched legs with every price
+   * nulled and never triggers a book call.
+   *
+   * @example
+   * const q = await client.priceSgp("baseball_mlb", 150791, [
+   *   { market: "h2h", name: "St. Louis Cardinals" },
+   *   { market: "batter_1plus_hits", name: "Freddie Freeman", description: "Freddie Freeman" },
+   * ]);
+   * console.log(q.sgp_price, q.independent_price, q.correlation_factor);
+   */
+  priceSgp(
+    sportKey: string,
+    eventId: number | string,
+    legs: SgpLegInput[],
+    bookmaker = "fanduel",
+  ): Promise<SgpQuoteResponse> {
+    return this._request<SgpQuoteResponse>(
+      "POST",
+      `/sports/${encodeURIComponent(sportKey)}/events/${encodeURIComponent(String(eventId))}/sgp`,
+      { body: { bookmaker, legs } },
+    );
   }
 
   /**

@@ -1167,3 +1167,65 @@ export interface ClvGradeResponse {
   redacted?: boolean;
   upgrade_url?: string | null;
 }
+
+/**
+ * One leg of a same-game parlay submitted to `priceSgp`, named exactly as
+ * `/odds` names an outcome. Or pass `book_outcome_id` (from
+ * `includeBookIds: true`), which overrides the other fields.
+ */
+export interface SgpLegInput {
+  /** Market key as served by /odds, e.g. "h2h", "totals", "batter_1plus_hits". */
+  market?: string | null;
+  /** Outcome name: team name, "Over"/"Under", or the player for YES-only props. */
+  name?: string | null;
+  /** Outcome description (the player on a two-way prop); "" for game lines. */
+  description?: string;
+  /** Line exactly as served by /odds. Omit for h2h and YES-only props. */
+  point?: number | null;
+  /** Canonical period code (q1, h1, f5). Omit for full game. */
+  period?: string | null;
+  /** The book's own id from includeBookIds. Overrides the other fields. */
+  book_outcome_id?: string | null;
+}
+
+/** One leg as the book saw it, returned by `priceSgp`. */
+export interface SgpLegQuote {
+  index: number;
+  market: string;
+  name: string;
+  description: string;
+  point: number | null;
+  period: string | null;
+  book_outcome_id: string | null;
+  /** The last price PropLine stored for this leg (American). */
+  price: number | null;
+  /** The single-leg price the book quoted in the same call — the live number. */
+  book_price: number | null;
+  accepted: boolean | null;
+  /** The book's own refusal code when it would not take this leg in the slip. */
+  failure_code?: string | null;
+}
+
+export interface SgpQuoteResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  bookmaker: string;
+  bookmaker_title: string;
+  legs: SgpLegQuote[];
+  /** True when the book priced the FULL combination; null on the free tier. */
+  quoted: boolean | null;
+  /** The book's correlated parlay price (American). */
+  sgp_price: number | null;
+  sgp_price_decimal: number | null;
+  /** Product of the live single-leg prices, as American odds. */
+  independent_price: number | null;
+  independent_price_decimal: number | null;
+  /** sgp_price_decimal / independent_price_decimal. */
+  correlation_factor: number | null;
+  priced_at: string | null;
+  redacted?: boolean;
+  upgrade_url?: string | null;
+}

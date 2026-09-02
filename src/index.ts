@@ -57,6 +57,9 @@ export type {
   ClvGradedBet,
   ClvSummary,
   ClvGradeResponse,
+  SgpLegInput,
+  SgpLegQuote,
+  SgpQuoteResponse,
   Sport,
   Event,
   Outcome,
@@ -139,4 +142,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.47.0";
+export const VERSION = "0.48.0";
