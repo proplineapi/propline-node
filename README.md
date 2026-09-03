@@ -60,6 +60,8 @@ const { PropLine } = require("propline");
 2. Enter your email
 3. Get your API key instantly — **1,000 requests/day, no credit card required**
 
+   Paid plans: Hobby $9/mo (5,000 req/day, full analytics), Pro $19/mo (25,000/day + CSV exports), Streaming Lite $39/mo (250,000/day + webhooks/websocket), Streaming $79/mo (1,000,000/day), Enterprise (unlimited).
+
 ## Available sports
 
 | Key | Sport |
@@ -859,6 +861,9 @@ app.post(
   "event": { "id": 5070, "home_team": "Seattle Mariners", "away_team": "Texas Rangers" },
   "market_key": "totals",
   "market_description": "Total 7.5",
+  "outcome_id": 3860927178,
+  "book_outcome_id": null,
+  "player_id": null,
   "player_name": null,
   "outcome_name": "Over",
   "dfs_odds_type": null,
@@ -879,6 +884,9 @@ app.post(
   "event": { "id": 16, "home_score": 4, "away_score": 2, "status": "final" },
   "market_key": "pitcher_strikeouts",
   "market_description": "Total Pitching Strikeouts",
+  "outcome_id": 2210033841,
+  "book_outcome_id": null,
+  "player_id": "mlb:669373",
   "player_name": "Tarik Skubal (DET)",
   "outcome_name": "Over",
   "dfs_odds_type": null,
@@ -889,6 +897,8 @@ app.post(
   "resolved_at": "2026-04-18T06:14:22Z"
 }
 ```
+
+`outcome_id`, `book_outcome_id` and `player_id` are the REST join keys (added 2026-09-02): `outcome_id` is PropLine's canonical outcome row id — the same value `/odds?includeBookIds=true` returns as `outcome_id` — so a delivery pins to exactly one REST row without matching on name, side or line. It is globally unique across books and sides and stable across price and point changes for the same (market, side, player); books whose alt ladders put the line in the market description (PrizePicks goblin/demon, ProphetX, Fanatics, Marathon) get a new market and a new id when that line moves. `book_outcome_id` and `player_id` have the same semantics as on `/odds` (null when the book publishes no id / when the player is unconfirmed).
 
 `market_description` is where a DFS alt market's flavor + line live (e.g. PrizePicks `"Rebounds (demon 12.5)"`). `dfs_odds_type` is the PrizePicks flavor (`standard` / `goblin` / `demon`; null for every traditional book); `payout_multiplier` is Underdog's numeric boost/discount (PrizePicks publishes no numeric multiplier — the flavor is the signal). Same semantics as the identically-named fields on `/odds` outcomes.
 
