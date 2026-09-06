@@ -89,6 +89,16 @@ export interface Outcome {
    */
   last_change_at?: string | null;
   /**
+   * The last delivery this outcome appeared in (ISO datetime) — the book
+   * still had it on the board at that poll, whether or not the price moved.
+   * Equals the market's `last_update` when the outcome was in the market's
+   * latest delivery; an older value means the book has stopped sending this
+   * selection while still sending the market (a withdrawal in progress).
+   * `last_change_at` = when the price moved; `last_seen_at` = when it was
+   * last offered. `/odds` only; null on rows predating 2026-08-26.
+   */
+  last_seen_at?: string | null;
+  /**
    * This book's OWN identifier for the priced selection / contract, for
    * joining onto its native feed. Kalshi ships the per-contract market
    * ticker (e.g. `"KXMLBGAME-26AUG08NYYBOS-NYY"`). Only set when the
