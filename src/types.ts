@@ -111,6 +111,12 @@ export interface Outcome {
    */
   book_outcome_id?: string | null;
   /**
+   * PropLine's own stable id for this selection (`outcomes.id`), present when
+   * `includeBookIds=true`. Shared with `/odds/history`, `/odds/closing`, the
+   * resolved-props CSV and webhook payloads — the join key across all of them.
+   */
+  outcome_id?: number | null;
+  /**
    * Dollars a bettor can actually stake at the quoted `price` — exchange
    * books that publish resting-offer size only (ProphetX today). `null`/
    * absent for every other book, and for an exchange quote whose size the
@@ -288,6 +294,8 @@ export interface OutcomeSnapshot {
 export interface OddsHistoryOutcome {
   name: string;
   description?: string | null;
+  /** PropLine's stable id for this selection — shared with `/odds?includeBookIds=true`, `/odds/closing`, the resolved-props CSV and webhook payloads. */
+  outcome_id?: number | null;
   snapshots: OutcomeSnapshot[];
   snapshots_available?: number;
   redacted?: boolean;
@@ -331,6 +339,8 @@ export interface OddsHistoryResponse {
 export interface ClosingOutcome {
   name: string;
   description?: string | null;
+  /** PropLine's stable id for this selection — shared with `/odds?includeBookIds=true`, `/odds/history`, the resolved-props CSV and webhook payloads. */
+  outcome_id?: number | null;
   price: number | null;
   point: number | null;
   /** recorded_at of the snapshot we picked as "closing" (last at-or-before commence_time). */
