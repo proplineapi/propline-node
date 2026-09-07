@@ -1204,7 +1204,16 @@ export interface SgpLegInput {
   point?: number | null;
   /** Canonical period code (q1, h1, f5). Omit for full game. */
   period?: string | null;
-  /** The book's own id from includeBookIds. Overrides the other fields. */
+  /**
+   * For a TEAM total: the team, as /odds serves it in the market's `team`
+   * field. Omit for the game total — a totals leg with no team matches the
+   * team-less market only.
+   */
+  team?: string | null;
+  /**
+   * The book's own id from includeBookIds. Overrides the other fields. On
+   * betonlineag / lowvig this is Sportcast's settlement id (MatchWinner_Home).
+   */
   book_outcome_id?: string | null;
 }
 
@@ -1216,6 +1225,8 @@ export interface SgpLegQuote {
   description: string;
   point: number | null;
   period: string | null;
+  /** The team a team total is scoped to, as /odds serves it; null for the game total. */
+  team: string | null;
   book_outcome_id: string | null;
   /** The last price PropLine stored for this leg (American). */
   price: number | null;
