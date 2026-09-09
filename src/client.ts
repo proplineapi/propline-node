@@ -6,6 +6,7 @@ import type {
   ClvGradeResponse,
   SgpLegInput,
   SgpQuoteResponse,
+  SgpMultiQuoteResponse,
   Sport,
   Event as PropLineEvent,
   OddsResponse,
@@ -1725,14 +1726,31 @@ export class PropLine {
    *   { market: "batter_1plus_hits", name: "Freddie Freeman", description: "Freddie Freeman" },
    * ]);
    * console.log(q.sgp_price, q.independent_price, q.correlation_factor);
+   *
+   * // Every book on the same legs, side by side — best_bookmaker is the
+   * // one charging the smallest correlation reduction:
+   * const all = await client.priceSgp("baseball_mlb", 150791, legs, "all");
+   * console.log(all.best_bookmaker, all.quotes.map((x) => [x.bookmaker, x.correlation_factor]));
    */
   priceSgp(
     sportKey: string,
     eventId: number | string,
     legs: SgpLegInput[],
+    bookmaker: "all",
+  ): Promise<SgpMultiQuoteResponse>;
+  priceSgp(
+    sportKey: string,
+    eventId: number | string,
+    legs: SgpLegInput[],
+    bookmaker?: string,
+  ): Promise<SgpQuoteResponse>;
+  priceSgp(
+    sportKey: string,
+    eventId: number | string,
+    legs: SgpLegInput[],
     bookmaker = "fanduel",
-  ): Promise<SgpQuoteResponse> {
-    return this._request<SgpQuoteResponse>(
+  ): Promise<SgpQuoteResponse | SgpMultiQuoteResponse> {
+    return this._request<SgpQuoteResponse | SgpMultiQuoteResponse>(
       "POST",
       `/sports/${encodeURIComponent(sportKey)}/events/${encodeURIComponent(String(eventId))}/sgp`,
       { body: { bookmaker, legs } },

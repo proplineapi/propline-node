@@ -1260,3 +1260,33 @@ export interface SgpQuoteResponse {
   redacted?: boolean;
   upgrade_url?: string | null;
 }
+
+/** One book that could not quote the slip under `bookmaker: "all"`. */
+export interface SgpBookError {
+  bookmaker: string;
+  bookmaker_title: string;
+  /** The HTTP status the single-book call would have returned. */
+  status: number;
+  /** The error code from that call's body (e.g. "event_not_at_book"), if any. */
+  error: string | null;
+  detail: unknown;
+}
+
+/**
+ * `priceSgp(..., "all")`: every supported book quoted on the same legs.
+ * `best_bookmaker` is the quoted book paying the most — on identical legs,
+ * the one charging the smallest correlation reduction.
+ */
+export interface SgpMultiQuoteResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  bookmaker: "all";
+  quotes: SgpQuoteResponse[];
+  errors: SgpBookError[];
+  best_bookmaker: string | null;
+  redacted?: boolean;
+  upgrade_url?: string | null;
+}
