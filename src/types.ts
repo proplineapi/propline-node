@@ -1202,6 +1202,8 @@ export interface ClvGradeResponse {
   bets: ClvGradedBet[];
   redacted?: boolean;
   upgrade_url?: string | null;
+  /** Echo of the `devig` option: how the closing anchor's vig was removed. */
+  devig_method?: "multiplicative" | "shin" | string;
 }
 
 /**

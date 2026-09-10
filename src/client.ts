@@ -1700,8 +1700,17 @@ export class PropLine {
    * }]);
    * console.log(res.summary.avg_ev_vs_close_pct);
    */
-  gradeClv(bets: ClvBetInput[]): Promise<ClvGradeResponse> {
-    return this._request<ClvGradeResponse>("POST", "/clv/grade", { body: bets });
+  gradeClv(
+    bets: ClvBetInput[],
+    options: { devig?: "multiplicative" | "shin" } = {}
+  ): Promise<ClvGradeResponse> {
+    // `devig` picks how the closing anchor's vig is removed before
+    // closing_fair_prob / ev_vs_close_pct — same vocabulary as getEventEv;
+    // echoed on the response as devig_method.
+    return this._request<ClvGradeResponse>("POST", "/clv/grade", {
+      body: bets,
+      params: options.devig ? { devig: options.devig } : undefined,
+    });
   }
 
   /**
