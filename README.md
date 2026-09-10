@@ -704,7 +704,11 @@ for (const m of trends.markets) {
 const ev = await client.getEventEv("baseball_mlb", 12345, {
   markets: ["pitcher_strikeouts", "batter_hits"],
   bookmakers: ["draftkings", "fanduel"], // optional
+  devig: "shin", // optional: "multiplicative" (default) or "shin"
 });
+// `devig` picks how the anchor's vig is removed. Shin's method loads the
+// overround onto the longshot, correcting the favourite-longshot bias on
+// props like anytime TD; the response echoes it as ev.devig_method.
 
 for (const line of ev.lines) {
   const plus = line.outcomes.filter((o) => o.is_plus_ev);

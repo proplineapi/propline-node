@@ -325,6 +325,15 @@ export interface GetEventEvOptions {
    * omitted.
    */
   bookmakers?: string | string[];
+  /**
+   * How the anchor's vig is removed before the fair line is derived.
+   * `"multiplicative"` (the default when omitted) divides each implied
+   * probability by the booksum; `"shin"` solves Shin's insider-trading
+   * model, which loads the overround onto the longshot and corrects the
+   * favourite-longshot bias — negligible on a -110/-110 total, material
+   * on a +600 anytime scorer. The response echoes it as `devig_method`.
+   */
+  devig?: "multiplicative" | "shin";
 }
 
 export interface GetEventBestLineOptions {
@@ -1194,6 +1203,7 @@ export class PropLine {
         ? options.bookmakers.join(",")
         : options.bookmakers;
     }
+    if (options.devig) params.devig = options.devig;
     return this._request<EventEvResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev`,

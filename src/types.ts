@@ -907,6 +907,8 @@ export interface EventEvResponse {
   commence_time: string;
   /** Documents the priority order used for the fair anchor. */
   fair_source_default: string;
+  /** Echo of the `devig` option: how the anchor's vig was removed. */
+  devig_method: "multiplicative" | "shin" | string;
   lines: EvLine[];
   [k: string]: unknown;
 }
