@@ -118,14 +118,17 @@ export interface Outcome {
   outcome_id?: number | null;
   /**
    * Dollars a bettor can actually stake at the quoted `price` — exchange
-   * books that publish resting-offer size only (ProphetX today). `null`/
+   * books that publish resting-offer size (ProphetX, Novig) and Pinnacle,
+   * where it is the book's posted max risk stake on the market. `null`/
    * absent for every other book, and for an exchange quote whose size the
    * feed omitted (never coerced to 0). On a P2P exchange the best price is
    * often a thin dangling offer with only a few dollars behind it — filter
    * or discount small values before treating the price as bettable.
-   * Refreshed every poll cycle independently of price movement; liquidity
-   * changes never appear in `getOddsHistory` or fire `line_movement`
-   * webhooks.
+   * Refreshed every poll cycle independently of price movement. Exchange
+   * size changes never appear in `getOddsHistory`; a Pinnacle limit change
+   * does (its own snapshot row, price unchanged), and `getOddsClosing`
+   * carries `opening_liquidity` beside `liquidity`. Neither fires
+   * `line_movement` webhooks.
    */
   liquidity?: number | null;
   /**
@@ -288,6 +291,13 @@ export interface OutcomeSnapshot {
   recorded_at: string;
   price: number;
   point?: number | null;
+  /**
+   * Stake limit / resting size in force at this snapshot (Pinnacle: its
+   * max risk stake). A Pinnacle limit change with no price move is its own
+   * snapshot row — price/point repeat, this moves — and survives
+   * `changes_only`. Null for other books and on rows before 2026-09-10.
+   */
+  liquidity?: number | null;
   [k: string]: unknown;
 }
 
@@ -368,6 +378,10 @@ export interface ClosingOutcome {
   opening_age_seconds?: number | null;
   book_updated_at?: string | null;
   book_version?: number | null;
+  /** Stake limit / resting size at the closing snapshot (Pinnacle: max risk stake). */
+  liquidity?: number | null;
+  /** Stake limit / resting size at the opening snapshot — compare with `liquidity` to see whether the book raised its limit as the line moved. */
+  opening_liquidity?: number | null;
   redacted?: boolean;
   /** PrizePicks projection tier (standard/goblin/demon); null for sportsbooks. */
   dfs_odds_type?: string | null;

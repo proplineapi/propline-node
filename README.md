@@ -279,7 +279,12 @@ carries `liquidity` — the dollars you can actually stake at the quoted
 price — so you can filter or flag quotes that are only good for a buck.
 `null` for books without a resting-size signal. The same field rides
 every price row on `getBestLine`, where a thin exchange quote often wins
-the best slot on price alone.
+the best slot on price alone. Pinnacle carries it too (since 2026-09-10):
+there it is the book's posted max risk stake on the market, and a
+Pinnacle limit change with no price move is its own row in
+`getOddsHistory` (`liquidity` on every snapshot) — `getOddsClosing` carries
+`opening_liquidity` beside `liquidity`, so you can see whether the limit
+went up as the line moved.
 
 ```ts
 const event = await client.getOdds("baseball_mlb", { eventId: 12345 });
