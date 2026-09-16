@@ -41,6 +41,10 @@ export interface Event {
   home_team_id?: string | null;
   /** Away-side counterpart of `home_team_id`. */
   away_team_id?: string | null;
+  /** Public team logo image (league CDN), built from `home_team_id`. `null` when the id is null. */
+  home_team_logo_url?: string | null;
+  /** Away-side counterpart of `home_team_logo_url`. */
+  away_team_logo_url?: string | null;
   /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
@@ -266,6 +270,10 @@ export interface OddsResponse {
   home_team_id?: string | null;
   /** Away-side counterpart of `home_team_id`. */
   away_team_id?: string | null;
+  /** Public team logo image (league CDN), built from `home_team_id`. `null` when the id is null. */
+  home_team_logo_url?: string | null;
+  /** Away-side counterpart of `home_team_logo_url`. */
+  away_team_logo_url?: string | null;
   /**
    * Event ids that were merged INTO this event when duplicate fixtures
    * from different bookmakers were folded into one. Always present (there
@@ -451,6 +459,10 @@ export interface ScoreEvent {
   home_team_id?: string | null;
   /** Away-side counterpart of `home_team_id`. */
   away_team_id?: string | null;
+  /** Public team logo image (league CDN), built from `home_team_id`. `null` when the id is null. */
+  home_team_logo_url?: string | null;
+  /** Away-side counterpart of `home_team_logo_url`. */
+  away_team_logo_url?: string | null;
   status: "upcoming" | "in_progress" | "final" | string;
   home_score: number | null;
   away_score: number | null;
