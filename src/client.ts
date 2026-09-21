@@ -836,7 +836,7 @@ export class PropLine {
   }
 
   /**
-   * Synthetic MLB Grand Salami for a given UTC date — total runs scored
+   * Synthetic MLB Grand Salami for a given US Eastern date — total runs scored
    * across every MLB game on the slate, plus each book's implied Grand
    * Salami line (median of per-game primary totals across our MLB books).
    *
@@ -857,7 +857,7 @@ export class PropLine {
   }
 
   /**
-   * Synthetic NHL Daily Goals Total for a given UTC date — total goals
+   * Synthetic NHL Daily Goals Total for a given US Eastern date — total goals
    * scored (incl. OT/SO) across every NHL game on the slate, plus each
    * book's implied Daily Goals Total line (median of per-game primary
    * totals across our NHL books).
