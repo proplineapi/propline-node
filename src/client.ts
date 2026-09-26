@@ -218,6 +218,12 @@ export interface GetOddsClosingOptions {
   period?: PeriodFilter;
   /** Bookmaker key(s) to restrict the response to. Omitted = all books. */
   bookmakers?: string | string[];
+  /**
+   * Limit the opening lookback to this many days before kickoff (1-3650), or
+   * `"all"` (the default: the first snapshot held). `14` matches the
+   * resolved-props export's opening columns.
+   */
+  openingWindow?: number | "all";
 }
 
 export interface GetMovementOptions {
@@ -775,9 +781,9 @@ export class PropLine {
    /**
     * Get the opening AND closing line per `(book, market, outcome)` for an
     * event. Closing is the last snapshot at or before commence_time
-    * (`price` / `point` / `closing_at`); opening is the first snapshot in
-    * the same 14-day pre-kickoff window (`opening_price` / `opening_point`
-    * / `opening_at`). Canonical CLV helper: replaces "fetch full history →
+    * (`price` / `point` / `closing_at`); opening is the first snapshot
+    * PropLine holds for the outcome, however far before kickoff the book
+    * posted it (`opening_price` / `opening_point` / `opening_at`). Canonical CLV helper: replaces "fetch full history →
     * find the first and last pre-game rows" with one call.
     *
     * Compare the *points* as well as the prices — on spreads and totals
@@ -799,6 +805,9 @@ export class PropLine {
     if (periodParam3 !== undefined) params.period = periodParam3;
     const bookmakersParam3 = _bookmakersParam(options.bookmakers);
     if (bookmakersParam3 !== undefined) params.bookmakers = bookmakersParam3;
+    if (options.openingWindow !== undefined) {
+      params.opening_window = String(options.openingWindow);
+    }
     return this._request<OddsClosingResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/closing`,
