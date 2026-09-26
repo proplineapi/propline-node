@@ -297,6 +297,10 @@ Pinnacle limit change with no price move is its own row in
 `opening_liquidity` beside `liquidity`, so you can see whether the limit
 went up as the line moved.
 
+Pass `includeDepth: true` to add `depth` to every outcome: up to three
+order-book levels beyond the served price, each `{ price, size }` (`[]`
+for books we don't read depth for).
+
 ```ts
 const event = await client.getOdds("baseball_mlb", { eventId: 12345 });
 for (const book of event.bookmakers) {
@@ -422,6 +426,11 @@ outcome): opening line, latest line, implied-probability + point shift,
 direction. The `steam` array flags outcomes multiple books moved the same
 direction — the sharp-money signal across every book we poll. Unique to
 PropLine. Hobby+ full; free tier redacted.
+
+`since: "-6h"` (or an ISO timestamp) measures movement from that moment
+instead of each line's first quote. `includeBookIds: true` adds each book's
+`book_outcome_id`; `outcome_id` is always present. Steam rows carry `team`
+(team totals) plus `open_point` / `latest_point`.
 
 ### Get resolution coverage summary (free)
 
@@ -893,8 +902,8 @@ app.post(
   "outcome_name": "Over",
   "dfs_odds_type": null,
   "payout_multiplier": null,
-  "previous": { "price_american": -750, "point": 7.0 },
-  "current":  { "price_american": -300, "point": 7.5 },
+  "previous": { "price_american": -750, "point": 7.0, "liquidity": null, "liquidity_updated_at": null },
+  "current":  { "price_american": -300, "point": 7.5, "liquidity": null, "liquidity_updated_at": null },
   "price_change_pct": 60.0,
   "timestamp": "2026-04-18T03:49:00Z"
 }
@@ -926,6 +935,8 @@ app.post(
 `outcome_id`, `book_outcome_id` and `player_id` are the REST join keys (added 2026-09-02): `outcome_id` is PropLine's canonical outcome row id — the same value `/odds?includeBookIds=true` returns as `outcome_id` — so a delivery pins to exactly one REST row without matching on name, side or line. It is globally unique across books and sides and stable across price and point changes for the same (market, side, player); books whose alt ladders put the line in the market description (PrizePicks goblin/demon, ProphetX, Fanatics, Marathon) get a new market and a new id when that line moves. `book_outcome_id` and `player_id` have the same semantics as on `/odds` (null when the book publishes no id / when the player is unconfirmed).
 
 `market_description` is where a DFS alt market's flavor + line live (e.g. PrizePicks `"Rebounds (demon 12.5)"`). `dfs_odds_type` is the PrizePicks flavor (`standard` / `goblin` / `demon`; null for every traditional book); `payout_multiplier` is Underdog's numeric boost/discount (PrizePicks publishes no numeric multiplier — the flavor is the signal). Same semantics as the identically-named fields on `/odds` outcomes.
+
+`previous` / `current` also carry `liquidity` and `liquidity_updated_at` (exchange size at that price; null for sportsbooks). A `steam` payload carries `team` (team totals, else null) plus `open_point` / `latest_point`. Typed as `LineMovementWebhookPayload` / `SteamWebhookPayload`.
 
 ### Market-suspended payload
 

@@ -56,7 +56,28 @@ export interface Event {
    * it now resolves — costs one request per stored event.
    */
   merged_from_event_ids?: string[] | null;
+  /**
+   * True for a tournament/outright listing (a tennis, golf, racing or
+   * cycling event with no away side — `away_team` is "").
+   */
+  is_outright?: boolean;
+  /**
+   * Tennis only: the competition this match belongs to (e.g. "US Open").
+   * One `tennis` key mixes every tour, so this and `tour` say which. `null`
+   * for every other sport and where unknown.
+   */
+  tournament?: string | null;
+  /** Tennis only: the tour — "ATP", "WTA", "Challenger", "ITF", "UTR", "Exhibition" or "Team". `null` elsewhere. */
+  tour?: string | null;
   [k: string]: unknown;
+}
+
+/** One order-book level beyond an outcome's served price (see `Outcome.depth`). */
+export interface DepthLevel {
+  /** American odds at this level. */
+  price: number;
+  /** Dollars a taker can spend at this level. */
+  size: number | null;
 }
 
 export interface Outcome {
@@ -135,6 +156,23 @@ export interface Outcome {
    * `line_movement` webhooks.
    */
   liquidity?: number | null;
+  /**
+   * When the exchange last touched the resting order behind `liquidity`
+   * (ISO datetime, the book's own timestamp). Discount sizes that are old.
+   */
+  liquidity_updated_at?: string | null;
+  /**
+   * Up to three order-book levels BEYOND the served `price`. Only present
+   * when the request passed `includeDepth: true`; `[]` when the book has
+   * nothing further or PropLine does not read its depth (sportsbooks).
+   */
+  depth?: DepthLevel[];
+  /**
+   * Which side of the EVENT this leg is on: `"home"`, `"away"` or
+   * `"draw"`; `null` for Over/Under, Yes/No and player legs. Lets you pair
+   * legs without matching a book's own team spelling.
+   */
+  side?: "home" | "away" | "draw" | null;
   /**
    * Signed line-difficulty delta for a PrizePicks goblin/demon outcome:
    * `point - standard_point` for the same player+stat. Positive on a harder
@@ -285,6 +323,19 @@ export interface OddsResponse {
    * it now resolves — costs one request per stored event.
    */
   merged_from_event_ids?: string[] | null;
+  /**
+   * True for a tournament/outright listing (a tennis, golf, racing or
+   * cycling event with no away side — `away_team` is "").
+   */
+  is_outright?: boolean;
+  /**
+   * Tennis only: the competition this match belongs to (e.g. "US Open").
+   * One `tennis` key mixes every tour, so this and `tour` say which. `null`
+   * for every other sport and where unknown.
+   */
+  tournament?: string | null;
+  /** Tennis only: the tour — "ATP", "WTA", "Challenger", "ITF", "UTR", "Exhibition" or "Team". `null` elsewhere. */
+  tour?: string | null;
   bookmakers: Bookmaker[];
   [k: string]: unknown;
 }
@@ -463,6 +514,10 @@ export interface ScoreEvent {
   home_team_logo_url?: string | null;
   /** Away-side counterpart of `home_team_logo_url`. */
   away_team_logo_url?: string | null;
+  /** Tennis only — see `Event.tournament`. */
+  tournament?: string | null;
+  /** Tennis only — see `Event.tour`. */
+  tour?: string | null;
   status: "upcoming" | "in_progress" | "final" | string;
   home_score: number | null;
   away_score: number | null;
@@ -618,6 +673,10 @@ export interface MovementOutcome {
   direction: string | null;
   num_snapshots: number;
   redacted: boolean;
+  /** PropLine's stable id for this selection — the same id `/odds` and webhook payloads carry. */
+  outcome_id?: number | null;
+  /** The book's own selection id. Only set when the request passed `includeBookIds: true`. */
+  book_outcome_id?: string | null;
   [k: string]: unknown;
 }
 
@@ -654,6 +713,69 @@ export interface SteamMove {
   avg_prob_shift: number;
   consensus_point_shift: number | null;
   steam_score: number;
+  /** Canonical team name for a team-total steam move; `null` otherwise. */
+  team?: string | null;
+  /** Median opening line across the books that moved. */
+  open_point?: number | null;
+  /** Median latest line across the books that moved. */
+  latest_point?: number | null;
+  [k: string]: unknown;
+}
+
+/** One side of a `line_movement` webhook payload (`previous` / `current`). */
+export interface LineMovementPrice {
+  price_american: number | null;
+  point: number | null;
+  /** Dollars stakeable at this price (exchanges / Pinnacle); `null` for other books. */
+  liquidity?: number | null;
+  /** The book's own timestamp for that size (ISO datetime). */
+  liquidity_updated_at?: string | null;
+}
+
+/** Body of a `line_movement` webhook delivery. */
+export interface LineMovementWebhookPayload {
+  event_type: "line_movement";
+  sport_key: string;
+  event: Record<string, unknown>;
+  bookmaker_key: string;
+  bookmaker_title: string;
+  market_id: number;
+  market_key: string;
+  market_description: string | null;
+  outcome_id: number;
+  book_outcome_id: string | null;
+  player_id: string | null;
+  player_name: string | null;
+  outcome_name: string;
+  dfs_odds_type: "standard" | "goblin" | "demon" | null;
+  payout_multiplier: number | null;
+  previous: LineMovementPrice;
+  current: LineMovementPrice;
+  price_change_pct: number;
+  timestamp: string;
+  [k: string]: unknown;
+}
+
+/** Body of a `steam` webhook delivery. */
+export interface SteamWebhookPayload {
+  event_type: "steam";
+  sport_key: string;
+  event: Record<string, unknown>;
+  market_key: string;
+  period: string | null;
+  outcome_name: string;
+  player_name: string | null;
+  /** Canonical team name for a team-total move; `null` otherwise. */
+  team: string | null;
+  open_point: number | null;
+  latest_point: number | null;
+  consensus_direction: string;
+  books_quoting: number;
+  books_moved: number;
+  avg_prob_shift: number;
+  consensus_point_shift: number | null;
+  steam_score: number;
+  timestamp: string;
   [k: string]: unknown;
 }
 

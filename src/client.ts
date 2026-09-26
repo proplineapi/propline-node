@@ -190,6 +190,14 @@ export interface GetOddsOptions {
    * equivalent.
    */
   includeBookIds?: boolean;
+  /**
+   * When true, every outcome carries `depth`: up to three order-book levels
+   * BEYOND the served price, each `{ price, size }` (American odds, dollars).
+   * `[]` when the book has nothing further or PropLine does not read depth
+   * for that book (sportsbooks). Omitted from the response unless requested.
+   * PropLine-specific (`includeDepth=true`).
+   */
+  includeDepth?: boolean;
 }
 
 export interface GetOddsHistoryOptions {
@@ -232,6 +240,19 @@ export interface GetMovementOptions {
   period?: PeriodFilter;
   /** Bookmaker key(s) to restrict the response to. Omitted = all books. */
   bookmakers?: string | string[];
+  /**
+   * Measure movement from this moment instead of from each line's first
+   * quote. ISO-8601 timestamp or a negative offset from now (`"-6h"`,
+   * `"-30m"`, `"-2d"`). Each outcome's opening is the price it held at
+   * `since` (or its first quote after), so steam covers only moves inside
+   * the window.
+   */
+  since?: string;
+  /**
+   * When true, each movement outcome carries `book_outcome_id` (the book's
+   * own selection id). `outcome_id` (PropLine's id) is always present.
+   */
+  includeBookIds?: boolean;
 }
 
 function _periodParam(p: PeriodFilter | undefined): string | undefined {
@@ -722,6 +743,7 @@ export class PropLine {
     if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
     if (options.includeLinks) params.includeLinks = "true";
     if (options.includeBookIds) params.includeBookIds = "true";
+    if (options.includeDepth) params.includeDepth = "true";
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(
@@ -975,6 +997,8 @@ export class PropLine {
     }
     params.period = _periodParam(options.period);
     params.bookmakers = _bookmakersParam(options.bookmakers);
+    if (options.since) params.since = options.since;
+    if (options.includeBookIds) params.includeBookIds = "true";
     return this._request<MovementResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/movement`,
