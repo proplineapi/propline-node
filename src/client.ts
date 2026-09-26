@@ -287,6 +287,9 @@ export interface GetStatsOptions {
 
 export interface GetResultsOptions {
   markets?: string[];
+  /** Bookmaker key(s) to restrict the response to. Omitted = all books.
+   *  An unfiltered MLB game can run several MB. */
+  bookmakers?: string | string[];
 }
 
 export interface GetPlayerHistoryOptions {
@@ -1020,6 +1023,8 @@ export class PropLine {
     if (options.markets?.length) {
       params.markets = options.markets.join(",");
     }
+    const bookmakersParam = _bookmakersParam(options.bookmakers);
+    if (bookmakersParam !== undefined) params.bookmakers = bookmakersParam;
     return this._request<ResultsResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/results`,
