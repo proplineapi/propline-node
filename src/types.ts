@@ -806,6 +806,23 @@ export interface ResultsResponse {
   [k: string]: unknown;
 }
 
+/** One match from {@link PropLine.searchPlayers}. */
+export interface PlayerSearchResult {
+  /** Stable id, usable in place of a name on history/trends (e.g. `"mlb:677951"`). */
+  player_id: string;
+  name: string;
+  /** Every spelling the books use for this player. */
+  known_names: string[];
+  [k: string]: unknown;
+}
+
+export interface PlayerSearchResponse {
+  sport_key: string;
+  search: string;
+  players: PlayerSearchResult[];
+  [k: string]: unknown;
+}
+
 export interface PlayerHistoryEntry {
   event_id: number | string;
   commence_time: string;
@@ -820,12 +837,18 @@ export interface PlayerHistoryEntry {
   over_result: "won" | "lost" | "push" | "void" | null;
   under_result: "won" | "lost" | "push" | "void" | null;
   resolved_at: string | null;
+  /** True when this line is the book's main line (not an alt-ladder rung). */
+  is_main_line?: boolean;
+  /** True when the book moved this line after the game started. */
+  line_moved_in_play?: boolean;
   redacted?: boolean;
   [k: string]: unknown;
 }
 
 export interface PlayerHistoryResponse {
   player_name: string;
+  /** Stable player id (e.g. `"mlb:677951"`), or `null` when unknown. */
+  player_id?: string | null;
   sport_key: string;
   market: string;
   entries: PlayerHistoryEntry[];
@@ -881,6 +904,8 @@ export interface PlayerMarketTrend {
 
 export interface PlayerTrends {
   player_name: string;
+  /** Stable player id (e.g. `"mlb:592450"`), or `null` when unknown. */
+  player_id?: string | null;
   sport_key: string;
   /**
    * Echo of the `dfs_odds_type` filter that scoped these trends (PrizePicks

@@ -23,6 +23,7 @@ import type {
   ResultsResponse,
   PlayerGameLog,
   PlayerHistoryResponse,
+  PlayerSearchResponse,
   PlayerTrends,
   EventEvResponse,
   EventProjectionsResponse,
@@ -298,6 +299,13 @@ export interface GetPlayerHistoryOptions {
   /** Restrict to a single bookmaker (e.g. `"draftkings"`). */
   bookmaker?: string;
   /** Max entries (1-100). Default 20. */
+  limit?: number;
+  /** Only each book's main line (drops alt-ladder rungs). */
+  mainLineOnly?: boolean;
+}
+
+export interface SearchPlayersOptions {
+  /** Max players (1-100). Server default 25. */
   limit?: number;
 }
 
@@ -1033,9 +1041,38 @@ export class PropLine {
   }
 
   /**
+   * Search players by name fragment and get their stable `player_id`.
+   * Free tier. Pass the id in place of a name to {@link getPlayerHistory}
+   * or {@link getPlayerTrends}.
+   *
+   * @example
+   * ```ts
+   * const res = await client.searchPlayers("baseball_mlb", "judge", { limit: 5 });
+   * for (const p of res.players) console.log(p.player_id, p.name, p.known_names);
+   * ```
+   */
+  searchPlayers(
+    sport: string,
+    search: string,
+    options: SearchPlayersOptions = {}
+  ): Promise<PlayerSearchResponse> {
+    const params: Record<string, string | number | undefined> = { search };
+    if (options.limit !== undefined) {
+      params.limit = options.limit;
+    }
+    return this._request<PlayerSearchResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/players`,
+      { params }
+    );
+  }
+
+  /**
    * Recent resolved prop history for a player on a market.
    *
    * One entry per (event, bookmaker) pair. Pro: full. Free: redacted.
+   * `playerName` may be a name or a `player_id` like `"mlb:677951"`
+   * (see {@link searchPlayers}).
    */
   getPlayerHistory(
     sport: string,
@@ -1048,6 +1085,9 @@ export class PropLine {
     };
     if (options.bookmaker) {
       params.bookmaker = options.bookmaker;
+    }
+    if (options.mainLineOnly !== undefined) {
+      params.main_line_only = options.mainLineOnly ? "true" : "false";
     }
     return this._request<PlayerHistoryResponse>(
       "GET",
@@ -1108,7 +1148,8 @@ export class PropLine {
    *
    * Returns over/under/push splits over the last 5/10/20/50 graded games,
    * the current streak, and the most recent game per market. Pro: full.
-   * Free: redacted.
+   * Free: redacted. `playerName` may be a name or a `player_id` like
+   * `"mlb:592450"` (see {@link searchPlayers}).
    */
   getPlayerTrends(
     sportKey: string,

@@ -649,6 +649,20 @@ to exactly one stored outcome is a 422 naming the leg. `quoted: false` means
 the book will not offer that combination as a same-game parlay; refused legs
 carry the book's own `failure_code`. Books: `fanduel`, `betonlineag`, `lowvig`.
 
+### Search players / get a player_id (free)
+
+```ts
+// Stable ids beat name spelling. Every spelling the books use is in known_names.
+const res = await client.searchPlayers("baseball_mlb", "judge", { limit: 5 });
+for (const p of res.players) {
+  console.log(p.player_id, p.name, p.known_names);
+}
+// Output: "mlb:592450 Aaron Judge [ 'Aaron Judge' ]"
+```
+
+Pass a `player_id` anywhere a player name is accepted in `getPlayerHistory` /
+`getPlayerTrends`; both responses carry `player_id`.
+
 ### Get player prop history (Pro full, Free redacted)
 
 ```ts
@@ -666,6 +680,13 @@ for (const e of hist.entries) {
   );
 }
 // Output: "2026-04-19 DraftKings: line 6.5, actual 6.0 -> Over lost, Under won"
+
+// Main lines only (drop alt-ladder rungs). Each entry also carries
+// is_main_line and line_moved_in_play.
+const main = await client.getPlayerHistory("baseball_mlb", "mlb:677951", {
+  market: "pitcher_strikeouts",
+  mainLineOnly: true,
+});
 ```
 
 ### Player game log / head-to-head (free)
