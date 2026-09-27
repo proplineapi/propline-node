@@ -372,6 +372,13 @@ export interface GetEventEvOptions {
    * on a +600 anytime scorer. The response echoes it as `devig_method`.
    */
   devig?: "multiplicative" | "shin";
+  /**
+   * Override the fair-line anchor: one book or a list tried IN ORDER per
+   * line, from `pinnacle`, `polymarket`, `kalshi`, `bovada`, `smarkets`.
+   * A line none of them anchors is dropped; any other value is a 400.
+   * Omit for the default order.
+   */
+  fairSource?: string | string[];
 }
 
 export interface GetEventBestLineOptions {
@@ -1108,6 +1115,9 @@ export class PropLine {
    * built from {@link getPlayerHistory} or {@link getPlayerTrends}. Carries
    * no line, price or grade.
    *
+   * `playerName` may also be a stable `player_id` (e.g. `"mlb:677951"`),
+   * which skips name matching; the response carries it back as `player_id`.
+   *
    * @example
    * ```ts
    * const log = await client.getPlayerGames("baseball_mlb", "Aaron Judge", { limit: 10 });
@@ -1283,6 +1293,11 @@ export class PropLine {
         : options.bookmakers;
     }
     if (options.devig) params.devig = options.devig;
+    if (options.fairSource) {
+      params.fair_source = Array.isArray(options.fairSource)
+        ? options.fairSource.join(",")
+        : options.fairSource;
+    }
     return this._request<EventEvResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/ev`,

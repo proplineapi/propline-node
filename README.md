@@ -705,6 +705,9 @@ const h2h = await client.getPlayerGames("baseball_mlb", "Aaron Judge", {
   limit: 5,
   opponent: "BOS",
 });
+
+// A stable player_id works in place of the name; it comes back as log.player_id.
+const byId = await client.getPlayerGames("baseball_mlb", "mlb:592450", { limit: 10 });
 ```
 
 Reads the raw-stats archive rather than graded-prop history, so it covers every
@@ -752,6 +755,9 @@ const ev = await client.getEventEv("baseball_mlb", 12345, {
 // `devig` picks how the anchor's vig is removed. Shin's method loads the
 // overround onto the longshot, correcting the favourite-longshot bias on
 // props like anytime TD; the response echoes it as ev.devig_method.
+// `fairSource` overrides the anchor — one book or a list tried in order per
+// line (pinnacle, polymarket, kalshi, bovada, smarkets):
+//   client.getEventEv("baseball_mlb", 12345, { fairSource: ["polymarket", "pinnacle"] });
 
 for (const line of ev.lines) {
   const plus = line.outcomes.filter((o) => o.is_plus_ev);

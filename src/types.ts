@@ -944,6 +944,8 @@ export interface PlayerGame {
 
 export interface PlayerGameLog {
   player_name: string;
+  /** Stable cross-book player id (e.g. `"mlb:677951"`); null when none yet. */
+  player_id: string | null;
   sport_key: string;
   /** Echo of the `opponent` filter, or null. */
   opponent: string | null;
