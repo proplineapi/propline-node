@@ -17,6 +17,8 @@ import type {
   MlbGrandSalamiResponse,
   NhlDailyGoalsTotalResponse,
   ResolutionSummary,
+  BookAccuracyReport,
+  BookAccuracyOptions,
   StatsResponse,
   ContextResponse,
   MovementResponse,
@@ -940,6 +942,19 @@ export class PropLine {
       "/markets/resolution-summary",
       { params: { days: String(days) } }
     );
+  }
+
+  /**
+   * Sportsbook accuracy report (free tier): each book's closing player-prop
+   * prices, de-vigged and scored against the real result and against the
+   * other books on the same line. `skill_bp` > 0 = closer to the result than
+   * the market average; `margin_pct` = the book's average overround.
+   * A pricing report, never a profit claim.
+   */
+  getBookAccuracy(options: BookAccuracyOptions = {}): Promise<BookAccuracyReport> {
+    const params: Record<string, string> = { days: String(options.days ?? 30) };
+    if (options.sport) params.sport = options.sport;
+    return this._request<BookAccuracyReport>("GET", "/books/accuracy", { params });
   }
 
   /**

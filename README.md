@@ -445,6 +445,21 @@ for (const row of s.by_sport.slice(0, 5)) {
 }
 ```
 
+### Sportsbook accuracy report (free)
+
+How well each book prices player props: closing prices are de-vigged and
+scored against the real result and against the other books on the same line.
+`skill_bp > 0` means closer to the result than the market average;
+`margin_pct` is the book's average overround. A pricing report, not a
+betting edge.
+
+```ts
+const r = await client.getBookAccuracy({ days: 30, sport: "baseball_mlb" });
+for (const b of r.books) {
+  console.log(`${b.title}: ${b.skill_bp} bp, ${b.verdict}, margin ${b.margin_pct}%`);
+}
+```
+
 ### Get resolved prop outcomes (Pro only)
 
 ```ts

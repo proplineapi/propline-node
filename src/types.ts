@@ -598,6 +598,45 @@ export interface ResolutionSummary {
   [k: string]: unknown;
 }
 
+/** One book's row in the sportsbook accuracy report. */
+export interface BookAccuracyRow {
+  key: string;
+  title: string;
+  /** Graded props scored for this book. */
+  props: number;
+  /** Brier score of the book's de-vigged closing prices (lower = better). */
+  brier: number;
+  /** Brier score of the other books' consensus on the same lines. */
+  consensus_brier: number;
+  /** Skill vs the market in basis points; > 0 = closer to the result. */
+  skill_bp: number;
+  /** 95% confidence interval for skill_bp. */
+  skill_ci95_bp: [number, number];
+  verdict: "beats_market" | "trails_market" | "in_line";
+  /** The book's average overround, in percent. */
+  margin_pct: number;
+  [k: string]: unknown;
+}
+
+/** Response of GET /v1/books/accuracy. A pricing report, not a profit claim. */
+export interface BookAccuracyReport {
+  days: number;
+  sport: string | null;
+  method: string;
+  total_props: number;
+  books: BookAccuracyRow[];
+  by_sport: Record<string, BookAccuracyRow[]>;
+  by_market: Record<string, BookAccuracyRow[]>;
+  [k: string]: unknown;
+}
+
+export interface BookAccuracyOptions {
+  /** Look-back window, 7-120 (default 30). */
+  days?: number;
+  /** Optional sport key, e.g. "baseball_mlb". */
+  sport?: string;
+}
+
 export interface PlayerStat {
   player_name: string;
   team_abbr: string;
