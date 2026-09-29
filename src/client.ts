@@ -18,6 +18,7 @@ import type {
   NhlDailyGoalsTotalResponse,
   ResolutionSummary,
   BookAccuracyReport,
+  EventIds,
   BookAccuracyOptions,
   StatsResponse,
   ContextResponse,
@@ -951,6 +952,16 @@ export class PropLine {
    * the market average; `margin_pct` = the book's average overround.
    * A pricing report, never a profit claim.
    */
+  /**
+   * Event id crosswalk (free tier): one object per event from 3 days ago
+   * to 30 days ahead, with the ids needed to join PropLine events onto
+   * ESPN (`espn_event_id`), the MLB Stats API (`mlb_game_pk`) and each
+   * sportsbook's own event id + link (`books`).
+   */
+  getEventIds(sport: string): Promise<EventIds[]> {
+    return this._request<EventIds[]>("GET", `/sports/${encodeURIComponent(sport)}/ids`);
+  }
+
   getBookAccuracy(options: BookAccuracyOptions = {}): Promise<BookAccuracyReport> {
     const params: Record<string, string> = { days: String(options.days ?? 30) };
     if (options.sport) params.sport = options.sport;

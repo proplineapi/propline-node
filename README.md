@@ -445,6 +445,17 @@ for (const row of s.by_sport.slice(0, 5)) {
 }
 ```
 
+### Event id crosswalk (free)
+
+Join PropLine events onto other feeds — ESPN, the MLB Stats API, and each
+sportsbook's own event ids.
+
+```ts
+for (const e of await client.getEventIds("baseball_mlb")) {
+  console.log(e.id, e.espn_event_id, e.mlb_game_pk, Object.keys(e.books));
+}
+```
+
 ### Sportsbook accuracy report (free)
 
 How well each book prices player props: closing prices are de-vigged and

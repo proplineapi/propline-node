@@ -91,6 +91,8 @@ export type {
   ResolutionSummarySport,
   ResolutionSummaryMarket,
   BookAccuracyRow,
+  EventIds,
+  EventIdsBook,
   BookAccuracyReport,
   BookAccuracyOptions,
   PlayerStat,
@@ -155,4 +157,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.58.0";
+export const VERSION = "0.59.0";

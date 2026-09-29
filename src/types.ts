@@ -598,6 +598,31 @@ export interface ResolutionSummary {
   [k: string]: unknown;
 }
 
+/** One book's own ids for an event in the id crosswalk. */
+export interface EventIdsBook {
+  event_id: string | null;
+  link: string | null;
+  [k: string]: unknown;
+}
+
+/** One event in GET /v1/sports/{sport}/ids — the id crosswalk. */
+export interface EventIds {
+  id: string;
+  commence_time: string;
+  home_team: string;
+  away_team: string;
+  home_team_key: string | null;
+  away_team_key: string | null;
+  home_team_id: string | null;
+  away_team_id: string | null;
+  espn_event_id: string | null;
+  mlb_game_pk: number | null;
+  merged_from_event_ids: string[] | null;
+  /** Keyed by bookmaker_key. */
+  books: Record<string, EventIdsBook>;
+  [k: string]: unknown;
+}
+
 /** One book's row in the sportsbook accuracy report. */
 export interface BookAccuracyRow {
   key: string;
