@@ -466,8 +466,16 @@ export interface ExportOddsHistoryOptions {
  * Webhook event types. `steam` = cross-book sharp-money alert.
  * `market_suspended` = a book took a market off the board pregame (one
  * delivery per (book, event, player) withdrawal, with `books_agreeing`).
+ * `ev` = push version of `/ev`: a fresh pregame price whose EV% against the
+ * fair line is within [minEvPct, maxEvPct], once per subscription per price
+ * (an analytical signal, not a claim of profit).
  */
-export type WebhookEventType = "line_movement" | "resolution" | "steam" | "market_suspended";
+export type WebhookEventType =
+  | "line_movement"
+  | "resolution"
+  | "steam"
+  | "market_suspended"
+  | "ev";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
@@ -496,6 +504,13 @@ export interface CreateWebhookOptions {
    * scratches only. Every payload carries `books_agreeing` regardless.
    */
   minBooksAgreeing?: number;
+  /** `ev` only: minimum EV% (0-100) to deliver. Unset = 1. Sent as `min_ev_pct`. */
+  minEvPct?: number;
+  /**
+   * `ev` only: maximum EV% to deliver (drops implausibly large edges,
+   * usually stale prices). Unset = no cap. Sent as `max_ev_pct`.
+   */
+  maxEvPct?: number;
   /**
    * Batched delivery opt-in (1-500): up to N events per POST as a signed
    * envelope `{"batch": true, "event_type": ..., "count": N, "events":
@@ -524,6 +539,10 @@ export interface UpdateWebhookOptions {
   minPriceChangePct?: number;
   minSteamScore?: number;
   minBooksAgreeing?: number;
+  /** `ev` only: minimum EV% (0-100). */
+  minEvPct?: number;
+  /** `ev` only: maximum EV%. Pass 0 to clear the cap. */
+  maxEvPct?: number;
   /** Batched delivery (see CreateWebhookOptions.batchMax). 0 = per-event. */
   batchMax?: number;
   active?: boolean;
@@ -1965,6 +1984,8 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["minPriceChangePct", "min_price_change_pct"],
     ["minSteamScore", "min_steam_score"],
     ["minBooksAgreeing", "min_books_agreeing"],
+    ["minEvPct", "min_ev_pct"],
+    ["maxEvPct", "max_ev_pct"],
     ["batchMax", "batch_max"],
     ["active", "active"],
   ];

@@ -884,7 +884,7 @@ await client.exportOddsHistory({
 
 ## Webhooks (Streaming tier)
 
-The Streaming tiers push `line_movement`, `resolution`, `steam` and `market_suspended` events to your URL in real time, with HMAC-SHA256 signing and automatic retries.
+The Streaming tiers push `line_movement`, `resolution`, `steam`, `market_suspended` and `ev` events to your URL in real time, with HMAC-SHA256 signing and automatic retries.
 
 ### Register a subscription
 
@@ -917,7 +917,7 @@ Each POST carries these headers:
 
 | Header | Purpose |
 |--------|---------|
-| `X-PropLine-Event` | `line_movement`, `resolution`, `steam`, `market_suspended`, or `test` |
+| `X-PropLine-Event` | `line_movement`, `resolution`, `steam`, `market_suspended`, `ev`, or `test` |
 | `X-PropLine-Timestamp` | Unix seconds |
 | `X-PropLine-Signature` | HMAC-SHA256 over `${timestamp}.` + body |
 | `X-PropLine-Delivery` | Stable delivery id (use for idempotency) |
@@ -1046,6 +1046,22 @@ await client.createWebhook({
 ```
 
 `reason` is `"off_the_board"` for a sportsbook and `"no_offers"` for an exchange whose resting offers went. There is no restore event: when the market returns, `line_movement` fires on the returning price.
+
+### `ev` events
+
+The push version of `getEventEv`: fresh pregame prices only, once per subscription per price, when EV% against the fair line is between `minEvPct` (default 1) and `maxEvPct` (default no cap; update with 0 to clear). An analytical signal, not a claim of profit. Typed as `EvWebhookPayload`.
+
+```ts
+await client.createWebhook({
+  url: "https://example.com/hooks/propline",
+  events: ["ev"],
+  filterSportKey: "baseball_mlb",
+  minEvPct: 2,
+  maxEvPct: 15,
+});
+```
+
+Payload fields: `event_type` ("ev"), `sport_key`, `event` (id, external_id, home_team, away_team, commence_time), `market_key`, `player_name`, `outcome_name`, `point`, `bookmaker_key`, `bookmaker_title`, `price`, `price_updated_at`, `fair_prob`, `fair_price`, `ev_pct`, `fair_source`, `fair_books`, `devig_method`, `timestamp`.
 
 ### Manage subscriptions
 

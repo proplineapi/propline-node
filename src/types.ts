@@ -843,6 +843,40 @@ export interface SteamWebhookPayload {
   [k: string]: unknown;
 }
 
+/**
+ * Body of an `ev` webhook delivery — the push version of `/ev` (fresh
+ * pregame prices only). An analytical signal, not a claim of profit.
+ */
+export interface EvWebhookPayload {
+  event_type: "ev";
+  sport_key: string;
+  event: {
+    id: number;
+    external_id: string | null;
+    home_team: string;
+    away_team: string;
+    commence_time: string;
+    [k: string]: unknown;
+  };
+  market_key: string;
+  player_name: string | null;
+  outcome_name: string;
+  point: number | null;
+  bookmaker_key: string;
+  bookmaker_title: string;
+  /** American odds. */
+  price: number;
+  price_updated_at: string | null;
+  fair_prob: number;
+  fair_price: number;
+  ev_pct: number;
+  fair_source: string;
+  fair_books: string[] | null;
+  devig_method: string;
+  timestamp: string;
+  [k: string]: unknown;
+}
+
 export interface MovementResponse {
   id: number | string;
   sport_key: string;
@@ -1258,6 +1292,10 @@ export interface Webhook {
   min_price_change_pct: number | null;
   min_steam_score: number | null;
   min_books_agreeing: number | null;
+  /** `ev` only: minimum EV% (null = 1). */
+  min_ev_pct?: number | null;
+  /** `ev` only: maximum EV% (null = no cap). */
+  max_ev_pct?: number | null;
   /** Batched delivery: up to N events per POST (null = per-event). */
   batch_max: number | null;
   created_at: string;
