@@ -784,6 +784,12 @@ const ev = await client.getEventEv("baseball_mlb", 12345, {
 // `fairSource` overrides the anchor — one book or a list tried in order per
 // line (pinnacle, polymarket, kalshi, bovada, smarkets):
 //   client.getEventEv("baseball_mlb", 12345, { fairSource: ["polymarket", "pinnacle"] });
+// `fairSource: "consensus"` uses the median no-vig probability across every
+// book with a clean, fresh two-sided market (3+ books); `line.fair_books`
+// lists them. Opt-in, not a proven better anchor. `maxAge` (seconds) drops
+// prices the book has not delivered that recently (`outcome.last_update`);
+// the fair line is unaffected.
+//   client.getEventEv("baseball_mlb", 12345, { fairSource: "consensus", maxAge: 120 });
 
 for (const line of ev.lines) {
   const plus = line.outcomes.filter((o) => o.is_plus_ev);

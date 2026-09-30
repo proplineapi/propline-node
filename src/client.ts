@@ -380,8 +380,20 @@ export interface GetEventEvOptions {
    * line, from `pinnacle`, `polymarket`, `kalshi`, `bovada`, `smarkets`.
    * A line none of them anchors is dropped; any other value is a 400.
    * Omit for the default order.
+   *
+   * The single value `"consensus"` (cannot be combined with book names)
+   * uses the median no-vig probability across every book quoting a clean,
+   * fresh two-sided market (3+ books; BetOnline/LowVig and BetRivers/Unibet
+   * count once). Each line then lists the books used in `fair_books`.
+   * Opt-in; not a proven better anchor.
    */
   fairSource?: string | string[];
+  /**
+   * Seconds (>= 0). Drops quoted prices the book has not delivered within
+   * that many seconds (see each outcome's `last_update`). The fair line is
+   * unaffected. Sent as `max_age`.
+   */
+  maxAge?: number;
 }
 
 export interface GetEventBestLineOptions {
@@ -1323,6 +1335,9 @@ export class PropLine {
       params.fair_source = Array.isArray(options.fairSource)
         ? options.fairSource.join(",")
         : options.fairSource;
+    }
+    if (options.maxAge !== undefined && options.maxAge !== null) {
+      params.max_age = String(options.maxAge);
     }
     return this._request<EventEvResponse>(
       "GET",

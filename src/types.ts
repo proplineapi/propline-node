@@ -1107,6 +1107,8 @@ export interface EvOutcome {
   /** Expected value as a percent on a unit stake. Positive = +EV. */
   ev_pct: number;
   is_plus_ev: boolean;
+  /** When this book last delivered the market (ISO time), or null. */
+  last_update?: string | null;
   [k: string]: unknown;
 }
 
@@ -1120,6 +1122,8 @@ export interface EvLine {
   fair_source: string;
   /** Map of outcome name → normalized fair probability. */
   fair_probs: Record<string, number>;
+  /** Book keys used for a `consensus` fair line; null otherwise. */
+  fair_books?: string[] | null;
   outcomes: EvOutcome[];
   [k: string]: unknown;
 }
