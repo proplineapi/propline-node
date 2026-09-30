@@ -1058,6 +1058,7 @@ await client.createWebhook({
   filterSportKey: "baseball_mlb",
   minEvPct: 2,
   maxEvPct: 15,
+  evFairSource: "consensus", // or "pinnacle,kalshi"; update with "" to clear
 });
 ```
 

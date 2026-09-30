@@ -512,6 +512,13 @@ export interface CreateWebhookOptions {
    */
   maxEvPct?: number;
   /**
+   * `ev` only: fair-line anchor, same values as getEventEv's `fairSource`:
+   * `"consensus"` or a comma list of anchor books (pinnacle, polymarket,
+   * kalshi, bovada, smarkets). Unset = the /ev default. Sent as
+   * `ev_fair_source`; invalid values are a 400.
+   */
+  evFairSource?: string;
+  /**
    * Batched delivery opt-in (1-500): up to N events per POST as a signed
    * envelope `{"batch": true, "event_type": ..., "count": N, "events":
    * [{"delivery_id": ..., "data": <per-event payload>}, ...]}` with an
@@ -543,6 +550,8 @@ export interface UpdateWebhookOptions {
   minEvPct?: number;
   /** `ev` only: maximum EV%. Pass 0 to clear the cap. */
   maxEvPct?: number;
+  /** `ev` only: fair-line anchor (see CreateWebhookOptions). Pass "" to clear. */
+  evFairSource?: string;
   /** Batched delivery (see CreateWebhookOptions.batchMax). 0 = per-event. */
   batchMax?: number;
   active?: boolean;
@@ -1986,6 +1995,7 @@ function webhookBody(options: CreateWebhookOptions | UpdateWebhookOptions): Reco
     ["minBooksAgreeing", "min_books_agreeing"],
     ["minEvPct", "min_ev_pct"],
     ["maxEvPct", "max_ev_pct"],
+    ["evFairSource", "ev_fair_source"],
     ["batchMax", "batch_max"],
     ["active", "active"],
   ];

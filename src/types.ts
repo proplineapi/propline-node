@@ -1296,6 +1296,8 @@ export interface Webhook {
   min_ev_pct?: number | null;
   /** `ev` only: maximum EV% (null = no cap). */
   max_ev_pct?: number | null;
+  /** `ev` only: fair-line anchor override (null = the /ev default). */
+  ev_fair_source?: string | null;
   /** Batched delivery: up to N events per POST (null = per-event). */
   batch_max: number | null;
   created_at: string;
