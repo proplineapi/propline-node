@@ -174,10 +174,10 @@ export interface Outcome {
    */
   side?: "home" | "away" | "draw" | null;
   /**
-   * Per-leg override of `Market.line_type`, present ONLY on a market row that
-   * holds the main line of some players and an alternate line of others
-   * (Kalshi / Polymarket US ship one row per line carrying every player,
-   * e.g. "Hits (line 0.5)"). Absent everywhere else — read the market's.
+   * Per-outcome line_type, present on every Kalshi and Polymarket US
+   * outcome: those books ship one row per line carrying every player
+   * (e.g. "Hits (line 0.5)"), so one row can be main for some players and
+   * alternate for others. Absent on other books — read the market's.
    */
   line_type?: LineType;
   /**
