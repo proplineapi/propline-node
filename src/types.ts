@@ -174,6 +174,13 @@ export interface Outcome {
    */
   side?: "home" | "away" | "draw" | null;
   /**
+   * Per-leg override of `Market.line_type`, present ONLY on a market row that
+   * holds the main line of some players and an alternate line of others
+   * (Kalshi / Polymarket US ship one row per line carrying every player,
+   * e.g. "Hits (line 0.5)"). Absent everywhere else — read the market's.
+   */
+  line_type?: LineType;
+  /**
    * Signed line-difficulty delta for a PrizePicks goblin/demon outcome:
    * `point - standard_point` for the same player+stat. Positive on a harder
    * (demon) line, negative on an easier (goblin) line. `null`/absent when the
@@ -239,9 +246,20 @@ export interface Market {
    * wording. Always null outside `totals`.
    */
   team?: string | null;
+  /**
+   * `"main"`, `"alternate"` or `"milestone"`. milestone = an N+ threshold
+   * rung ("3+ Strikeouts", `batter_2plus_hits`, "To Record 175+ Pass Yards").
+   * Among one book's rows of a line market for one player or team (same key,
+   * period and `team`), exactly one is main — the book's own primary row
+   * where it labels one, otherwise the most balanced pair. Every other line
+   * is alternate. h2h, yes/no props and outrights are main.
+   */
+  line_type?: LineType;
   outcomes: Outcome[];
   [k: string]: unknown;
 }
+
+export type LineType = "main" | "alternate" | "milestone";
 
 export interface Bookmaker {
   key: string;
