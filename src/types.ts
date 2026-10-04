@@ -1132,7 +1132,8 @@ export interface EventBestLineResponse {
   commence_time: string;
   /**
    * Books that quoted at least one line on this event. DFS pick'em
-   * books (PrizePicks, Sleeper, Dabble) are always excluded from
+   * books (PrizePicks, Sleeper, Dabble, ParlayPlay,
+   * DraftKings Pick6) are always excluded from
    * best-line responses — their quotes aren't independently bettable
    * payouts; Underdog is included only at its clean two-way lines
    * (payout_multiplier == 1.0).
