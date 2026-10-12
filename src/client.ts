@@ -469,13 +469,20 @@ export interface ExportOddsHistoryOptions {
  * `ev` = push version of `/ev`: a fresh pregame price whose EV% against the
  * fair line is within [minEvPct, maxEvPct], once per subscription per price
  * (an analytical signal, not a claim of profit).
+ * `line_added` / `line_pulled` are opt-in (never in the default): a book
+ * posted a new line on a game it already prices or a pulled line returned
+ * (`reason` "new" | "returned", `previous` null), and we stopped serving a
+ * line the book pulled (sent once, `current` null). Same fields as
+ * line_movement.
  */
 export type WebhookEventType =
   | "line_movement"
   | "resolution"
   | "steam"
   | "market_suspended"
-  | "ev";
+  | "ev"
+  | "line_added"
+  | "line_pulled";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
