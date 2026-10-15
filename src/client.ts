@@ -20,6 +20,10 @@ import type {
   BookAccuracyReport,
   EventIds,
   BookAccuracyOptions,
+  GolfRoundsResponse,
+  GolfRoundsOptions,
+  GolfTournament,
+  GolfTournamentsOptions,
   StatsResponse,
   ContextResponse,
   MovementResponse,
@@ -1013,6 +1017,31 @@ export class PropLine {
     const params: Record<string, string> = { days: String(options.days ?? 30) };
     if (options.sport) params.sport = options.sport;
     return this._request<BookAccuracyReport>("GET", "/books/accuracy", { params });
+  }
+
+  /**
+   * A golfer's completed rounds, newest first, plus last-5/10/20 averages.
+   * Every player in the field, every tour, back to 2024. A round in progress
+   * is never included. `player` is a name (case/accents ignored) or ESPN
+   * athlete id. Free tier.
+   */
+  getGolfRounds(player: string, options: GolfRoundsOptions = {}): Promise<GolfRoundsResponse> {
+    const params: Record<string, string> = { limit: String(options.limit ?? 20) };
+    if (options.tour) params.tour = options.tour;
+    if (options.since) params.since = options.since;
+    return this._request<GolfRoundsResponse>(
+      "GET",
+      `/golf/players/${encodeURIComponent(player)}/rounds`,
+      { params }
+    );
+  }
+
+  /** Golf tournaments we hold round data for, newest first. Free tier. */
+  getGolfTournaments(options: GolfTournamentsOptions = {}): Promise<GolfTournament[]> {
+    const params: Record<string, string> = { limit: String(options.limit ?? 50) };
+    if (options.tour) params.tour = options.tour;
+    if (options.season) params.season = String(options.season);
+    return this._request<GolfTournament[]>("GET", "/golf/tournaments", { params });
   }
 
   /**

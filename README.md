@@ -472,6 +472,16 @@ for (const b of r.books) {
 }
 ```
 
+### Golf round history (free)
+
+Every completed round for every golfer, by tour (pga, dp_world, liv, lpga,
+korn_ferry, champions), back to 2024, with last-5/10/20 averages.
+
+```ts
+const r = await client.getGolfRounds("Scottie Scheffler", { tour: "pga" });
+console.log(r.summary.last_10.avg_strokes);
+```
+
 ### Get resolved prop outcomes (Pro only)
 
 ```ts

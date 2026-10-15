@@ -95,6 +95,12 @@ export type {
   EventIdsBook,
   BookAccuracyReport,
   BookAccuracyOptions,
+  GolfRound,
+  GolfRoundSplit,
+  GolfRoundsResponse,
+  GolfRoundsOptions,
+  GolfTournament,
+  GolfTournamentsOptions,
   PlayerStat,
   StatsResponse,
   WeatherInfo,
@@ -159,4 +165,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.64.0";
+export const VERSION = "0.65.0";

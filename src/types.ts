@@ -680,6 +680,70 @@ export interface BookAccuracyOptions {
   sport?: string;
 }
 
+/** One completed golf round. Hole counts are null where the source
+ * publishes only the round score (DP World, LPGA, some LIV rounds). */
+export interface GolfRound {
+  tour: string;
+  espn_event_id: string;
+  tournament: string;
+  season: number | null;
+  player_id: string;
+  player_name: string;
+  round: number;
+  round_date: string;
+  strokes: number;
+  to_par: number | null;
+  holes: number | null;
+  eagles: number | null;
+  birdies: number | null;
+  pars: number | null;
+  bogeys: number | null;
+  double_bogeys_or_worse: number | null;
+}
+
+export interface GolfRoundSplit {
+  rounds: number;
+  avg_strokes: number | null;
+  avg_to_par: number | null;
+  avg_birdies: number | null;
+  avg_bogeys: number | null;
+}
+
+export interface GolfRoundsResponse {
+  player_name: string;
+  player_id: string;
+  tours: string[];
+  rounds: GolfRound[];
+  summary: { last_5: GolfRoundSplit; last_10: GolfRoundSplit; last_20: GolfRoundSplit };
+}
+
+export interface GolfRoundsOptions {
+  /** Comma-separated tours: pga, dp_world, liv, lpga, korn_ferry, champions. Omit for all. */
+  tour?: string;
+  /** Rounds to return, 1-200 (default 20). */
+  limit?: number;
+  /** YYYY-MM-DD; only rounds on or after it. */
+  since?: string;
+}
+
+export interface GolfTournament {
+  tour: string;
+  espn_event_id: string;
+  tournament: string;
+  season: number | null;
+  start_date: string;
+  players: number;
+  rounds_played: number;
+  player_rounds: number;
+}
+
+export interface GolfTournamentsOptions {
+  tour?: string;
+  season?: number;
+  /** 1-500 (default 50). */
+  limit?: number;
+}
+
 export interface PlayerStat {
   player_name: string;
   team_abbr: string;
