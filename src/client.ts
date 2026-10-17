@@ -613,6 +613,29 @@ export interface StreamOptions {
    * resync from the REST endpoints.
    */
   onTruncated?: (ready: ReplayPage) => void;
+  /**
+   * Called on connect and every 25s with the books we are still reading for
+   * this subscription's filters. A quiet stream plus a fresh heartbeat means
+   * "prices unchanged", not "feed down".
+   */
+  onHeartbeat?: (heartbeat: StreamHeartbeat) => void;
+}
+
+export interface StreamHeartbeatBook {
+  bookmaker_key: string;
+  sport_key: string;
+  /** When this book's last completed pre-match board read started. */
+  pregame_read_at: string;
+  read_age_seconds: number;
+  /** Gap between this book's last two reads; null until two are recorded. */
+  reread_seconds: number | null;
+  events: number;
+}
+
+export interface StreamHeartbeat {
+  type: "heartbeat";
+  at: string;
+  books: StreamHeartbeatBook[];
 }
 
 export interface VerifySignatureOptions {
@@ -1814,6 +1837,8 @@ export class PropLine {
         } else if (msg.type === "event") {
           queue.push(msg as unknown as ReplayEvent);
           wake();
+        } else if (msg.type === "heartbeat") {
+          options.onHeartbeat?.(msg as unknown as StreamHeartbeat);
         }
         // "ping" needs no reply — it exists to keep idle proxies from closing.
       });
