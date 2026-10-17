@@ -206,6 +206,13 @@ export interface GetOddsOptions {
    * PropLine-specific (`includeDepth=true`).
    */
   includeDepth?: boolean;
+  /**
+   * When true, PrizePicks projections marked over-only also return their
+   * Under leg, and every PrizePicks outcome carries `allowed_wager_types`
+   * (`"over"` or `"under_or_over"`, PrizePicks' own value). By default the
+   * excluded leg is left out. PropLine-specific (`includeRestricted=true`).
+   */
+  includeRestricted?: boolean;
 }
 
 export interface GetOddsHistoryOptions {
@@ -816,6 +823,7 @@ export class PropLine {
     if (options.includeLinks) params.includeLinks = "true";
     if (options.includeBookIds) params.includeBookIds = "true";
     if (options.includeDepth) params.includeDepth = "true";
+    if (options.includeRestricted) params.includeRestricted = "true";
     const sp = encodeURIComponent(sport);
     if (options.eventId !== undefined) {
       return this._request<OddsResponse>(

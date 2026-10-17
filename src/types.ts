@@ -168,6 +168,12 @@ export interface Outcome {
    */
   depth?: DepthLevel[];
   /**
+   * PrizePicks' own direction flag for this pick (`"over"`,
+   * `"under_or_over"`). Only present when the request passed
+   * `includeRestricted: true`, and only on books that publish it.
+   */
+  allowed_wager_types?: string;
+  /**
    * Which side of the EVENT this leg is on: `"home"`, `"away"` or
    * `"draw"`; `null` for Over/Under, Yes/No and player legs. Lets you pair
    * legs without matching a book's own team spelling.
