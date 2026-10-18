@@ -24,6 +24,10 @@ import type {
   GolfRoundsOptions,
   GolfTournament,
   GolfTournamentsOptions,
+  InjuryReport,
+  InjuryReportOptions,
+  InjuryHistory,
+  InjuryHistoryOptions,
   StatsResponse,
   ContextResponse,
   MovementResponse,
@@ -1073,6 +1077,38 @@ export class PropLine {
     if (options.tour) params.tour = options.tour;
     if (options.season) params.season = String(options.season);
     return this._request<GolfTournament[]>("GET", "/golf/tournaments", { params });
+  }
+
+  /**
+   * Current injury report for a sport (free tier): NFL, NCAAF, NBA, WNBA,
+   * NHL, MLB. Each player has status, injury, expected return and
+   * `status_since` (when the current status began). Source: ESPN, every
+   * 10 minutes.
+   */
+  getInjuries(sport: string, options: InjuryReportOptions = {}): Promise<InjuryReport> {
+    const params: Record<string, string> = {};
+    if (options.team) params.team = options.team;
+    if (options.status) params.status = options.status;
+    return this._request<InjuryReport>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/injuries`,
+      { params }
+    );
+  }
+
+  /**
+   * Every injury status change in the last `days` days (1-90, default 7),
+   * newest first (free tier). `new_status` is null when the player came off
+   * the report. History starts 2026-10-18.
+   */
+  getInjuryHistory(sport: string, options: InjuryHistoryOptions = {}): Promise<InjuryHistory> {
+    const params: Record<string, string> = { days: String(options.days ?? 7) };
+    if (options.player) params.player = options.player;
+    return this._request<InjuryHistory>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/injuries/history`,
+      { params }
+    );
   }
 
   /**

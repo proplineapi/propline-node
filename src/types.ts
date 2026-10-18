@@ -1666,3 +1666,79 @@ export interface SgpMultiQuoteResponse {
   redacted?: boolean;
   upgrade_url?: string | null;
 }
+
+export type InjuryStatusCode =
+  | "out"
+  | "doubtful"
+  | "questionable"
+  | "probable"
+  | "day_to_day"
+  | "injured_list"
+  | "suspended"
+  | "other";
+
+export interface InjuredPlayer {
+  player_name: string;
+  /** Same id as odds outcomes; null where none can be matched. */
+  player_id: string | null;
+  espn_athlete_id: string;
+  team: string | null;
+  team_abbr: string | null;
+  position: string | null;
+  /** ESPN's wording, e.g. "Out", "Questionable", "15-Day-IL". */
+  status: string;
+  status_code: InjuryStatusCode;
+  injury_type: string | null;
+  body_part: string | null;
+  detail: string | null;
+  side: string | null;
+  /** YYYY-MM-DD or null. */
+  expected_return: string | null;
+  /** When the current status began (when we first saw it). */
+  status_since: string;
+  /** ESPN's own update time. */
+  source_updated_at: string | null;
+}
+
+export interface InjuryReport {
+  sport: string;
+  count: number;
+  players: InjuredPlayer[];
+}
+
+export interface InjuryReportOptions {
+  /** Team name or abbreviation, e.g. "KC". */
+  team?: string;
+  /** Comma-separated status codes, e.g. "out,questionable". */
+  status?: string;
+}
+
+export interface InjuryStatusChange {
+  player_name: string;
+  player_id: string | null;
+  espn_athlete_id: string;
+  team: string | null;
+  old_status: string | null;
+  /** null when the player came off the report. */
+  new_status: string | null;
+  /** A status code, or "cleared" when the player came off the report. */
+  new_status_code: InjuryStatusCode | "cleared";
+  changed_at: string;
+  source_updated_at: string | null;
+}
+
+export interface InjuryHistory {
+  sport: string;
+  days: number;
+  count: number;
+  /** True when the 2,000-row cap was hit. */
+  truncated: boolean;
+  changes: InjuryStatusChange[];
+}
+
+export interface InjuryHistoryOptions {
+  /** 1-90 (default 7). */
+  days?: number;
+  /** Player name, case-insensitive substring. */
+  player?: string;
+}

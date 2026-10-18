@@ -472,6 +472,19 @@ for (const b of r.books) {
 }
 ```
 
+### Injury reports (free)
+
+Current injury report for NFL, NCAAF, NBA, WNBA, NHL and MLB, plus every
+status change (history starts 2026-10-18). Source: ESPN, every 10 minutes.
+
+```ts
+const r = await client.getInjuries("football_nfl", { team: "KC", status: "out,questionable" });
+for (const p of r.players) console.log(p.player_name, p.status, p.expected_return, p.status_since);
+
+const h = await client.getInjuryHistory("basketball_nba", { days: 7 });
+for (const c of h.changes) console.log(c.changed_at, c.player_name, c.old_status, "->", c.new_status);
+```
+
 ### Golf round history (free)
 
 Every completed round for every golfer, by tour (pga, dp_world, liv, lpga,
