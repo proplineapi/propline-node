@@ -136,6 +136,12 @@ export interface Outcome {
    */
   book_outcome_id?: string | null;
   /**
+   * FanDuel only, with `includeBookIds=true`: the same selection on FanDuel
+   * ONTARIO as `marketId:selectionId`. Ontario has the same selection ids and
+   * prices as the US site but different market ids. Omitted until matched.
+   */
+  book_outcome_id_ontario?: string | null;
+  /**
    * PropLine's own stable id for this selection (`outcomes.id`), present when
    * `includeBookIds=true`. Shared with `/odds/history`, `/odds/closing`, the
    * resolved-props CSV and webhook payloads — the join key across all of them.
