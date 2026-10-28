@@ -1570,6 +1570,78 @@ export interface ClvGradeResponse {
   devig_method?: "multiplicative" | "shin" | string;
 }
 
+/** One selection to settle with `settleBets`. */
+export interface SettleLegInput {
+  sport_key: string;
+  event_id: number;
+  market: string;
+  /** Player for a prop, team for a game line, "Over"/"Under" for a game total. */
+  selection: string;
+  side?: string | null;
+  /** Your line. Quarter lines (2.75, -0.25) settle as two half-stakes. */
+  point?: number | null;
+  period?: string | null;
+  /** Scopes a `totals` leg to one team's total. */
+  team?: string | null;
+  /** Optional: when we stored this book's outcome at this line, its grade is used. */
+  bookmaker?: string | null;
+  /** American odds you took. Needed for the payout. */
+  price?: number | null;
+}
+
+/** A single bet (the leg fields) or a parlay (`legs`). */
+export interface SettleBetInput extends Partial<SettleLegInput> {
+  ref?: string | null;
+  /** Defaults to 1. */
+  stake?: number | null;
+  /** Set for a parlay; each leg carries its own price. */
+  legs?: SettleLegInput[] | null;
+}
+
+export type SettleResult =
+  | "won" | "lost" | "push" | "void" | "half_won" | "half_lost"
+  | "pending" | "unmatched" | "redacted";
+
+export interface SettledLeg extends SettleLegInput {
+  result: SettleResult;
+  reason?: string | null;
+  /** The stat or score the leg settled on. */
+  actual_value?: number | null;
+  /** "stored": the book's own stored grade; "computed": graded at your line. */
+  source?: "stored" | "computed" | null;
+  outcome_id?: number | null;
+}
+
+export interface SettledBet {
+  ref?: string | null;
+  result: SettleResult;
+  reason?: string | null;
+  stake?: number | null;
+  price?: number | null;
+  /** Returned, stake included. */
+  payout?: number | null;
+  profit?: number | null;
+  parlay: boolean;
+  legs: SettledLeg[];
+}
+
+export interface SettleResponse {
+  summary: {
+    bets: number;
+    settled: number;
+    pending: number;
+    unmatched: number;
+    won: number;
+    lost: number;
+    push_or_void: number;
+    staked?: number | null;
+    profit?: number | null;
+  };
+  bets: SettledBet[];
+  redacted: boolean;
+  upgrade_url?: string | null;
+}
+
 /**
  * One leg of a same-game parlay submitted to `priceSgp`, named exactly as
  * `/odds` names an outcome. Or pass `book_outcome_id` (from

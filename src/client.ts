@@ -4,6 +4,8 @@ import { writeFile } from "node:fs/promises";
 import type {
   ClvBetInput,
   ClvGradeResponse,
+  SettleBetInput,
+  SettleResponse,
   SgpLegInput,
   SgpQuoteResponse,
   SgpMultiQuoteResponse,
@@ -1979,6 +1981,27 @@ export class PropLine {
       body: bets,
       params: options.devig ? { devig: options.devig } : undefined,
     });
+  }
+
+  /**
+   * Settle placed bets: won, lost, push, void, half_won or half_lost.
+   *
+   * Singles or parlays (`legs`). The book and the line are free: a bet at a
+   * book PropLine does not carry, or at a line nobody posted, still settles
+   * from the same box score the grader used (`source: "computed"`). Asian
+   * quarter lines settle as two half-stakes. Max 200 bets. Stateless.
+   *
+   * Hobby+ required; free tier sees the structure with results hidden.
+   *
+   * @example
+   * const res = await client.settleBets([{
+   *   sport_key: "baseball_mlb", event_id: 150791, market: "totals",
+   *   selection: "Over", side: "Over", point: 7.75, price: -105, stake: 10,
+   * }]);
+   * console.log(res.bets[0].result); // "half_won"
+   */
+  settleBets(bets: SettleBetInput[]): Promise<SettleResponse> {
+    return this._request<SettleResponse>("POST", "/bets/settle", { body: bets });
   }
 
   /**
