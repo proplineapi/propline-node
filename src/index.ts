@@ -67,6 +67,10 @@ export type {
   SettledLeg,
   SettledBet,
   SettleResponse,
+  ParlayLegInput,
+  ParlayLegPriced,
+  ParlayPriceResponse,
+  IdLookupResponse,
   SgpLegInput,
   SgpLegQuote,
   SgpQuoteResponse,
@@ -180,4 +184,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.69.0";
+export const VERSION = "0.70.0";

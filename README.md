@@ -612,6 +612,22 @@ after a line was posted, `opening_*` means *first observed by us* rather
 than the book's true open — a value in minutes rather than hours is the
 tell.
 
+### Price a parlay across games (Hobby+)
+
+```ts
+const res = await client.priceParlay([
+  { sport_key: "basketball_nba", event_id: 287401, market: "h2h", selection: "Detroit Pistons" },
+  { sport_key: "basketball_nba", event_id: 287402, market: "h2h", selection: "Atlanta Hawks" },
+], { price: 180 });
+console.log(res.fair_price, res.offered_ev_pct, res.books.slice(0, 3));
+```
+
+### Find an event by another id (free)
+
+```ts
+await client.lookupEventIds({ book: "pinnacle", bookEventId: "1612345678" });
+```
+
 ### Settle your bets (Hobby+)
 
 `settleBets` returns won / lost / push / void / half_won / half_lost per bet,

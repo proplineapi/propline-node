@@ -1820,3 +1820,55 @@ export interface InjuryHistoryOptions {
   /** Player name, case-insensitive substring. */
   player?: string;
 }
+
+/** One parlay leg for `priceParlay`. */
+export interface ParlayLegInput {
+  sport_key: string;
+  event_id: number;
+  market: string;
+  selection: string;
+  side?: string | null;
+  point?: number | null;
+  team?: string | null;
+  price?: number | null;
+}
+
+export interface ParlayLegPriced extends ParlayLegInput {
+  matched: boolean;
+  reason?: string | null;
+  fair_prob?: number | null;
+  fair_price?: number | null;
+  fair_source?: string | null;
+  best_price?: number | null;
+  best_book?: string | null;
+  ev_pct?: number | null;
+  same_game: boolean;
+}
+
+export interface ParlayPriceResponse {
+  priced: boolean;
+  reason?: string | null;
+  fair_prob?: number | null;
+  fair_price?: number | null;
+  best_legs_price?: number | null;
+  books: { bookmaker: string; price: number; ev_pct: number }[];
+  offered_price?: number | null;
+  offered_ev_pct?: number | null;
+  same_game: boolean;
+  devig_method: string;
+  legs: ParlayLegPriced[];
+  redacted: boolean;
+  upgrade_url?: string | null;
+}
+
+export interface IdLookupResponse {
+  events: Array<EventIds & {
+    query: string;
+    sport_key: string;
+    status: string;
+    completed: boolean;
+    home_score: number | null;
+    away_score: number | null;
+  }>;
+  not_found: string[];
+}

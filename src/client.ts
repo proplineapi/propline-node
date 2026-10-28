@@ -6,6 +6,9 @@ import type {
   ClvGradeResponse,
   SettleBetInput,
   SettleResponse,
+  ParlayLegInput,
+  ParlayPriceResponse,
+  IdLookupResponse,
   SgpLegInput,
   SgpQuoteResponse,
   SgpMultiQuoteResponse,
@@ -1050,6 +1053,28 @@ export class PropLine {
     return this._request<EventIds[]>("GET", `/sports/${encodeURIComponent(sport)}/ids`);
   }
 
+  /**
+   * Find PropLine events from someone else's id (free tier). Pass exactly
+   * one of `book` + `bookEventId` (a sportsbook's own event id),
+   * `espnEventId` or `mlbGamePk`; arrays send up to 50.
+   */
+  lookupEventIds(opts: {
+    book?: string;
+    bookEventId?: string | string[];
+    espnEventId?: string | string[];
+    mlbGamePk?: number | string | Array<number | string>;
+  }): Promise<IdLookupResponse> {
+    const j = (v: unknown) => (Array.isArray(v) ? v.join(",") : v === undefined ? undefined : String(v));
+    return this._request<IdLookupResponse>("GET", "/ids/lookup", {
+      params: {
+        book: opts.book,
+        book_event_id: j(opts.bookEventId),
+        espn_event_id: j(opts.espnEventId),
+        mlb_game_pk: j(opts.mlbGamePk),
+      },
+    });
+  }
+
   getBookAccuracy(options: BookAccuracyOptions = {}): Promise<BookAccuracyReport> {
     const params: Record<string, string> = { days: String(options.days ?? 30) };
     if (options.sport) params.sport = options.sport;
@@ -2002,6 +2027,21 @@ export class PropLine {
    */
   settleBets(bets: SettleBetInput[]): Promise<SettleResponse> {
     return this._request<SettleResponse>("POST", "/bets/settle", { body: bets });
+  }
+
+  /**
+   * Fair price of a parlay across games, from the same no-vig lines as
+   * `getEventEv`, plus each book's price for the same legs and the EV% of
+   * an offered `price`. Legs on one event are flagged `same_game` (the
+   * fair price assumes independent legs). 2-15 legs. Hobby+.
+   */
+  priceParlay(
+    legs: ParlayLegInput[],
+    options: { price?: number; devig?: "multiplicative" | "shin" } = {}
+  ): Promise<ParlayPriceResponse> {
+    return this._request<ParlayPriceResponse>("POST", "/parlay/price", {
+      body: { legs, price: options.price, devig: options.devig },
+    });
   }
 
   /**
