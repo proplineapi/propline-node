@@ -1872,3 +1872,74 @@ export interface IdLookupResponse {
   }>;
   not_found: string[];
 }
+
+export interface RefereeNextMatch {
+  event_id: string;
+  commence_time: string;
+  home_team: string;
+  away_team: string;
+}
+
+export interface RefereeSummary {
+  referee: string;
+  /** Graded matches. */
+  matches: number;
+  yellow_cards: number;
+  red_cards: number;
+  yellow_cards_per_match: number | null;
+  red_cards_per_match: number | null;
+  cards_per_match: number | null;
+  last_match: string | null;
+  /** Next appointment, or null. */
+  next_match: RefereeNextMatch | null;
+}
+
+export interface RefereesResponse {
+  sport: string;
+  count: number;
+  referees: RefereeSummary[];
+}
+
+export interface RefereesOptions {
+  /** Referee name substring. */
+  search?: string;
+  /** YYYY-MM-DD. */
+  since?: string;
+  /** YYYY-MM-DD. */
+  until?: string;
+}
+
+export interface RefereeMatch {
+  referee: string;
+  event_id: string;
+  commence_time: string;
+  status: string | null;
+  home_team: string;
+  away_team: string;
+  home_score: number | null;
+  away_score: number | null;
+  /** null until the match is graded. */
+  yellow_cards: number | null;
+  red_cards: number | null;
+  home_yellow_cards: number | null;
+  home_red_cards: number | null;
+  away_yellow_cards: number | null;
+  away_red_cards: number | null;
+}
+
+/** The summary fields, with `matches` replaced by the match list. */
+export interface RefereeMatchesResponse extends Omit<RefereeSummary, "matches"> {
+  sport: string;
+  /** All matches held for this referee (graded + upcoming). */
+  match_count: number;
+  matches: RefereeMatch[];
+}
+
+export interface RefereeMatchesOptions {
+  /** YYYY-MM-DD. */
+  since?: string;
+  /** YYYY-MM-DD. */
+  until?: string;
+  /** 1-500 (default 100). */
+  limit?: number;
+}

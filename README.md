@@ -485,6 +485,19 @@ const h = await client.getInjuryHistory("basketball_nba", { days: 7 });
 for (const c of h.changes) console.log(c.changed_at, c.player_name, c.old_status, "->", c.new_status);
 ```
 
+### Referee card stats (free)
+
+Card counts per referee, and each referee's matches with per-team cards.
+Premier League (`soccer_epl`) only today.
+
+```ts
+const r = await client.getReferees("soccer_epl", { since: "2026-08-01" });
+for (const ref of r.referees) console.log(ref.referee, ref.matches, ref.cards_per_match);
+
+const m = await client.getRefereeMatches("soccer_epl", "Michael Oliver", { limit: 10 });
+for (const g of m.matches) console.log(g.commence_time.slice(0, 10), g.home_team, "v", g.away_team, g.yellow_cards);
+```
+
 ### Golf round history (free)
 
 Every completed round for every golfer, by tour (pga, dp_world, liv, lpga,

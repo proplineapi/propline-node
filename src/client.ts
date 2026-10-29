@@ -33,6 +33,10 @@ import type {
   InjuryReportOptions,
   InjuryHistory,
   InjuryHistoryOptions,
+  RefereesResponse,
+  RefereesOptions,
+  RefereeMatchesResponse,
+  RefereeMatchesOptions,
   StatsResponse,
   ContextResponse,
   MovementResponse,
@@ -1137,6 +1141,42 @@ export class PropLine {
       { params }
     );
   }
+  /**
+   * Referee card stats for a sport (free tier). Only `soccer_epl` today;
+   * other sports return 404 `referees_not_available`.
+   */
+  getReferees(sport: string, options: RefereesOptions = {}): Promise<RefereesResponse> {
+    const params: Record<string, string> = {};
+    if (options.search) params.search = options.search;
+    if (options.since) params.since = options.since;
+    if (options.until) params.until = options.until;
+    return this._request<RefereesResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/referees`,
+      { params }
+    );
+  }
+
+  /**
+   * One referee's summary plus their matches with per-team cards
+   * (free tier). `limit` is 1-500 (default 100).
+   */
+  getRefereeMatches(
+    sport: string,
+    name: string,
+    options: RefereeMatchesOptions = {}
+  ): Promise<RefereeMatchesResponse> {
+    const params: Record<string, string> = {};
+    if (options.since) params.since = options.since;
+    if (options.until) params.until = options.until;
+    if (options.limit !== undefined) params.limit = String(options.limit);
+    return this._request<RefereeMatchesResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/referees/${encodeURIComponent(name)}/matches`,
+      { params }
+    );
+  }
+
 
   /**
    * Get raw player/team box-score stats (book-agnostic, free tier).
