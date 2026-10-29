@@ -1064,12 +1064,21 @@ export class PropLine {
    * Find PropLine events from someone else's id (free tier). Pass exactly
    * one of `book` + `bookEventId` (a sportsbook's own event id),
    * `espnEventId` or `mlbGamePk`; arrays send up to 50.
+   *
+   * Or by names: `sport` + `home` + `away` + `kickoff` (ISO 8601) returns
+   * every event with those two teams (either order) within `windowHours`
+   * (default 6), closest first; `ambiguous` is true when more than one matches.
    */
   lookupEventIds(opts: {
     book?: string;
     bookEventId?: string | string[];
     espnEventId?: string | string[];
     mlbGamePk?: number | string | Array<number | string>;
+    sport?: string;
+    home?: string;
+    away?: string;
+    kickoff?: string;
+    windowHours?: number;
   }): Promise<IdLookupResponse> {
     const j = (v: unknown) => (Array.isArray(v) ? v.join(",") : v === undefined ? undefined : String(v));
     return this._request<IdLookupResponse>("GET", "/ids/lookup", {
@@ -1078,6 +1087,11 @@ export class PropLine {
         book_event_id: j(opts.bookEventId),
         espn_event_id: j(opts.espnEventId),
         mlb_game_pk: j(opts.mlbGamePk),
+        sport: opts.sport,
+        home: opts.home,
+        away: opts.away,
+        kickoff: opts.kickoff,
+        window_hours: opts.windowHours,
       },
     });
   }

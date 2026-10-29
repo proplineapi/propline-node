@@ -1869,7 +1869,11 @@ export interface IdLookupResponse {
     completed: boolean;
     home_score: number | null;
     away_score: number | null;
+    /** Name lookups only: minutes between this event's kickoff and the one asked for. */
+    kickoff_delta_minutes?: number;
   }>;
+  /** Name lookups only: more than one event matched. */
+  ambiguous?: boolean;
   not_found: string[];
 }
 
