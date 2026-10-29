@@ -37,6 +37,9 @@ import type {
   RefereesOptions,
   RefereeMatchesResponse,
   RefereeMatchesOptions,
+  MarketCoverageOptions,
+  MarketCoverageResponse,
+  HistoryCoverageResponse,
   StatsResponse,
   ContextResponse,
   MovementResponse,
@@ -1142,8 +1145,11 @@ export class PropLine {
     );
   }
   /**
-   * Referee card stats for a sport (free tier). Only `soccer_epl` today;
-   * other sports return 404 `referees_not_available`.
+   * Referee card stats for a sport (free tier). 32 soccer leagues: the
+   * Premier League plus La Liga, Serie A, Bundesliga, Ligue 1, MLS,
+   * Championship, Eredivisie, Liga MX, Brasileirao, the UEFA cups,
+   * Libertadores, Sudamericana and others. Other sports return 404
+   * `referees_not_available` with `available_sports`.
    */
   getReferees(sport: string, options: RefereesOptions = {}): Promise<RefereesResponse> {
     const params: Record<string, string> = {};
@@ -1177,6 +1183,28 @@ export class PropLine {
     );
   }
 
+
+  /**
+   * Every market each book is pricing on a sport's games in the next `days`
+   * days, and on how many of those games (free tier). `days` is 1-7
+   * (default 3); `periods` adds quarter / half / inning markets.
+   */
+  getMarketCoverage(
+    sport: string,
+    options: MarketCoverageOptions = {}
+  ): Promise<MarketCoverageResponse> {
+    const params: Record<string, string> = { sport };
+    if (options.days !== undefined) params.days = String(options.days);
+    if (options.periods !== undefined) params.periods = options.periods ? "true" : "false";
+    return this._request<MarketCoverageResponse>("GET", "/coverage/markets", { params });
+  }
+
+  /** When each book's odds history starts for a sport (free tier). */
+  getHistoryCoverage(sport: string): Promise<HistoryCoverageResponse> {
+    return this._request<HistoryCoverageResponse>("GET", "/coverage/history", {
+      params: { sport },
+    });
+  }
 
   /**
    * Get raw player/team box-score stats (book-agnostic, free tier).

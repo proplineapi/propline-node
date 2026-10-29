@@ -1943,3 +1943,56 @@ export interface RefereeMatchesOptions {
   /** 1-500 (default 100). */
   limit?: number;
 }
+
+export interface MarketCoverageEntry {
+  market: string;
+  /** Period code (q1, h1, ...), null for full game. */
+  period: string | null;
+  /** Games in the window this book prices the market on. */
+  events: number;
+  /** Market rows (alt lines count separately). */
+  markets: number;
+  last_update: string | null;
+}
+
+export interface MarketCoverageBook {
+  key: string;
+  title: string;
+  /** Games in the window this book has any market on. */
+  events: number;
+  prop_market_count: number;
+  game_lines: MarketCoverageEntry[];
+  props: MarketCoverageEntry[];
+}
+
+export interface MarketCoverageResponse {
+  sport_key: string;
+  days: number;
+  /** Games in the window. */
+  events: number;
+  bookmakers: MarketCoverageBook[];
+}
+
+export interface MarketCoverageOptions {
+  /** 1-7 (default 3). */
+  days?: number;
+  /** Include quarter / half / inning markets (default false). */
+  periods?: boolean;
+}
+
+export interface HistoryCoverageBook {
+  key: string;
+  title: string;
+  /** YYYY-MM-DD kickoff dates. */
+  history_start: string | null;
+  game_lines_start: string | null;
+  props_start: string | null;
+  latest_event: string | null;
+  events: number;
+  retired: boolean;
+}
+
+export interface HistoryCoverageResponse {
+  sport_key: string;
+  bookmakers: HistoryCoverageBook[];
+}

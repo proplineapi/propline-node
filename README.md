@@ -488,7 +488,8 @@ for (const c of h.changes) console.log(c.changed_at, c.player_name, c.old_status
 ### Referee card stats (free)
 
 Card counts per referee, and each referee's matches with per-team cards.
-Premier League (`soccer_epl`) only today.
+32 soccer leagues (Premier League, La Liga, Serie A, Bundesliga, Ligue 1,
+MLS and more); other sports return 404 with `available_sports`.
 
 ```ts
 const r = await client.getReferees("soccer_epl", { since: "2026-08-01" });
@@ -496,6 +497,19 @@ for (const ref of r.referees) console.log(ref.referee, ref.matches, ref.cards_pe
 
 const m = await client.getRefereeMatches("soccer_epl", "Michael Oliver", { limit: 10 });
 for (const g of m.matches) console.log(g.commence_time.slice(0, 10), g.home_team, "v", g.away_team, g.yellow_cards);
+```
+
+### Book coverage (free)
+
+Which markets each book prices on upcoming games, and when each book's
+history starts.
+
+```ts
+const c = await client.getMarketCoverage("football_nfl", { days: 3 });
+for (const b of c.bookmakers) console.log(b.key, b.events, "of", c.events, "games,", b.prop_market_count, "prop markets");
+
+const h = await client.getHistoryCoverage("baseball_mlb");
+for (const b of h.bookmakers) console.log(b.key, b.history_start, b.props_start);
 ```
 
 ### Golf round history (free)
