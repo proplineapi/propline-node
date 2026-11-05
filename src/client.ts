@@ -1305,7 +1305,7 @@ export class PropLine {
   /**
    * Get resolved prop outcomes with actual player stats.
    *
-   * Pro tier: full data. Free tier: redacted (resolution + actual nulled).
+   * Hobby+: full data. Free tier: 403 with an upgrade message.
    */
   getResults(
     sport: string,
@@ -1650,7 +1650,7 @@ export class PropLine {
    * consensus we do carry.
    *
    * Same fair-line math as `getEventEv` (Pinnacle-preferred anchor,
-   * no-vig devigging) but takes one user price as input. Pro tier.
+   * no-vig devigging) but takes one user price as input. Hobby+ (403 on free).
    *
    * @example
    * ```ts

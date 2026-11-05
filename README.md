@@ -522,7 +522,7 @@ const r = await client.getGolfRounds("Scottie Scheffler", { tour: "pga" });
 console.log(r.summary.last_10.avg_strokes);
 ```
 
-### Get resolved prop outcomes (Pro only)
+### Get resolved prop outcomes (Hobby+ full, Free 403)
 
 ```ts
 const results = await client.getResults("baseball_mlb", 16, {
@@ -776,7 +776,7 @@ for (const p of res.players) {
 Pass a `player_id` anywhere a player name is accepted in `getPlayerHistory` /
 `getPlayerTrends`; both responses carry `player_id`.
 
-### Get player prop history (Pro full, Free redacted)
+### Get player prop history (Hobby+ full, Free redacted)
 
 ```ts
 // "Did Bryan Woo go over/under his last 10 strikeout props?"
@@ -828,7 +828,7 @@ game with a box score on file — including games no sportsbook priced. A "last 
 games" window here really is the last 10 games. Carries no line, price or grade;
 use `getPlayerTrends` for hit rates against a posted line.
 
-### Get player trends (Pro full, Free redacted)
+### Get player trends (Hobby+ full, Free redacted)
 
 ```ts
 // Rolling over/under hit-rates per market: last 5/10/20/50 graded games,
@@ -849,7 +849,7 @@ for (const m of trends.markets) {
 // Output: "batter_total_bases: recent line 1.5, avg 2.02 (last 10 over 30%, streak 2 under)"
 ```
 
-### Cross-book +EV (Pro)
+### Cross-book +EV (Hobby+ full, Free redacted)
 
 ```ts
 // Find +EV plays on a single event. A sharp book anchors the no-vig
@@ -938,7 +938,7 @@ quotes aren't independently bettable payouts; Underdog is included only
 at clean two-way lines. Each price carries `last_update` so you can
 discount stale quotes.
 
-### Bulk CSV export of resolved props (Pro)
+### Bulk CSV export of resolved props (Pro+)
 
 ```ts
 // Save every resolved MLB strikeout prop since April 1st to disk.
