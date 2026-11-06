@@ -501,6 +501,13 @@ export interface ExportOddsHistoryOptions {
  * (`reason` "new" | "returned", `previous` null), and we stopped serving a
  * line the book pulled (sent once, `current` null). Same fields as
  * line_movement.
+ * `availability` = a selection suspended or reopened in play (beta).
+ * `stat_update` = live player-stat changes (`changes[]` with previous/current).
+ * `play` = live NBA play-by-play, one delivery per play: `action_number`,
+ * `status` ("new" | "edited" | "deleted"), `period`, `clock`, `team`,
+ * `player`, `other_players`, `action_type`, `shot_result`, `points`,
+ * `description`, `home_score` / `away_score`. Dedupe on
+ * (game_id, action_number, status).
  */
 export type WebhookEventType =
   | "line_movement"
@@ -509,7 +516,10 @@ export type WebhookEventType =
   | "market_suspended"
   | "ev"
   | "line_added"
-  | "line_pulled";
+  | "line_pulled"
+  | "availability"
+  | "stat_update"
+  | "play";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
