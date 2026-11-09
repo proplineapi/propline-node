@@ -514,6 +514,8 @@ export interface OddsClosingResponse {
 
 export interface ScoreEvent {
   id: number | string;
+  /** Time left in the period ("6:02"). NBA live games only; `null` otherwise. */
+  clock?: string | null;
   sport_key: string;
   home_team: string;
   away_team: string;
