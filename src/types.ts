@@ -1227,6 +1227,36 @@ export interface BestPrice {
    * liquidity is a few dollars. Nulled on free-tier redacted responses.
    */
   liquidity?: number | null;
+  /** includeLinks only: that selection on the book's bet slip (DraftKings, FanDuel, Fanatics, BetMGM). */
+  bet_link?: string | null;
+  /** includeLinks only: PropLine outcome id — the input to `getParlayLink`. */
+  outcome_id?: string | null;
+  /** includeLinks only: FanDuel's 42.x market id or Fanatics' plain market number. */
+  book_market_id?: string | null;
+  [k: string]: unknown;
+}
+
+export interface ParlayLinkLeg {
+  outcome_id: string;
+  event_id: string;
+  market_key: string;
+  period: string | null;
+  name: string;
+  description: string;
+  point: number | null;
+  book_event_id: string | null;
+  book_market_id: string | null;
+  book_outcome_id: string | null;
+  [k: string]: unknown;
+}
+
+export interface ParlayLinkResponse {
+  book: string;
+  book_title: string;
+  /** Opens the book with every leg on the slip. The book may still refuse the combination. */
+  bet_link: string;
+  legs: ParlayLinkLeg[];
+  note: string;
   [k: string]: unknown;
 }
 

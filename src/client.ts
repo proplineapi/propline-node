@@ -53,6 +53,8 @@ import type {
   EventProjectionsResponse,
   EventEvCalcResponse,
   EventBestLineResponse,
+  ParlayLinkResponse,
+  ParlayLinkLeg,
   FuturesEvent,
   Webhook,
   WebhookDelivery,
@@ -1698,6 +1700,20 @@ export class PropLine {
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/best-line`,
       { params }
     );
+  }
+
+  /**
+   * One bet-slip link that puts several legs on a book's slip. Pass
+   * PropLine outcome ids (`outcome_id` on best-line price rows with
+   * `includeLinks: true`), 1-12, all at one book: DraftKings, FanDuel or
+   * Fanatics. The link loads the legs; the book may still refuse the
+   * combination. No prices; every tier.
+   */
+  getParlayLink(outcomeIds: Array<number | string> | string): Promise<ParlayLinkResponse> {
+    const ids = Array.isArray(outcomeIds) ? outcomeIds.join(",") : outcomeIds;
+    return this._request<ParlayLinkResponse>("GET", "/bet-links/parlay", {
+      params: { outcome_ids: ids },
+    });
   }
 
   /**
