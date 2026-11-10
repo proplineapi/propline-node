@@ -27,6 +27,7 @@ export type {
   GetOddsOptions,
   GetOddsHistoryOptions,
   GetOddsClosingOptions,
+  GetDepthHistoryOptions,
   GetMovementOptions,
   PeriodFilter,
   GetScoresOptions,
@@ -94,6 +95,9 @@ export type {
   ClosingMarket,
   ClosingBookmaker,
   OddsClosingResponse,
+  DepthHistoryResponse,
+  DepthSnapshot,
+  DepthHistoryLevel,
   ScoreEvent,
   MlbGrandSalamiBook,
   MlbGrandSalamiResponse,
@@ -197,4 +201,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.74.1";
+export const VERSION = "0.75.0";

@@ -501,6 +501,57 @@ export interface ClosingBookmaker {
   [k: string]: unknown;
 }
 
+/** One order-book level beyond the served price. */
+export interface DepthHistoryLevel {
+  /** American odds at this level. */
+  price: number;
+  /** Dollars a taker can spend at this level. */
+  size: number | null;
+}
+
+/** One recorded order-book state of an outcome. */
+export interface DepthSnapshot {
+  recorded_at: string;
+  /** Best takeable price, American. */
+  price: number | null;
+  point: number | null;
+  /** Dollars takeable at `price`. */
+  liquidity: number | null;
+  /** The book's own timestamp for that size. */
+  liquidity_updated_at: string | null;
+  /** Levels beyond `price`, best first. */
+  depth: DepthHistoryLevel[];
+}
+
+export interface DepthHistoryResponse {
+  id: string;
+  sport_key: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string;
+  live: boolean;
+  /** Set when the page was full: pass it back as `from` for the next page. */
+  next_from: string | null;
+  upgrade_url: string | null;
+  bookmakers: {
+    key: string;
+    title: string;
+    markets: {
+      key: string;
+      description: string;
+      period: string | null;
+      team: string | null;
+      outcomes: {
+        name: string;
+        description: string;
+        outcome_id: number | null;
+        redacted: boolean;
+        snapshots: DepthSnapshot[];
+      }[];
+    }[];
+  }[];
+}
+
 export interface OddsClosingResponse {
   id: number | string;
   sport_key: string;

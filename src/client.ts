@@ -18,6 +18,7 @@ import type {
   MarketSummary,
   OddsHistoryResponse,
   OddsClosingResponse,
+  DepthHistoryResponse,
   ScoreEvent,
   MlbGrandSalamiResponse,
   NhlDailyGoalsTotalResponse,
@@ -263,6 +264,23 @@ export interface GetOddsClosingOptions {
    * resolved-props export's opening columns.
    */
   openingWindow?: number | "all";
+}
+
+export interface GetDepthHistoryOptions {
+  /** Market keys (default h2h,spreads,totals). */
+  markets?: string[];
+  /** Book keys. Omitted = kalshi, polymarket, polymarket_us, prophetx. */
+  bookmakers?: string | string[];
+  /** ISO timestamp; states at or after. Pass `next_from` here to page. */
+  from?: string;
+  /** ISO timestamp; states at or before. */
+  to?: string;
+  /** Last state per outcome per bucket. */
+  interval?: "30s" | "1m" | "5m" | "15m" | "30m" | "1h";
+  /** Game-period filter — see `PeriodFilter`. */
+  period?: PeriodFilter;
+  /** States per page (default 5000, max 20000). */
+  limit?: number;
 }
 
 export interface GetMovementOptions {
@@ -962,6 +980,36 @@ export class PropLine {
     return this._request<OddsClosingResponse>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/closing`,
+      { params }
+    );
+  }
+
+  /**
+   * Order-book depth history for one event on the exchanges (Kalshi,
+   * Polymarket, Polymarket US, ProphetX): every recorded change of an
+   * outcome's best price, takeable size and the levels beyond it. Recorded
+   * from 2026-11-10. Paged: pass `next_from` back as `from`.
+   *
+   * Hobby+: full data. Free tier: redacted.
+   */
+  getDepthHistory(
+    sport: string,
+    eventId: number | string,
+    options: GetDepthHistoryOptions = {}
+  ): Promise<DepthHistoryResponse> {
+    const params: Record<string, string | undefined> = {};
+    if (options.markets?.length) params.markets = options.markets.join(",");
+    const books = _bookmakersParam(options.bookmakers);
+    if (books !== undefined) params.bookmakers = books;
+    const per = _periodParam(options.period);
+    if (per !== undefined) params.period = per;
+    if (options.from) params.from = options.from;
+    if (options.to) params.to = options.to;
+    if (options.interval) params.interval = options.interval;
+    if (options.limit !== undefined) params.limit = String(options.limit);
+    return this._request<DepthHistoryResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/events/${encodeURIComponent(String(eventId))}/odds/depth/history`,
       { params }
     );
   }
