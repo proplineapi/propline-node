@@ -528,6 +528,11 @@ export interface ExportOddsHistoryOptions {
  * `player`, `other_players`, `action_type`, `shot_result`, `points`,
  * `description`, `home_score` / `away_score`. Dedupe on
  * (game_id, action_number, status).
+ * `game_state` = live score, clock, situation and last play (opt-in).
+ * `injury` = an injury status change (opt-in): `player_name`, `player_id`,
+ * `team`, `old_status`, `new_status` (null when off the report),
+ * `new_status_code`, `injury_type`, `expected_return`, `changed_at`.
+ * Injury reports are read every 10 minutes.
  */
 export type WebhookEventType =
   | "line_movement"
@@ -539,7 +544,9 @@ export type WebhookEventType =
   | "line_pulled"
   | "availability"
   | "stat_update"
-  | "play";
+  | "play"
+  | "game_state"
+  | "injury";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
