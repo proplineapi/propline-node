@@ -71,6 +71,11 @@ export type {
   TrackedBet,
   TrackedBetsResponse,
   BetSettledEvent,
+  RecordProfile,
+  RecordSummary,
+  RecordLeg,
+  RecordPick,
+  VerifiedRecord,
   ParlayLegInput,
   ParlayLegPriced,
   ParlayPriceResponse,
@@ -206,4 +211,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.78.0";
+export const VERSION = "0.79.0";

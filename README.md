@@ -698,6 +698,25 @@ await client.untrackBet(betId);
 Sending the same `ref` again returns the bet already held. A bet that cannot be
 matched comes back `status: "rejected"` with a `reason` and is not stored.
 
+### Verified records: a public pick history (Hobby+)
+
+A public page at `prop-line.com/record/{handle}` with your record, units and ROI.
+Picks must arrive before the game, at a price a sportsbook was showing, and can
+never be deleted.
+
+```ts
+await client.createRecord({ handle: "sharp_guy", display_name: "Sharp Guy" });
+const res = await client.addVerifiedPicks([
+  { ref: "nov22-1", stake: 1, sport_key: "basketball_nba", event_id: 412345,
+    market: "player_points", selection: "Jayson Tatum", side: "Over",
+    point: 27.5, price: -115 },
+]);
+res.bets[0].status; // "open", or "rejected" with a reason
+
+const rec = await client.getRecord("sharp_guy"); // anyone can read a record
+rec.all_time.roi_pct;
+```
+
 ### Grade your bets against the close (Hobby+)
 
 `getOddsClosing` gives you the closing line; `gradeClv` does the whole job —

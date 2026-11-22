@@ -8,6 +8,8 @@ import type {
   SettleResponse,
   TrackedBet,
   TrackedBetsResponse,
+  RecordProfile,
+  VerifiedRecord,
   ParlayLegInput,
   ParlayPriceResponse,
   IdLookupResponse,
@@ -2248,6 +2250,47 @@ export class PropLine {
   /** Stop tracking a bet. No webhook is sent for it afterwards. */
   untrackBet(betId: number): Promise<void> {
     return this._request<void>("DELETE", `/bets/${betId}`);
+  }
+
+  /**
+   * Create your public verified record, or edit its name / bio. The record
+   * lives at `https://prop-line.com/record/{handle}`. `handle` (3-30 chars,
+   * a-z 0-9 _ -) is required the first time and fixed once set. Hobby+.
+   */
+  createRecord(profile: {
+    handle?: string;
+    display_name?: string;
+    bio?: string;
+  }): Promise<RecordProfile> {
+    return this._request<RecordProfile>("POST", "/record", { body: profile });
+  }
+
+  /** Your record profile. */
+  getMyRecord(): Promise<RecordProfile> {
+    return this._request<RecordProfile>("GET", "/record");
+  }
+
+  /**
+   * Add picks to your public verified record. Same bets as `trackBets`;
+   * every leg needs a `price`. A pick is accepted only when its game has not
+   * started and its price is no better than the best price a carried
+   * sportsbook was showing. Stakes are units (max 5); full-game markets;
+   * parlays up to 10 legs, one per game. Picks cannot be edited or deleted.
+   * A refused pick has `status: "rejected"` and a `reason`
+   * (`event_started`, `price_not_available`, `no_market_price`, ...).
+   */
+  addVerifiedPicks(picks: SettleBetInput[]): Promise<TrackedBetsResponse> {
+    return this._request<TrackedBetsResponse>("POST", "/record/picks", { body: picks });
+  }
+
+  /** A tipster's public verified record. No paid plan needed. */
+  getRecord(
+    handle: string,
+    options: { limit?: number; beforeId?: number } = {},
+  ): Promise<VerifiedRecord> {
+    return this._request<VerifiedRecord>("GET", `/records/${encodeURIComponent(handle)}`, {
+      params: { limit: options.limit, before_id: options.beforeId },
+    });
   }
 
   /**

@@ -1755,6 +1755,78 @@ export interface TrackedBetsResponse {
   next_before_id?: number | null;
 }
 
+/** Your record profile (`createRecord`, `getMyRecord`). */
+export interface RecordProfile {
+  handle: string;
+  display_name: string;
+  bio?: string | null;
+  /** https://prop-line.com/record/{handle} */
+  url: string;
+  created_at?: string | null;
+}
+
+export interface RecordSummary {
+  picks: number;
+  won: number;
+  lost: number;
+  push_or_void: number;
+  win_pct: number | null;
+  units_staked: number;
+  units_profit: number;
+  roi_pct: number | null;
+}
+
+export interface RecordLeg {
+  sport_key?: string | null;
+  event_id?: number | null;
+  /** "Away @ Home" as seen when the pick was placed. */
+  event?: string | null;
+  commence_time?: string | null;
+  market?: string | null;
+  selection?: string | null;
+  side?: string | null;
+  point?: number | null;
+  team?: string | null;
+  price?: number | null;
+  /** Best price a carried book was showing when the pick was placed. */
+  best_price_at_pick?: number | null;
+  best_book_at_pick?: string | null;
+  result?: string | null;
+  actual_value?: number | null;
+}
+
+export interface RecordPick {
+  pick_id: number;
+  placed_at: string;
+  starts_at: string;
+  status: string;
+  result: string;
+  stake: number;
+  parlay: boolean;
+  profit?: number | null;
+  settled_at?: string | null;
+  regraded_at?: string | null;
+  legs: RecordLeg[];
+}
+
+/** A tipster's public verified record (`getRecord`). */
+export interface VerifiedRecord {
+  handle: string;
+  display_name: string;
+  bio?: string | null;
+  member_since?: string | null;
+  first_pick_at?: string | null;
+  all_time: RecordSummary;
+  last_30_days: RecordSummary;
+  /** Picks not graded yet. */
+  pending: number;
+  /** Picks hidden until their game starts. */
+  not_yet_started: number;
+  picks: RecordPick[];
+  next_before_id?: number | null;
+  generated_at: string;
+}
+
 /** Body of a `bet_settled` / `bet_regraded` webhook or stream event. */
 export interface BetSettledEvent {
   event_type: "bet_settled" | "bet_regraded";
