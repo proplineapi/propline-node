@@ -1725,6 +1725,55 @@ export interface SettleResponse {
   upgrade_url?: string | null;
 }
 
+/** A bet PropLine holds and settles for you (`trackBets`). */
+export interface TrackedBet {
+  /** Null when the bet was rejected (not stored). */
+  bet_id: number | null;
+  ref?: string | null;
+  status: "open" | "settled" | "expired" | "rejected";
+  result?: SettleResult | "expired" | null;
+  /** Why a bet was rejected (the /bets/settle `unmatched` reasons). */
+  reason?: string | null;
+  stake?: number | null;
+  price?: number | null;
+  payout?: number | null;
+  profit?: number | null;
+  parlay: boolean;
+  legs: SettledLeg[];
+  created_at?: string | null;
+  settled_at?: string | null;
+  /** Set when an official stat correction changed the result. */
+  regraded_at?: string | null;
+}
+
+export interface TrackedBetsResponse {
+  bets: TrackedBet[];
+  open_bets: number;
+  open_bet_limit: number;
+  /** False on plans without webhooks: read results with `listTrackedBets`. */
+  push: boolean;
+  next_before_id?: number | null;
+}
+
+/** Body of a `bet_settled` / `bet_regraded` webhook or stream event. */
+export interface BetSettledEvent {
+  event_type: "bet_settled" | "bet_regraded";
+  bet_id: number;
+  ref?: string | null;
+  status: "settled" | "expired";
+  result: SettleResult | "expired";
+  /** Only on `bet_regraded`. */
+  previous_result?: SettleResult | null;
+  stake?: number | null;
+  price?: number | null;
+  payout?: number | null;
+  profit?: number | null;
+  parlay: boolean;
+  legs: SettledLeg[];
+  settled_at?: string | null;
+  timestamp: string;
+}
+
 /**
  * One leg of a same-game parlay submitted to `priceSgp`, named exactly as
  * `/odds` names an outcome. Or pass `book_outcome_id` (from

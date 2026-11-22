@@ -6,6 +6,8 @@ import type {
   ClvGradeResponse,
   SettleBetInput,
   SettleResponse,
+  TrackedBet,
+  TrackedBetsResponse,
   ParlayLegInput,
   ParlayPriceResponse,
   IdLookupResponse,
@@ -546,7 +548,9 @@ export type WebhookEventType =
   | "stat_update"
   | "play"
   | "game_state"
-  | "injury";
+  | "injury"
+  | "bet_settled"
+  | "bet_regraded";
 
 export interface CreateWebhookOptions {
   /** HTTPS endpoint to receive POSTed events. Required. */
@@ -2190,6 +2194,60 @@ export class PropLine {
    */
   settleBets(bets: SettleBetInput[]): Promise<SettleResponse> {
     return this._request<SettleResponse>("POST", "/bets/settle", { body: bets });
+  }
+
+  /**
+   * Register bets once; PropLine settles them when their games grade.
+   *
+   * Same bets as `settleBets`, plus an optional `ref` (the same `ref` again
+   * returns the bet already held, so a retry is safe). Each bet is pushed to
+   * your webhooks as `bet_settled` when it settles, and as `bet_regraded` if
+   * an official stat correction changes the result. A bet that cannot be
+   * matched comes back `status: "rejected"` with a `reason`.
+   *
+   * Hobby+ required. Hobby and Pro hold 500 open bets and read results with
+   * `listTrackedBets`; Streaming Lite (10,000) and Streaming (100,000) also
+   * get the push.
+   *
+   * @example
+   * const res = await client.trackBets([{
+   *   ref: "slip-123", stake: 10, sport_key: "basketball_nba",
+   *   event_id: 412345, market: "player_points", selection: "Jayson Tatum",
+   *   side: "Over", point: 27.5, price: -115,
+   * }]);
+   * console.log(res.bets[0].status); // "open"
+   */
+  trackBets(bets: SettleBetInput[]): Promise<TrackedBetsResponse> {
+    return this._request<TrackedBetsResponse>("POST", "/bets", { body: bets });
+  }
+
+  /** List tracked bets, newest first. `since` filters on settle / regrade time. */
+  listTrackedBets(
+    options: {
+      status?: "open" | "settled" | "expired";
+      since?: string;
+      beforeId?: number;
+      limit?: number;
+    } = {},
+  ): Promise<TrackedBetsResponse> {
+    return this._request<TrackedBetsResponse>("GET", "/bets", {
+      params: {
+        status: options.status,
+        since: options.since,
+        before_id: options.beforeId,
+        limit: options.limit,
+      },
+    });
+  }
+
+  /** One tracked bet: status, result, payout, profit and legs. */
+  getTrackedBet(betId: number): Promise<TrackedBet> {
+    return this._request<TrackedBet>("GET", `/bets/${betId}`);
+  }
+
+  /** Stop tracking a bet. No webhook is sent for it afterwards. */
+  untrackBet(betId: number): Promise<void> {
+    return this._request<void>("DELETE", `/bets/${betId}`);
   }
 
   /**

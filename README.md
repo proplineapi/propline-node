@@ -675,6 +675,29 @@ const res = await client.settleBets([
 for (const b of res.bets) console.log(b.ref, b.result, b.profit);
 ```
 
+### Track bets: we settle them and push the result (Hobby+)
+
+`trackBets` takes the same bets as `settleBets`, holds them, and settles each
+when its games are graded. Streaming Lite and above get a `bet_settled` webhook
+(and `bet_regraded` if an official stat correction changes the result); Hobby
+and Pro read results with `listTrackedBets`.
+
+```ts
+const res = await client.trackBets([
+  { ref: "slip-123", stake: 10, sport_key: "basketball_nba", event_id: 412345,
+    market: "player_points", selection: "Jayson Tatum", side: "Over",
+    point: 27.5, price: -115 },
+]);
+const betId = res.bets[0].bet_id!; // status "open"
+
+await client.listTrackedBets({ status: "settled" }); // newest first
+await client.getTrackedBet(betId);
+await client.untrackBet(betId);
+```
+
+Sending the same `ref` again returns the bet already held. A bet that cannot be
+matched comes back `status: "rejected"` with a `reason` and is not stored.
+
 ### Grade your bets against the close (Hobby+)
 
 `getOddsClosing` gives you the closing line; `gradeClv` does the whole job —
