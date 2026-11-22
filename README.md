@@ -474,8 +474,11 @@ for (const b of r.books) {
 
 ### Starting lineups (free)
 
-Projected and confirmed NBA starting lineups, plus every change with a
-timestamp (history starts 2026-11-22). Read every 60 seconds.
+Lineups for NBA (projected then confirmed starters), NFL (starters, bench,
+inactives; confirmed from 90 minutes before kickoff) and NHL (scratches,
+dressed roster, starting goalie), plus every change with a timestamp
+(history starts 2026-11-22). Pass `basketball_nba`, `football_nfl` or
+`hockey_nhl`.
 
 ```ts
 const r = await client.getLineups("basketball_nba", { team: "BOS" });

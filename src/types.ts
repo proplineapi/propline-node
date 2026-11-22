@@ -2025,7 +2025,8 @@ export interface InjuryHistoryOptions {
   player?: string;
 }
 
-export type LineupRole = "starter" | "bench" | "inactive";
+/** `active` is NHL only: dressed for the game, not the starting goalie. */
+export type LineupRole = "starter" | "bench" | "active" | "inactive";
 export type LineupStatus = "expected" | "confirmed";
 
 export interface LineupPlayer {
@@ -2043,7 +2044,7 @@ export interface LineupTeam {
   team_abbr: string;
   team: string | null;
   home: boolean;
-  /** "confirmed" once every starter is confirmed. */
+  /** "confirmed" once every listed player who is not inactive is confirmed. */
   status: LineupStatus;
   updated_at: string | null;
   /** Starters first. Bench and inactive players appear once confirmed. */

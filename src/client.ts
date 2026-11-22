@@ -1238,9 +1238,11 @@ export class PropLine {
   }
 
   /**
-   * Projected and confirmed starting lineups (free tier). NBA only
-   * (`basketball_nba`), read from the NBA's lineups file every 60 seconds.
-   * Before a team confirms, only its five expected starters are listed.
+   * Lineups for `basketball_nba`, `football_nfl` and `hockey_nhl` (free
+   * tier). NBA: five expected starters per team, then the confirmed lineup.
+   * NFL: starters, bench and inactives from six hours before kickoff;
+   * expected until 90 minutes before kickoff, then confirmed. NHL: scratches,
+   * the dressed roster and the starting goalie once filed (no projections).
    */
   getLineups(sport: string, options: LineupsOptions = {}): Promise<LineupsResponse> {
     const params: Record<string, string> = {};
