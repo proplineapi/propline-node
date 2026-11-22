@@ -38,6 +38,10 @@ import type {
   InjuryReportOptions,
   InjuryHistory,
   InjuryHistoryOptions,
+  LineupsResponse,
+  LineupsOptions,
+  LineupHistory,
+  LineupHistoryOptions,
   RefereesResponse,
   RefereesOptions,
   RefereeMatchesResponse,
@@ -551,6 +555,7 @@ export type WebhookEventType =
   | "play"
   | "game_state"
   | "injury"
+  | "lineup"
   | "bet_settled"
   | "bet_regraded";
 
@@ -1228,6 +1233,38 @@ export class PropLine {
     return this._request<InjuryHistory>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/injuries/history`,
+      { params }
+    );
+  }
+
+  /**
+   * Projected and confirmed starting lineups (free tier). NBA only
+   * (`basketball_nba`), read from the NBA's lineups file every 60 seconds.
+   * Before a team confirms, only its five expected starters are listed.
+   */
+  getLineups(sport: string, options: LineupsOptions = {}): Promise<LineupsResponse> {
+    const params: Record<string, string> = {};
+    if (options.team) params.team = options.team;
+    if (options.eventId !== undefined) params.event_id = String(options.eventId);
+    return this._request<LineupsResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/lineups`,
+      { params }
+    );
+  }
+
+  /**
+   * Every lineup change in the last `days` days (1-90, default 7), newest
+   * first (free tier). `old_role` is null when a player is first listed;
+   * `new_role` is null when he is dropped. History starts 2026-11-22.
+   */
+  getLineupHistory(sport: string, options: LineupHistoryOptions = {}): Promise<LineupHistory> {
+    const params: Record<string, string> = { days: String(options.days ?? 7) };
+    if (options.player) params.player = options.player;
+    if (options.eventId !== undefined) params.event_id = String(options.eventId);
+    return this._request<LineupHistory>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/lineups/history`,
       { params }
     );
   }

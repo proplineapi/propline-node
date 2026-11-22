@@ -2025,6 +2025,88 @@ export interface InjuryHistoryOptions {
   player?: string;
 }
 
+export type LineupRole = "starter" | "bench" | "inactive";
+export type LineupStatus = "expected" | "confirmed";
+
+export interface LineupPlayer {
+  player_name: string;
+  /** Same id as odds outcomes. */
+  player_id: string | null;
+  position: string | null;
+  role: LineupRole;
+  status: LineupStatus;
+  /** When we first saw this role and status. */
+  since: string;
+}
+
+export interface LineupTeam {
+  team_abbr: string;
+  team: string | null;
+  home: boolean;
+  /** "confirmed" once every starter is confirmed. */
+  status: LineupStatus;
+  updated_at: string | null;
+  /** Starters first. Bench and inactive players appear once confirmed. */
+  players: LineupPlayer[];
+}
+
+export interface LineupGame {
+  /** PropLine event id (same as /odds); null until a book lists the game. */
+  event_id: number | null;
+  /** US-Eastern game date, YYYY-MM-DD. */
+  game_date: string;
+  source_game_id: string;
+  /** Away team first. */
+  teams: LineupTeam[];
+}
+
+export interface LineupsResponse {
+  sport: string;
+  count: number;
+  games: LineupGame[];
+}
+
+export interface LineupsOptions {
+  /** Team name or abbreviation, e.g. "BOS". */
+  team?: string;
+  eventId?: number;
+}
+
+export interface LineupChange {
+  event_id: number | null;
+  game_date: string;
+  team_abbr: string;
+  team: string | null;
+  player_name: string;
+  player_id: string | null;
+  position: string | null;
+  /** null when the player is first listed. */
+  old_role: LineupRole | null;
+  /** null when the player is dropped from the lineup. */
+  new_role: LineupRole | null;
+  old_status: LineupStatus | null;
+  new_status: LineupStatus | null;
+  changed_at: string;
+  source_updated_at: string | null;
+}
+
+export interface LineupHistory {
+  sport: string;
+  days: number;
+  count: number;
+  /** True when the 2,000-row cap was hit. */
+  truncated: boolean;
+  changes: LineupChange[];
+}
+
+export interface LineupHistoryOptions {
+  /** 1-90 (default 7). */
+  days?: number;
+  /** Player name, case-insensitive substring. */
+  player?: string;
+  eventId?: number;
+}
+
 /** One parlay leg for `priceParlay`. */
 export interface ParlayLegInput {
   sport_key: string;

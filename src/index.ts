@@ -132,6 +132,16 @@ export type {
   InjuryStatusChange,
   InjuryHistory,
   InjuryHistoryOptions,
+  LineupRole,
+  LineupStatus,
+  LineupPlayer,
+  LineupTeam,
+  LineupGame,
+  LineupsResponse,
+  LineupsOptions,
+  LineupChange,
+  LineupHistory,
+  LineupHistoryOptions,
   RefereeNextMatch,
   RefereeSummary,
   RefereesResponse,
@@ -211,4 +221,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.79.0";
+export const VERSION = "0.80.0";

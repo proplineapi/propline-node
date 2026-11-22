@@ -472,6 +472,21 @@ for (const b of r.books) {
 }
 ```
 
+### Starting lineups (free)
+
+Projected and confirmed NBA starting lineups, plus every change with a
+timestamp (history starts 2026-11-22). Read every 60 seconds.
+
+```ts
+const r = await client.getLineups("basketball_nba", { team: "BOS" });
+for (const g of r.games)
+  for (const t of g.teams)
+    console.log(t.team_abbr, t.status, t.players.filter((p) => p.role === "starter").map((p) => p.player_name));
+
+const h = await client.getLineupHistory("basketball_nba", { days: 1 });
+for (const c of h.changes) console.log(c.changed_at, c.player_name, c.old_role, "->", c.new_role);
+```
+
 ### Injury reports (free)
 
 Current injury report for NFL, NCAAF, NBA, WNBA, NHL and MLB, plus every
