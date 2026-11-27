@@ -38,6 +38,10 @@ import type {
   InjuryReportOptions,
   InjuryHistory,
   InjuryHistoryOptions,
+  SplitsResponse,
+  SplitsOptions,
+  SplitHistory,
+  SplitHistoryOptions,
   LineupsResponse,
   LineupsOptions,
   LineupHistory,
@@ -1267,6 +1271,40 @@ export class PropLine {
     return this._request<LineupHistory>(
       "GET",
       `/sports/${encodeURIComponent(sport)}/lineups/history`,
+      { params }
+    );
+  }
+
+  /**
+   * DraftKings betting splits (free tier): share of DraftKings Sportsbook's
+   * own customers' money (`handle_pct`) and bet count (`bets_pct`) on each
+   * side of the main game lines. DraftKings customers only.
+   */
+  getSplits(sport: string, options: SplitsOptions = {}): Promise<SplitsResponse> {
+    const params: Record<string, string> = {};
+    if (options.eventId !== undefined) params.event_id = String(options.eventId);
+    if (options.market) params.market = options.market;
+    return this._request<SplitsResponse>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/splits`,
+      { params }
+    );
+  }
+
+  /**
+   * Every change in DraftKings' customers' handle % and bets % for one game,
+   * oldest first (free tier). Pass `eventId` or `dkEventId`.
+   */
+  getSplitHistory(sport: string, options: SplitHistoryOptions): Promise<SplitHistory> {
+    const params: Record<string, string> = {};
+    if (options.eventId !== undefined) params.event_id = String(options.eventId);
+    if (options.dkEventId !== undefined) params.dk_event_id = String(options.dkEventId);
+    if (!params.event_id && !params.dk_event_id) {
+      return Promise.reject(new Error("getSplitHistory needs eventId or dkEventId"));
+    }
+    return this._request<SplitHistory>(
+      "GET",
+      `/sports/${encodeURIComponent(sport)}/splits/history`,
       { params }
     );
   }

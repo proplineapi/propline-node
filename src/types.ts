@@ -1963,7 +1963,8 @@ export interface InjuredPlayer {
   player_name: string;
   /** Same id as odds outcomes; null where none can be matched. */
   player_id: string | null;
-  espn_athlete_id: string;
+  /** null when only the NBA's official report lists the player. */
+  espn_athlete_id: string | null;
   team: string | null;
   team_abbr: string | null;
   position: string | null;
@@ -1980,6 +1981,19 @@ export interface InjuredPlayer {
   status_since: string;
   /** ESPN's own update time. */
   source_updated_at: string | null;
+  /** "espn", or "nba_official" for a player only the NBA's official report lists. */
+  source?: string | null;
+  /** ESPN's fantasy designation: "OUT", "GTD", "OFS", or null. */
+  fantasy_status: string | null;
+  /** Where `status` comes from. */
+  status_source: "espn" | "nba_official" | null;
+  /** NBA only: the NBA's official injury report designation, else null. */
+  official_status: "Out" | "Doubtful" | "Questionable" | "Probable" | "Available" | null;
+  official_reason: string | null;
+  /** ISO time of the NBA official report itself. */
+  official_report_at: string | null;
+  /** ISO tip-off the official designation is for. */
+  official_game_at: string | null;
 }
 
 export interface InjuryReport {
@@ -1998,7 +2012,7 @@ export interface InjuryReportOptions {
 export interface InjuryStatusChange {
   player_name: string;
   player_id: string | null;
-  espn_athlete_id: string;
+  espn_athlete_id: string | null;
   team: string | null;
   old_status: string | null;
   /** null when the player came off the report. */
@@ -2007,6 +2021,10 @@ export interface InjuryStatusChange {
   new_status_code: InjuryStatusCode | "cleared";
   changed_at: string;
   source_updated_at: string | null;
+  /** "espn", or "official" for an NBA official report change. */
+  change_type: "espn" | "official";
+  /** ISO time of the NBA official report (official changes only). */
+  official_report_at: string | null;
 }
 
 export interface InjuryHistory {
@@ -2023,6 +2041,80 @@ export interface InjuryHistoryOptions {
   days?: number;
   /** Player name, case-insensitive substring. */
   player?: string;
+}
+
+export type SplitsMarket = "moneyline" | "spread" | "total";
+
+/**
+ * One side of a DraftKings game line. `handle_pct` / `bets_pct` are the
+ * share of DraftKings Sportsbook's own customers' money and bet count on
+ * this side (DraftKings customers only, not the whole market).
+ */
+export interface SplitSelection {
+  selection: string;
+  side: "home" | "away" | "draw" | "over" | "under" | null;
+  point: number | null;
+  /** American odds. */
+  price: number | null;
+  handle_pct: number | null;
+  bets_pct: number | null;
+  last_change_at: string | null;
+}
+
+export interface SplitsGame {
+  /** PropLine event id, or null when unmatched. */
+  event_id: number | null;
+  dk_event_id: string;
+  home_team: string;
+  away_team: string;
+  commence_time: string | null;
+  markets: Partial<Record<SplitsMarket, SplitSelection[]>>;
+}
+
+export interface SplitsResponse {
+  sport: string;
+  source: "draftkings";
+  note: string;
+  source_updated_at: string | null;
+  fetched_at: string | null;
+  count: number;
+  games: SplitsGame[];
+}
+
+export interface SplitsOptions {
+  /** PropLine event id. */
+  eventId?: number;
+  market?: SplitsMarket;
+}
+
+export interface SplitChange {
+  event_id: number | null;
+  dk_event_id: string;
+  market: SplitsMarket;
+  selection: string;
+  side: "home" | "away" | "draw" | "over" | "under" | null;
+  point: number | null;
+  price: number | null;
+  handle_pct: number | null;
+  bets_pct: number | null;
+  changed_at: string;
+  source_updated_at: string | null;
+}
+
+export interface SplitHistory {
+  sport: string;
+  source: "draftkings";
+  note: string;
+  count: number;
+  truncated: boolean;
+  /** Oldest first. */
+  changes: SplitChange[];
+}
+
+/** One of `eventId` or `dkEventId` is required. */
+export interface SplitHistoryOptions {
+  eventId?: number;
+  dkEventId?: string | number;
 }
 
 /** `active` is NHL only: dressed for the game, not the starting goalie. */

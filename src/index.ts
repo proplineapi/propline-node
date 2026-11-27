@@ -132,6 +132,14 @@ export type {
   InjuryStatusChange,
   InjuryHistory,
   InjuryHistoryOptions,
+  SplitsMarket,
+  SplitSelection,
+  SplitsGame,
+  SplitsResponse,
+  SplitsOptions,
+  SplitChange,
+  SplitHistory,
+  SplitHistoryOptions,
   LineupRole,
   LineupStatus,
   LineupPlayer,
@@ -221,4 +229,4 @@ export const Bookmakers = {
 
 export type BookmakerKey = (typeof Bookmakers)[keyof typeof Bookmakers];
 
-export const VERSION = "0.81.0";
+export const VERSION = "0.82.0";

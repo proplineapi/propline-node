@@ -503,6 +503,27 @@ const h = await client.getInjuryHistory("basketball_nba", { days: 7 });
 for (const c of h.changes) console.log(c.changed_at, c.player_name, c.old_status, "->", c.new_status);
 ```
 
+NBA rows also carry the NBA's own official injury report: `official_status`
+(Out, Doubtful, Questionable, Probable, Available), `official_reason`,
+`official_report_at` and `official_game_at`. `fantasy_status` is ESPN's
+OUT/GTD/OFS. History rows carry `change_type` ("espn" or "official").
+
+### DraftKings betting splits (free)
+
+Share of DraftKings Sportsbook's own customers' money (`handle_pct`) and bet
+count (`bets_pct`) on each side of the main game lines. DraftKings customers
+only, not the whole market.
+
+```ts
+const r = await client.getSplits("football_nfl", { market: "spread" });
+for (const g of r.games)
+  for (const s of g.markets.spread ?? [])
+    console.log(g.away_team, "@", g.home_team, s.selection, s.handle_pct, s.bets_pct);
+
+const h = await client.getSplitHistory("football_nfl", { eventId: 12345 });
+for (const c of h.changes) console.log(c.changed_at, c.market, c.selection, c.handle_pct, c.bets_pct);
+```
+
 ### Referee card stats (free)
 
 Card counts per referee, and each referee's matches with per-team cards.
