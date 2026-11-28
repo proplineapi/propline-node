@@ -174,6 +174,16 @@ export interface Outcome {
    */
   depth?: DepthLevel[];
   /**
+   * Exchange LAY side (Betfair Exchange, Matchbook, Smarkets, SX Bet,
+   * BetDEX): best price to bet AGAINST this outcome, American odds. Only
+   * present with `includeDepth: true` and when the book has a lay offer.
+   */
+  lay_price?: number;
+  /** Dollars you can lay at `lay_price` (liability = stake x (decimal - 1)). */
+  lay_liquidity?: number | null;
+  /** Lay levels beyond `lay_price`, best-first (up to 3). */
+  lay_depth?: DepthLevel[];
+  /**
    * PrizePicks' own direction flag for this pick (`"over"`,
    * `"under_or_over"`). Only present when the request passed
    * `includeRestricted: true`, and only on books that publish it.

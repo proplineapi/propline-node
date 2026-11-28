@@ -234,7 +234,8 @@ export interface GetOddsOptions {
    * BEYOND the served price, each `{ price, size }` (American odds, dollars).
    * `[]` when the book has nothing further or PropLine does not read depth
    * for that book (sportsbooks). Omitted from the response unless requested.
-   * PropLine-specific (`includeDepth=true`).
+   * On the back/lay exchanges it also adds `lay_price`, `lay_liquidity`,
+   * `lay_depth`. PropLine-specific (`includeDepth=true`).
    */
   includeDepth?: boolean;
   /**
